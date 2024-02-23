@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Include Bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <!-- Optional theme -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <div id="app">
+      <div class="container-fluid">
+        <div id="contents-main">
+          <h3 class="display-3">
+            This is an example Vue.js application developed with Spring Boot
+          </h3>
+          <p class="lead">
+            This is just an SPA with a table to Create, Read, Update and Delete
+          </p>
+          <form v-on:submit.prevent="submitForm">
+            <p>Add TestObj</p>
+            <p>TestObj name: <input type="text" required v-model="form.name"></p>
+            <p>TestObj role: <input type="text" required v-model="form.role"></p>
+            <button type="submit">Add TestObj</button>
+          </form>
+          <br/>
+          <table class="table">
+            <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Name</th>
+              <th scope="col">Role</th>
+              <th scope="col">Action</th>
+            </tr>
+            </thead>
+            <tbody>
+              <tr v-for="item in listOfTestObjs" :key="listOfTestObjs.id">
+                <th scope="row">{{ item.id }}</th>
+                <td>{{ item.name }}</td>
+                <td>{{ item.role }}</td>
+                <td><button @click="deleteRow(item.id)" type="button" class="btn btn-danger">Delete</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- include axios.js -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <!-- include Vue.js -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script>
+      const app = Vue.createApp({
+        data() {
+          return {
+            form: {
+              name: null,
+              role: null,
+            },
+            listOfTestObjs: null
+          }
+        },
+        mounted () {
+          axios
+          .get('api/test')
+          .then(response => (this.listOfTestObjs = response.data))
+          .finally(() => {
+            console.log(this.listOfTestObjs)
+            //Perform action in always
+          })
+        },
+        methods:{
+          submitForm(){
+            axios.post('/api/test', this.form).then((res) => {
+              //Perform Success Action
+              this.form.name = "";
+              this.form.role = "";
+              alert("Added successfully");
+              axios
+              .get('api/test')
+              .then(response => (this.listOfTestObjs = response.data))
+            })
+            .catch((error) => {
+              console.log(error)
+              alert("Fail to add");
+            }).finally(() => {
+              //Perform action in always
+            });
+          },
+          deleteRow(id){
+            axios.delete('/api/test/'+id)
+              .then((res) => {
+                alert("Deleted successfully");
+                axios
+                .get('api/test')
+                .then(response => (this.listOfTestObjs = response.data))
+              })
+              .catch((error) => {
+                console.log(error)
+                alert("Fail to delete");
+              }).finally(() => {
+              //Perform action in always
+              }
+            );
+          }
+        }
+      })
+      app.mount('#app')
+    </script>
+  </body>
+</html>
