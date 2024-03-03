@@ -1,90 +1,88 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-  <head>
+<head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}" />
+
     <!-- Include Bootstrap -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <!-- Optional theme -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
-  </head>
-  <body>
-    <nav class="navbar navbar-expand-lg bg-body-tertiary">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="#">Navbar</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNavDropdown">
-          <ul class="navbar-nav">
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="#">Home</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">Features</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">Pricing</a>
-            </li>
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Dropdown link
-              </a>
-              <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="#">Action</a></li>
-                <li><a class="dropdown-item" href="#">Another action</a></li>
-                <li><a class="dropdown-item" href="#">Something else here</a></li>
-              </ul>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
-    <div id="app">
-      <div class="container-fluid">
-        <div id="contents-main">
 
-          <form method="post" role="form" th:action="@{/api/login}"
-                class="form-horizontal">
-            <div class="form-group mb-3">
-              <label class="control-label"> Username</label>
-              <input type="text"
-                id="username" name="username" class="form-control"
-                placeholder="Enter username" />
-            </div>
-            <div class="form-group mb-3">
-              <label class="control-label"> Password</label> <input
-                    type="password" id="password" name="password"
-                    class="form-control" placeholder="Enter password" />
-            </div>
-            <div class="form-group mb-3">
-              <button type="submit" class="btn btn-primary">Submit</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-
-    <!-- include axios.js -->
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <!-- include Vue.js -->
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <script>
-      const app = Vue.createApp({
-        data() {
-          return {
-
-          }
-        },
-        mounted () {},
-        methods:{
-
+    <style>
+        .onboard {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            /* width: 40%;
+            max-width: 100%; */
         }
-      })
-      app.mount('#app')
-    </script>
-  </body>
+        
+        .submitbtn {
+            padding: 8px 18px;
+            font-size: 18px;
+            border-radius: 5px;
+            width: 100%;
+        }
+
+        .submitbtn:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+    </style>
+
+</head>
+<body>
+<div id="app">
+    <div class="full-screen-container">
+        <div class="onboard col-12 col-md-6 col-lg-4 mx-auto">
+          <h2 class="text-center mb-3"> Login </h2>
+            <form method="post" role="form" th:action="@{/api/login}">
+                <div class="form-group mb-4">
+                    <label>Username</label>
+                    <input type="text" v-model="formData.username" class="form-control border-0 shadow-sm px-4 field mb-3" id="username" name="username" placeholder="Enter Username" required />
+                </div>
+                <div class="form-group mb-5">
+                    <label>Password</label>
+                    <input type="password" v-model="formData.password" class="form-control border-0 shadow-sm px-4 field mb-3" id="password" name="password" placeholder="Enter Password" required />
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary submitbtn">Login</button>
+                </div>
+                <div class="text-center ">
+                  <a th:href="@{/register}" class="fs-6">Don't have an account?</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+ <!-- include axios.js -->
+ <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+ <!-- include Vue.js -->
+ <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+ 
+<script>
+    const app = Vue.createApp({
+        data() {
+            return {
+                formData: {
+                    username: '',
+                    password: ''
+                }
+            }
+        },
+        methods: {
+            submitForm() {
+                // Here you can handle form submission, e.g., send data to server or perform validation
+                console.log('Form submitted:', this.formData);
+            }
+        }
+    })
+    app.mount('#app')
+</script>
+</body>
 </html>
