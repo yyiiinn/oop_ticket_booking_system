@@ -46,7 +46,24 @@
     <div id="app">
       <div class="container-fluid">
         <div id="contents-main">
-          <h2 th:text="${eventName}"></h2>
+
+          <form method="post" role="form" th:action="@{/api/login}"
+                class="form-horizontal">
+            <div class="form-group mb-3">
+              <label class="control-label"> Username</label>
+              <input type="text"
+                id="username" name="username" class="form-control"
+                placeholder="Enter username" />
+            </div>
+            <div class="form-group mb-3">
+              <label class="control-label"> Password</label> <input
+                    type="password" id="password" name="password"
+                    class="form-control" placeholder="Enter password" />
+            </div>
+            <div class="form-group mb-3">
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
@@ -55,6 +72,19 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <!-- include Vue.js -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script>
+      const app = Vue.createApp({
+        data() {
+          return {
 
+          }
+        },
+        mounted () {},
+        methods:{
+
+        }
+      })
+      app.mount('#app')
+    </script>
   </body>
 </html>
