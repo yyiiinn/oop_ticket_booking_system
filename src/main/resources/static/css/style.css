@@ -4,9 +4,7 @@
     background-color: #f7f7f7;
     min-width: 100vw;
     min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    
 }
 
 label {
@@ -21,3 +19,125 @@ label {
     font-size: 18px;
     padding: 0 15px;
 }
+
+.textarea {
+    border-radius: 10px;
+    font-size: 18px;
+}
+
+.submitbtn, .cancelbtn {
+    padding: 10px 18px;
+    border-radius: 10px;
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+
+/* File upload */
+.custom-file-container {
+    /* Adjust this to align with other form elements */
+    margin-bottom: 1rem;
+}
+
+.custom-file-input {
+    /* Adjust the width as needed */
+    width: 100%; 
+    /* Removes the default file input styling */
+    height: calc(1.5em + .75rem + 2px);
+    padding: .375rem .75rem;
+}
+
+.custom-file-label {
+    /* Match the style with other input labels if necessary */
+    margin-bottom: .5rem;
+    display: block;
+}
+
+
+.navbar {
+    font-size: 18px;
+    color: #151c55;
+  }
+  
+  .navbar ul {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    list-style: none;
+    align-items: end;
+  }
+  
+  .navbar li {
+    position: relative;
+  }
+  
+  .navbar li + li {
+    margin-left: 15px;
+  }
+  
+  .navbar a,
+  .navbar a:focus {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0;
+    font-weight: 400;
+    color: #151c55;
+    white-space: nowrap;
+    transition: 0.3s;
+  }
+  
+  .navbar a i,
+  .navbar a:focus i {
+    line-height: 0;
+    margin-left: 5px;
+  }
+  
+  .navbar a:hover,
+  .navbar a:active {
+    font-weight: bold;
+    text-decoration: underline;
+  }
+  
+  .navbar a.active {
+    font-weight: bold;
+    position: relative;
+    text-decoration: underline;
+  }
+  
+  .no-underline,
+  .no-underline.hover {
+    text-decoration: none !important;
+  }
+  
+  .system-name {
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    margin-left: 5px;
+    font-weight: bold;
+  }
+  
+  .vertical-line {
+    border-left: 1px solid #151c55;
+    height: 50px;
+    margin-right: 10px;
+  }
+  
+  .custom-toggler.navbar-toggler {
+    border: 4px solid #151c55;
+  }
+  
+  .custom-toggler .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(21,28,85,100)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 8h24M4 16h24M4 24h24'/%3E%3C/svg%3E");
+  }
+  
+  .navbar-toggler:focus,
+  .navbar-toggler:active,
+  .navbar-toggler-icon:focus {
+    outline: none;
+    box-shadow: none;
+  } 
+  
+  .navcontent {
+    display: flex;
+    justify-content: space-between;
+  }
