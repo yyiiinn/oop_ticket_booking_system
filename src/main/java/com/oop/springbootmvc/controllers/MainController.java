@@ -60,4 +60,49 @@ public class MainController {
         CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
         return "profile";
     }
+
+    @RequestMapping(value = "/ticOffVerifyTickets", method = RequestMethod.GET)
+    public String ticOffVerifyTickets(Principal principal) {
+        // this attribute will be available in the view index.html as a thymeleaf variable
+
+        // Authentication authentication = (Authentication) principal;
+        // CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
+        return "ticOffVerifyTickets";
+    }
+
+    @RequestMapping(value = "/ticOffPurchaseTickets", method = RequestMethod.GET)
+    public String ticOffPurchaseTickets(Principal principal) {
+        // this attribute will be available in the view index.html as a thymeleaf variable
+        
+        // Authentication authentication = (Authentication) principal;
+        // CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
+        return "ticOffPurchaseTickets";
+    }
+
+    @RequestMapping(value = "/eventManCreateEvent", method = RequestMethod.GET)
+    public String eventManCreateEvent(Principal principal) {
+        // this attribute will be available in the view index.html as a thymeleaf variable
+        
+        // Authentication authentication = (Authentication) principal;
+        // CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
+        return "eventManCreateEvent";
+    }
+
+    @RequestMapping(value = "/eventManEditEvent", method = RequestMethod.GET)
+    public String eventManEditEvent(Principal principal) {
+        // this attribute will be available in the view index.html as a thymeleaf variable
+        
+        // Authentication authentication = (Authentication) principal;
+        // CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
+        return "eventManEditEvent";
+    }
+
+    @RequestMapping(value = "/eventManViewTicOfficer", method = RequestMethod.GET)
+    public String eventManViewTicOfficer(Principal principal) {
+        // this attribute will be available in the view index.html as a thymeleaf variable
+        
+        // Authentication authentication = (Authentication) principal;
+        // CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
+        return "eventManViewTicOfficer";
+    }
 }
