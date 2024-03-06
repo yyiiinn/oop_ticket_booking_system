@@ -2,16 +2,30 @@ package com.oop.springbootmvc.controllers;
 
 import com.oop.springbootmvc.model.CustomUserDetails;
 import com.oop.springbootmvc.model.User;
+import com.oop.springbootmvc.repository.EventRepository;
+import com.oop.springbootmvc.service.EventService;
+import com.oop.springbootmvc.model.Event;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.security.Principal;
+import java.util.List;
 
 @Controller
 public class MainController {
+
+    private final EventRepository eventRepository;
+
+    @Autowired
+    public MainController(EventRepository eventRepository) {
+        this.eventRepository = eventRepository;
+    }
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String index(Model model, Principal principal) {
@@ -105,4 +119,12 @@ public class MainController {
         // CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
         return "eventManViewTicOfficer";
     }
+
+    @GetMapping("/viewEvents")
+    public String viewEvents(Model model) {
+        List<Event> activeEvents = eventRepository.findActiveEvents();
+        model.addAttribute("activeEvents", activeEvents);
+        return "viewEvents";
+    }
+    
 }
