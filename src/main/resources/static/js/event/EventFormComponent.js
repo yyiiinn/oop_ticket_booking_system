@@ -53,7 +53,7 @@ export default {
         populateFormData() {
             this.formData.eventName = this.eventData.eventName;
             this.formData.eventDescription = this.eventData.eventDescription;
-            this.formData.eventImageFile = this.eventData.eventImageFile; // Assuming eventImageFile is directly assigned
+            this.formData.eventImageFile = this.eventData.eventImageFile; 
             this.formData.eventCategory = this.eventData.eventCategory;
             this.formData.eventVenue = this.eventData.eventVenue;
             this.formData.eventDate = this.eventData.eventDate;
@@ -335,7 +335,7 @@ export default {
 
                 <div class="form-group mb-4">
                     <label>Seat Type</label>
-                    <input v-model="option.type" type="text" placeholder="VIP, General, etc." class="form-control border-0 shadow-sm px-4 field" />
+                    <input v-model="option.type" type="text" placeholder="VIP, Cat 1, Cat 2, etc." class="form-control border-0 shadow-sm px-4 field" />
                     <span class="text-danger">{{ formErrors.seatingOptionsErrors[index]?.type }}</span>
                 </div>
                 

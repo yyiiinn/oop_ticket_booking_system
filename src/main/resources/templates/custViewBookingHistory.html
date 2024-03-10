@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Customer | View Profile</title>
+
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}" />
+
+    <!-- Include Bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+    <style>
+
+      /* Modal */
+      .modal {
+            display: flex; 
+            position: fixed;
+            z-index: 1000; 
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%; 
+            background-color: rgba(0,0,0,0.5); 
+
+            justify-content: center; 
+            align-items: center; 
+        }
+
+        .modal-dialog {
+            width: 100%;
+            max-width: 700px;
+            
+        }
+
+        .modal-content {
+            padding: 20px;
+        }
+
+        [v-cloak] {
+          display: none;
+        }
+      
+      .sign-out-button {
+            color: #141B4D; /* Text color */
+            border: 3px solid #141B4D; /* Add border here */
+            padding:5px 20px;
+            margin-left: 20px; /* Spacing from the navbar links */
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, border-color 0.3s;
+            }
+        
+        .sign-out-button:hover {
+            color: #141B4D; 
+            border: 3px solid #141B4D;
+        }
+        
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div class="full-screen-container">
+        <navbar-component active-link="viewBookingHistory"></navbar-component>
+
+        <div class="container pt-5">
+            <h2 class="text-center mb-4">Booking History</h2>
+
+            <div class="table-responsive">
+                <table class="table">
+                  <thead>
+                    <tr class="text-nowrap">
+                      <th scope="col">
+                        <a href="#" class="text-decoration-none text-dark">Transaction ID</a>
+                      </th>
+                      <th scope="col">
+                        <a href="#" class="text-decoration-none text-dark">Event Name</a>
+                      </th>
+                      <th scope="col">
+                        <a href="#" class="text-decoration-none text-dark">Transaction Time</a>
+                      </th>
+                      <th scope="col">
+                        <a href="#" class="text-decoration-none text-dark">No. Tickets</a>
+                      </th>
+                      <th scope="col">Total Amount</th>
+                      <th scope="col">Status</th>
+                      <th scope="col" colspan="2">Action(s)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="(transaction, key) in transactions" :key="key">
+                      <td class="id">
+                          {{ transaction.id }}
+                      </td>
+                      <td class="name">
+                        {{ transaction.event.name }}
+                      </td>
+                      <td class="time">
+                        {{ transaction.transaction_time }}
+                      </td>
+                      <td class="pl-0 border-top">
+                        {{ transaction.no_tickets }}
+                      </td>
+                      <td>${{ transaction.total_amount }} SGD</td>
+                      <td>{{ transaction.status }}</td>
+                      <td>
+                        <!-- need to update to pass the data over -->
+                        <a th:href="@{/custViewBookingDetails}" class="btn btn-primary">View Ticket(s)</a>
+                      </td>
+                      <td>
+                        <button class="btn btn-danger" @click="toggleModal(transaction)">Cancel Booking</button>
+                      </td>
+                    </tr>               
+                  </tbody>
+                </table>
+              </div>
+        </div>
+
+        <!-- Cancel Booking Modal -->
+        <div class="modal" tabindex="-1" role="dialog" v-if="showCancelBookingModal" v-cloak>
+          <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                  <div class="modal-header">
+                      <h5 class="modal-title">Cancel Booking for {{ selectedTransaction.event ? selectedTransaction.event.name : '' }}</h5>
+                      <button type="button" class="btn-close" @click="showCancelBookingModal = false"></button>
+                  </div>
+                  <div class="modal-body">
+                      <p>By cancelling your booking, <strong> ${{selectedTransaction.total_amount}} SGD</strong> will be refunded back to your account.</p>
+
+                      <p>There will be a <strong>${{ selectedTransaction.event ? selectedTransaction.event.seating[0].cancellationFee * selectedTransaction.no_tickets : '' }} SGD <span class="text-danger font-weight-bold">Cancellation fee</span></strong>. Click <strong><span class="text-success">Confirm</span></strong> to continue.</p>
+                  </div>
+                  <div class="modal-footer">
+                      <span class="text-success" v-if="cancellationConfirmed">A cancellation mail has been sent to your email. Your request is being processed</span>
+                      
+                      <button type="button" class="btn btn-secondary" @click="showCancelBookingModal = false">Cancel</button>
+                      <button type="button" class="btn btn-success" @click="confirmCancellation(transaction)" v-if="!cancellationConfirmed">Confirm</button>
+                  </div>
+              </div>
+          </div>
+        </div>
+      
+
+      </div>
+    </div>
+
+    <!-- include axios.js -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <!-- include Vue.js -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <script type="module">
+      import NavBarComponent from './js/navbar/CustomerNavBarComponent.js';
+
+      const app = Vue.createApp({
+        data() {
+          return {
+            transactions: [
+                {
+                    id: 1,
+                    event: {
+                        id: 1,
+                        name: "Concert A",
+                        desc: "This is a detailed description of Concert A.",
+                        category: "Concert",
+                        date: "2024-07-20",
+                        startTime: "18:00",
+                        endTime: "20:00",
+                        venue: "The Esplanade",
+                        status: "active",
+                        sales_startdate: "2024-03-01",
+                        sales_starttime: "10:00",
+                        sales_enddate: "2024-05-20",
+                        sales_endtime: "23:59",
+                        seating: [
+                            {
+                                type: "Cat 1",
+                                pricePerTicket: 150,
+                                seatingNo: [1, 2, 3, 4],
+                                cancellationFee: 10
+                            }
+
+                        ],
+                    },
+                    transaction_time: "2024-04-20",
+                    no_tickets: "4",
+                    total_amount: 600,
+                    status: "Pending/Completed"
+                },
+                {
+                    id: 2,
+                    event: {
+                        id: 2,
+                        name: "Concert B",
+                        desc: "This is a detailed description of Concert B.",
+                        category: "Concert",
+                        date: "2024-07-20",
+                        startTime: "15:00",
+                        endTime: "20:00",
+                        venue: "The Esplanade",
+                        status: "active",
+                        sales_startdate: "2024-05-10",
+                        sales_starttime: "10:00",
+                        sales_enddate: "2024-06-20",
+                        sales_endtime: "23:59",
+                        seating: [
+                            {
+                                type: "Cat 1",
+                                pricePerTicket: 150,
+                                seatingNo: [1, 2, 3, 4],
+                                cancellationFee: 10
+                            }
+
+                        ],
+                    },
+                    transaction_time: "2024-05-20",
+                    no_tickets: "4",
+                    total_amount: 600,
+                    status: "Pending/Completed"
+                },
+            ],
+            selectedTransaction: {},
+            showCancelBookingModal: false,
+            cancellationConfirmed: false,
+          }
+        },
+        methods: {
+          toggleModal(transaction) {
+            this.selectedTransaction = transaction;
+            this.showCancelBookingModal = !this.showCancelBookingModal;
+          },
+          // to be updated
+          confirmCancellation(transaction) {
+
+            this.cancellationConfirmed = true; 
+          }
+        },
+      })
+
+      app.component('navbar-component', NavBarComponent);
+      app.mount('#app');
+    </script>
+
+  </body>
+</html>
+
