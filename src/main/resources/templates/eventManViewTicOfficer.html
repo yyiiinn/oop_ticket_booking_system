@@ -31,15 +31,13 @@
 
         .modal-dialog {
             width: 100%;
-            max-width: 600px;
+            max-width: 700px;
             
         }
 
         .modal-content {
             padding: 20px;
         }
-
-        [v-cloak] { display: none; }
 
         .sign-out-button {
             color: #141B4D; /* Text color */
@@ -56,19 +54,16 @@
             border: 3px solid #141B4D;
         }
         
-        @media (max-width: 768px) { /* Adjust this value based on your desired breakpoint */
-            .navbar-collapse .navbar-nav .nav-item + .nav-item {
-            margin-top: 7px; /* Adjust the value as needed for more space */
-            }
-        }
     </style>
 </head>
 <body>
 
-<div id="app">
+<div id="app" v-cloak>
     <div class="full-screen-container">
         
         <navbar-component active-link="viewTicOfficer"></navbar-component>
+
+        <h2 class="text-center mb-4">Ticketing Officer</h2>
 
         <div class="container pt-5">
             <div class="d-flex justify-content-end">
@@ -129,7 +124,7 @@
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
 <script type="module">
-    import NavBarComponent from './js/EventManNavBarComponent.js';
+    import NavBarComponent from './js/navbar/EventManNavBarComponent.js';
     
     const app = Vue.createApp({
         data() {

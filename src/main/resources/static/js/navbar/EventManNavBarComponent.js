@@ -19,7 +19,7 @@ export default {
                 <div class="collapse navbar-collapse navcontent" id="navbarNav">
                     <ul class="navbar-nav ms-auto navbar-menu">
                         <li class="nav-item">
-                            <a class="nav-link" :class="{ 'active': activeLink === 'viewEvents' }" href="/">View Events</a>
+                            <a class="nav-link" :class="{ 'active': activeLink === 'viewEvents' }" href="/eventManViewEvents">View Events</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" :class="{ 'active': activeLink === 'createEvent' }" href="/eventManCreateEvent">Create Event</a>
@@ -28,7 +28,7 @@ export default {
                             <a class="nav-link" :class="{ 'active': activeLink === 'viewTicOfficer' }" href="/eventManViewTicOfficer">View Ticketing Officer</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" :class="{ 'active': activeLink === 'dashboard' }" href="/">Dashboard</a>
+                            <a class="nav-link" :class="{ 'active': activeLink === 'dashboard' }" href="/eventManViewDashboard">Dashboard</a>
                         </li>
                         <li class="nav-item">
                             <button class="btn sign-out-button" @click="signOut">Sign Out</button>
