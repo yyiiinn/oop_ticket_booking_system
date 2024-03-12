@@ -15,6 +15,13 @@ export default {
     methods: {
         closeModal() {
             this.$emit('close'); 
+        },
+        formatDateTime(datetimeStr) {
+            return datetimeStr.replace('T', ' | ').slice(0, 18);
+        },
+        formatTime(timeStr) {
+            const [hour, minute] = timeStr.split(':');
+            return `${hour}:${minute}`;
         }
     },
     template: `
@@ -36,18 +43,18 @@ export default {
                 </div>
                 <div class="pt-4 row">
                     <div class="col-6"> 
-                    <strong>Date:</strong> <br> {{ eventData.date }}
+                    <strong>Date:</strong> <br> {{ eventData.eventStartDate }}
                     </div>
                     <div class="col-6">
-                    <strong>Time:</strong> <br> {{ eventData.startTime }} to {{ eventData.endTime }}
+                    <strong>Time:</strong> <br> {{ formatTime(eventData.eventStartTime) }} to {{ formatTime(eventData.eventEndTime) }}
                     </div>
                 </div>
                 <div class="pt-4 row">
                     <div class="col-6"> 
-                        <strong>Sales Start Date & Time:</strong> <br> {{ eventData.sales_startdate }} | {{ eventData.sales_starttime }}
+                        <strong>Sales Start Date & Time:</strong> <br> {{ formatDateTime(eventData.ticketSaleStartDateTime) }}
                     </div>
                     <div class="col-6">
-                        <strong>Sales End Date & Time:</strong> <br>  {{ eventData.sales_enddate }} | {{ eventData.sales_endtime }}
+                        <strong>Sales End Date & Time:</strong> <br>  {{ formatDateTime(eventData.ticketSaleEndDateTime)}}
                     </div>
                 </div>
                 <div class="pt-4" v-if="eventData.seatingOptions && eventData.seatingOptions.length > 0">

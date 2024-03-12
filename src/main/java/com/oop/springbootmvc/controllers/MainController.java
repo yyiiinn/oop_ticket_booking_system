@@ -7,7 +7,9 @@ import com.oop.springbootmvc.service.EventService;
 import com.oop.springbootmvc.model.Event;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
+
 
 @Controller
 public class MainController {
@@ -147,6 +150,13 @@ public class MainController {
         return "eventManViewEvents";
     }
 
+    @GetMapping("/api/activeEvents")
+    public ResponseEntity<List<Event>> getActiveEvents() {
+        List<Event> activeEvents = eventRepository.findActiveEvents();
+        return ResponseEntity.ok(activeEvents);
+    }
+
+    
     @RequestMapping(value = "/eventManCreateEvent", method = RequestMethod.GET)
     public String eventManCreateEvent(Principal principal) {
         // this attribute will be available in the view index.html as a thymeleaf variable
@@ -188,12 +198,13 @@ public class MainController {
         return "eventManViewTicOfficer";
     }
 
-    @GetMapping("/viewEvents")
-    public String viewEvents(Model model) {
-        List<Event> activeEvents = eventRepository.findActiveEvents();
-        model.addAttribute("activeEvents", activeEvents);
-        return "viewEvents";
-    }
+    // @GetMapping("/viewEvents")
+    // public String viewEvents(Model model) {
+    //     List<Event> activeEvents = eventRepository.findActiveEvents();
+    //     model.addAttribute("activeEvents", activeEvents);
+    //     return "viewEvents";
+    // }
+
     @RequestMapping(value = "/eventManViewDashboard", method = RequestMethod.GET)
     public String eventManViewDashboard(Principal principal) {
         // this attribute will be available in the view index.html as a thymeleaf variable

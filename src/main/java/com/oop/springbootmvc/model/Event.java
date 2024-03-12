@@ -148,5 +148,23 @@ public class Event {
     public void setStatus(String status) {
         this.status = status;
     }
+
+    @Override
+    public String toString() {
+        return "Event{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", venue='" + venue + '\'' +
+                ", image_url='" + image_url + '\'' +
+                ", event_start_date=" + event_start_date +
+                ", event_end_date=" + event_end_date +
+                ", event_start_time=" + event_start_time +
+                ", event_end_time=" + event_end_time +
+                ", ticket_sale_start_date_time=" + ticket_sale_start_date_time +
+                ", ticket_sale_end_date_time=" + ticket_sale_end_date_time +
+                ", status='" + status + '\'' +
+                '}';
+    }
    
 }
