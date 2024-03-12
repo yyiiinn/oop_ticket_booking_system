@@ -366,7 +366,7 @@ export default {
         <!--Event Category-->
         <div class="form-group mb-4">
             <label for="eventCategory" class="mb-2">Event Category</label>
-            <select v-model="formData.eventCategory" id="eventCategory" class="form-control border-0 shadow-sm px-4 field">
+            <select v-model="formData.eventCategory" id="eventCategory" class="form-select border-0 shadow-sm px-4 field">
                 <option disabled value="">Category</option>
                 <option value="Concert">Concert</option>
                 <option value="Theatre Shows">Theatre Shows</option>
