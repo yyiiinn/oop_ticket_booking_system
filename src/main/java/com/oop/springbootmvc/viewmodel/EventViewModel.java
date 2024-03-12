@@ -3,129 +3,178 @@ package com.oop.springbootmvc.viewmodel;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class EventViewModel {
-    private Long id;
-    private String name;
-    private String description;
-    private String venue;
-    private String image_url;
-    private Date event_start_date;
-    private Date event_end_date;
-    private Time event_start_time;
-    private Time event_end_time;
-    private Timestamp ticket_sale_start_date_time;
-    private Timestamp ticket_sale_end_date_time;
-    private String status;
+    private long id;
+    private String eventName;
+    private String eventDescription;
+    private String eventCategory;
+    private String eventVenue;
+    private String eventImageFile;
+    private Date eventDate;
+    private Time eventStartTime;
+    private Time eventEndTime;
+    // private Date salesStartDate;
+    // private Date salesEndDate;
+    private Timestamp salesStartTime;
+    private Timestamp salesEndTime;
 
-    public EventViewModel(String name, String description, String venue, String image_url, Date event_start_date, Date event_end_date, Time event_start_time, Time event_end_time, Timestamp ticket_sale_start_date_time, Timestamp ticket_sale_end_date_time, String status) {
-        this.name = name;
-        this.description = description;
-        this.venue = venue;
-        this.image_url = image_url;
-        this.event_start_date = event_start_date;
-        this.event_end_date = event_end_date;
-        this.event_start_time = event_start_time;
-        this.event_end_time = event_end_time;
-        this.ticket_sale_start_date_time = ticket_sale_start_date_time;
-        this.ticket_sale_end_date_time = ticket_sale_end_date_time;
-        this.status = status;
+    public String getEventName() {
+        return eventName;
     }
 
-    public Long getId() {
-        return this.id;
+    public void setEventName(String eventName) {
+        this.eventName = eventName;
     }
 
-    public String getName() {
-        return this.name;
+    public String geEventImageFile() {
+        return eventImageFile;
     }
 
-    public String getDescription() {
-        return this.description;
+    public void setEventImageFile(String eventImageFile) {
+        this.eventImageFile = eventImageFile;
     }
 
-    public String getVenue() {
-        return this.venue;
+    public String getEventDescription() {
+        return eventDescription;
     }
 
-    public String getImageUrl() {
-        return this.image_url;
+    public void setEventDescription(String eventDescription) {
+        this.eventDescription = eventDescription;
     }
 
-    public Date getEventStartDate() {
-        return this.event_start_date;
+    public String getEventCategory() {
+        return eventCategory;
     }
 
-    public Date getEventEndDate() {
-        return this.event_end_date;
+    public void setEventCategory(String eventCategory) {
+        this.eventCategory = eventCategory;
+    }
+
+    public String getEventVenue() {
+        return eventVenue;
+    }
+
+    public void setEventVenue(String eventVenue) {
+        this.eventVenue = eventVenue;
+    }
+
+    public Date getEventDate() {
+        return eventDate;
+    }
+
+    public void setEventDate(Date eventDate) {
+        this.eventDate = eventDate;
     }
 
     public Time getEventStartTime() {
-        return this.event_start_time;
+        return this.eventStartTime;
+    }
+
+    // public void setEventStartTime(Time eventStartTime) {
+    //     this.eventStartTime = eventEndTime;
+    // }
+
+    @JsonProperty("eventStartTime")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
+    public void setEventStartTime(String timeString) {
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
+            java.util.Date parsedDate = dateFormat.parse(timeString);
+            this.eventStartTime = new Time(parsedDate.getTime());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
     public Time getEventEndTime() {
-        return this.event_end_time;
-    }
-    
-    public Timestamp getTicketSaleStartDateTime(){
-        return this.ticket_sale_start_date_time;
+        return this.eventEndTime;
     }
 
-    public Timestamp getTicketSaleEndDateTime(){
-        return this.ticket_sale_end_date_time;
+    // public void setEventEndTime(Time eventEndTime) {
+    //     this.eventEndTime = eventEndTime;
+    // }
+    @JsonProperty("eventEndTime")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
+    public void setEventEndTime(String timeString) {
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
+            java.util.Date parsedDate = dateFormat.parse(timeString);
+            this.eventEndTime = new Time(parsedDate.getTime());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
-    public String getStatus(){
-        return this.status;
+    // public Date getSalesStartDate() {
+    //     return salesStartDate;
+    // }
+
+    // public void setSalesStartDate(Date salesStartDate) {
+    //     this.salesStartDate = salesStartDate;
+    // }
+
+    // public Date getSalesEndDate() {
+    //     return salesEndDate;
+    // }
+
+    // public void setSalesEndDate(Date salesEndDate) {
+    //     this.salesEndDate = salesEndDate;
+    // }
+
+    public Timestamp getSalesStartTime() {
+        return salesStartTime;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setSalesStartTime(Timestamp salesStartTime) {
+        this.salesStartTime = salesStartTime;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    // @JsonProperty("salesStartTime")
+    // @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
+    // public void setSalesStartTime(String timeString) {
+    //     try {
+    //         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
+    //         java.util.Date parsedDate = dateFormat.parse(timeString);
+    //         this.salesStartTime = new Time(parsedDate.getTime());
+    //     } catch (ParseException e) {
+    //         e.printStackTrace();
+    //     }
+    // }
+
+    public Timestamp getSalesEndTime() {
+        return salesEndTime;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setSalesEndTime(Timestamp salesEndTime) {
+        this.salesEndTime = salesEndTime;
     }
 
-    public void setVenue(String venue) {
-        this.venue = venue;
+    // @JsonProperty("salesEndTime")
+    // @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
+    // public void setSalesEndTime(String timeString) {
+    //     try {
+    //         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
+    //         java.util.Date parsedDate = dateFormat.parse(timeString);
+    //         this.salesEndTime = new Time(parsedDate.getTime());
+    //     } catch (ParseException e) {
+    //         e.printStackTrace();
+    //     }
+    // }
+
+    public Timestamp getTicketSaleStartDateTime() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getTicketSaleStartDateTime'");
     }
 
-    public void setImageUrl(String image_url) {
-        this.image_url = image_url;
+    public String getStatus() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getStatus'");
     }
-
-    public void setEventStartDate(Date event_start_date) {
-        this.event_start_date = event_start_date;
-    }
-
-    public void setEventEndDate(Date event_end_date) {
-        this.event_end_date = event_end_date;
-    }
-
-    public void setEventStartTime(Time event_start_time) {
-        this.event_start_time = event_start_time;
-    }
-
-    public void setEventEndTime(Time event_end_time) {
-        this.event_end_time = event_end_time;
-    }
-
-    public void setTicketSaleStartDateTime(Timestamp ticket_sale_start_date_time) {
-        this.ticket_sale_start_date_time = ticket_sale_start_date_time;
-    }
-
-    public void setTicketSaleEndDateTime(Timestamp ticket_sale_end_date_time) {
-        this.ticket_sale_end_date_time = ticket_sale_end_date_time;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-   
 }

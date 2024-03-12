@@ -11,11 +11,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 public class MainController {
@@ -102,14 +104,26 @@ public class MainController {
         return "eventManCreateEvent";
     }
 
-    @RequestMapping(value = "/eventManEditEvent", method = RequestMethod.GET)
-    public String eventManEditEvent(Principal principal) {
-        // this attribute will be available in the view index.html as a thymeleaf variable
-        
-        // Authentication authentication = (Authentication) principal;
-        // CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
+    // @RequestMapping(value = "/eventManEditEvent", method = RequestMethod.GET)
+    // public String eventManEditEvent(Principal principal) {
+    //     // this attribute will be available in the view index.html as a thymeleaf variable
+    //     return "eventManEditEvent";
+    // }
+
+    @RequestMapping(value = "/eventManEditEvent/{eventId}", method = RequestMethod.GET)
+    public String eventManEditEvent(@PathVariable("eventId") Long eventId, Model model, Principal principal) {
+        // Optional<Event> eventOptional = eventRepository.findById(eventId);
+        // if (eventOptional.isPresent()) {
+        //     Event event = eventOptional.get();
+        //     model.addAttribute("eventData", event);
+        //     return "eventManEditEvent";
+        // } else {
+        //     // Handle case where event with given ID is not found
+        //     return "error";
+        // }
         return "eventManEditEvent";
     }
+
 
     @RequestMapping(value = "/eventManViewTicOfficer", method = RequestMethod.GET)
     public String eventManViewTicOfficer(Principal principal) {

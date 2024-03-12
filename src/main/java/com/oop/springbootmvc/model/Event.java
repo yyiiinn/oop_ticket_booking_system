@@ -35,7 +35,7 @@ public class Event {
     private Timestamp ticket_sale_end_date_time;
     @Column(nullable = false)
     private String status;
-    public Event(String name, String description, String venue, String image_url, Date event_start_date, Date event_end_date, Time event_start_time, Time event_end_time, Timestamp ticket_sale_start_date_time, Timestamp ticket_sale_end_date_time, String status) {
+    public Event(String name, String description, String venue, String image_url, Date event_start_date, Date event_end_date, Time event_start_time, Time event_end_time, Timestamp timestamp, Timestamp timestamp2, String status) {
         this.name = name;
         this.description = description;
         this.venue = venue;
@@ -44,8 +44,8 @@ public class Event {
         this.event_end_date = event_end_date;
         this.event_start_time = event_start_time;
         this.event_end_time = event_end_time;
-        this.ticket_sale_start_date_time = ticket_sale_start_date_time;
-        this.ticket_sale_end_date_time = ticket_sale_end_date_time;
+        this.ticket_sale_start_date_time = timestamp;
+        this.ticket_sale_end_date_time = timestamp2;
         this.status = status;
     }
 
@@ -137,12 +137,12 @@ public class Event {
         this.event_end_time = event_end_time;
     }
 
-    public void setTicketSaleStartDateTime(Timestamp ticket_sale_start_date_time) {
-        this.ticket_sale_start_date_time = ticket_sale_start_date_time;
+    public void setTicketSaleStartTime(Timestamp ticket_sale_start_time) {
+        this.ticket_sale_start_date_time = ticket_sale_start_time;
     }
 
-    public void setTicketSaleEndDateTime(Timestamp ticket_sale_end_date_time) {
-        this.ticket_sale_end_date_time = ticket_sale_end_date_time;
+    public void setTicketSaleEndTime(Timestamp ticket_sale_end_time) {
+        this.ticket_sale_end_date_time = ticket_sale_end_time;
     }
 
     public void setStatus(String status) {

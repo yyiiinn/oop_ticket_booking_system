@@ -40,13 +40,30 @@ export default {
                 salesStartDateTime: '',
                 salesEndDateTime: '',
                 seatingOptionsErrors: [{}]
-            }
+            },
+            eventData: {}
         };
     },
-    mounted() {
-        console.log(this.eventData)
-        if (this.mode === 'edit' && this.eventData) {
-            this.populateFormData();
+    async mounted() {
+        console.log("mounted")
+        if(this.mode === 'edit') {
+            const eventId = BigInt('23');
+            axios.get('/api/getEventDetails/' + eventId, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(async response => {
+                console.log(response.data)
+                await this.convertEventDetailsKey(response.data);
+            })
+            .catch(error => {
+                console.error('Error fetching event data:', error);
+            });
+            console.log(this.eventData)
+            if (this.mode === 'edit' && this.eventData) {
+                this.populateFormData();
+            }
         }
     },
     methods: {
@@ -69,15 +86,77 @@ export default {
                 numberOfSeats: option.numberOfSeats,
                 cancellationFee: option.cancellationFee
             }));
-        },        
+        }, 
+        convertToTimeStamp(dateString, timeString) {
+            const salesEndDate = new Date(dateString);
+            const [hours, minutes] = timeString.split(':');
+            const salesEndTime = new Date();
+            salesEndTime.setHours(parseInt(hours, 10));
+            salesEndTime.setMinutes(parseInt(minutes, 10));
+            salesEndTime.setSeconds(0);
+            salesEndTime.setMilliseconds(0);
+            const combinedDateTime = new Date(salesEndDate);
+            combinedDateTime.setHours(salesEndTime.getHours());
+            combinedDateTime.setMinutes(salesEndTime.getMinutes());
+            combinedDateTime.setSeconds(salesEndTime.getSeconds());
+            const timestamp = combinedDateTime.toISOString();
+            return timestamp;
+        },       
         submitForm() {
+            this.formData.eventStartTime = this.formData.eventStartTime.split(':').slice(0, 2).join(':');
+            this.formData.eventEndTime = this.formData.eventEndTime.split(':').slice(0, 2).join(':');
+            this.formData.salesStartTime = this.convertToTimeStamp(this.formData.salesStartDate, this.formData.salesStartTime);
+            this.formData.salesEndTime = this.convertToTimeStamp(this.formData.salesEndDate, this.formData.salesEndTime);
+            this.formData.eventImageFile = "testimageeee";
+            console.log(this.formData)
             if (this.validateForm()) {
                 if (this.mode === 'create') {
                     // Handle create event API call
                     console.log("Creating event...");
+                    fetch('/api/createEvent', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(this.formData)
+                    })
+                    .then(response => {
+                        console.log(response)
+                        if (response.ok) {
+                            return response.json();
+                        }
+                        throw new Error('Network response was not ok.');
+                    })
+                    .then(data => {
+                        console.log('Response from backend:', data);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
                 } else if (this.mode === 'edit') {
                     // Handle edit event API call
                     console.log("Editing event...");
+                    const eventId = 23;
+                    fetch('/api/editEvent/${eventId}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(this.formData)
+                    })
+                    .then(response => {
+                        console.log(response)
+                        if (response.ok) {
+                            return response.json();
+                        }
+                        throw new Error('Network response was not ok.');
+                    })
+                    .then(data => {
+                        console.log('Response from backend:', data);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
                 }
             } else {
                 console.log("Form validation failed");
@@ -237,6 +316,29 @@ export default {
             ];
         
             return validations.every(valid => valid);
+        },
+        async convertEventDetailsKey(eventControllerData) {
+            console.log("called method")
+            const [ticketSaleEndDate, ticketSaleEndTime] = new Date(eventControllerData.ticketSaleEndDateTime).toISOString().split('T');
+            const [ticketSaleStartDate, ticketSaleStartTime] = new Date(eventControllerData.ticketSaleStartDateTime).toISOString().split('T');
+            console.log(ticketSaleEndTime);
+            console.log(ticketSaleStartTime.slice(0, 8));
+            const updatedEventData = {
+                "eventName": eventControllerData.name,
+                "eventDescription": eventControllerData.description,
+                "eventDate": eventControllerData.eventStartDate,
+                "eventStartTime": eventControllerData.eventStartTime,
+                "eventEndTime": eventControllerData.eventEndTime,
+                "eventCategory": "Category",
+                "eventImageFile": eventControllerData.imageUrl,
+                "eventVenue": eventControllerData.venue,
+                "salesEndDate": ticketSaleEndDate,
+                "salesEndTime": ticketSaleEndTime.slice(0, 8),
+                "salesStartDate": ticketSaleStartDate,
+                "salesStartTime": ticketSaleStartTime.slice(0, 8),
+            };
+            this.formData = updatedEventData;
+            console.log(this.eventData);
         }
     },
     template: `

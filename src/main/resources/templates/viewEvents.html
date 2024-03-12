@@ -17,6 +17,7 @@
             <tr th:each="event : ${activeEvents}">
                 <td th:text="${event.name}">Event Name</td>
                 <td th:text="${event.description}">Description</td>
+                <td th:text="${event.id}">ID</td>
             </tr>
         </tbody>
     </table>
