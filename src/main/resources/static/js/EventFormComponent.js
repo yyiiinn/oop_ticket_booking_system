@@ -105,6 +105,8 @@ export default {
         submitForm() {
             this.formData.eventStartTime = this.formData.eventStartTime.split(':').slice(0, 2).join(':');
             this.formData.eventEndTime = this.formData.eventEndTime.split(':').slice(0, 2).join(':');
+            let salesStartTimeOld = this.formData.salesStartTime;
+            let salesEndTimeOld = this.formData.salesEndTime;
             this.formData.salesStartTime = this.convertToTimeStamp(this.formData.salesStartDate, this.formData.salesStartTime);
             this.formData.salesEndTime = this.convertToTimeStamp(this.formData.salesEndDate, this.formData.salesEndTime);
             this.formData.eventImageFile = "testimageeee";
@@ -136,31 +138,24 @@ export default {
                 } else if (this.mode === 'edit') {
                     // Handle edit event API call
                     console.log("Editing event...");
-                    const eventId = 23;
-                    fetch('/api/editEvent/${eventId}', {
-                        method: 'POST',
+                    const eventId = BigInt('23');
+                    axios.post('/api/submitEditEvent/' + eventId, this.formData, {
                         headers: {
                             'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(this.formData)
+                        }
                     })
                     .then(response => {
-                        console.log(response)
-                        if (response.ok) {
-                            return response.json();
-                        }
-                        throw new Error('Network response was not ok.');
-                    })
-                    .then(data => {
-                        console.log('Response from backend:', data);
+                        console.log(response.data);
                     })
                     .catch(error => {
-                        console.error('Error:', error);
-                    });
+                        console.error('Error submitting edit event:', error);
+                    });                    
                 }
             } else {
                 console.log("Form validation failed");
             }
+            this.formData.salesStartTime = salesStartTimeOld;
+            this.formData.salesEndTime = salesEndTimeOld;
         },
         handleImageUpload(event) {
             const file = event.target.files[0];
@@ -336,9 +331,11 @@ export default {
                 "salesEndTime": ticketSaleEndTime.slice(0, 8),
                 "salesStartDate": ticketSaleStartDate,
                 "salesStartTime": ticketSaleStartTime.slice(0, 8),
+                "seatingOptions": []
             };
+            console.log(ticketSaleStartTime.slice(0, 8))
             this.formData = updatedEventData;
-            console.log(this.eventData);
+            console.log(this.formData);
         }
     },
     template: `

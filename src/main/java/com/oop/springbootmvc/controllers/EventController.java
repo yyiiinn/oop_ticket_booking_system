@@ -21,6 +21,8 @@ import java.security.Principal;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,43 +83,53 @@ public class EventController {
     }
   }
 
-//   @PostMapping("/api/submitEditEvent/{eventId}")  
-//   public ResponseEntity<Object> submitEditEvent(@PathVariable Long eventId, @RequestBody EventViewModel eventViewModel) {  
-//     try {
-//         // Find the existing event by ID
-//         Optional<Event> optionalEvent = eventRepository.findById(eventId);
-//         if (!optionalEvent.isPresent()) {
-//             Map<String, String> responseBody = new HashMap<>();
-//             responseBody.put("message", "Event with ID " + eventId + " not found");
-//             responseBody.put("status", "404");
-//             return ResponseEntity.ok().body(responseBody);
-//         }
+  @PostMapping("/api/submitEditEvent/{eventId}")
+  public ResponseEntity<Object> submitEditEvent(@PathVariable("eventId") Long eventId, @RequestBody EventViewModel eventViewModel) {
+    try {
+        System.out.println("aabbcc");
+        // Find the existing event by ID
+        Optional<Event> optionalEvent = eventRepository.findById((long) 23);
+        
+        if (!optionalEvent.isPresent()) {
+            // Event not found, return 404 status
+            Map<String, String> responseBody = new HashMap<>();
+            responseBody.put("message", "Event with ID " + eventId + " not found");
+            responseBody.put("status", "404");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseBody);
+        }
+        
+        Event existingEvent = optionalEvent.get();
+        
+        // Update event details from the view model
+        existingEvent.setName(eventViewModel.getEventName());
+        existingEvent.setDescription(eventViewModel.getEventDescription());
+        existingEvent.setVenue(eventViewModel.getEventVenue());
+        existingEvent.setImageUrl(eventViewModel.geEventImageFile());
+        existingEvent.setEventStartDate(eventViewModel.getEventDate());
+        existingEvent.setEventEndDate(eventViewModel.getEventDate());
+        existingEvent.setEventStartTime(eventViewModel.getEventStartTime());
+        existingEvent.setEventEndTime(eventViewModel.getEventEndTime());
+        existingEvent.setTicketSaleStartTime(eventViewModel.getSalesStartTime()); // Fixed method name
+        existingEvent.setTicketSaleEndTime(eventViewModel.getSalesEndTime());
+        
+        // Save the updated event
+        Event updatedEvent = eventRepository.save(existingEvent);
+        
+        // Return success response
+        Map<String, String> responseBody = new HashMap<>();
+        responseBody.put("message", "Event updated successfully");
+        responseBody.put("status", "200");
+        return ResponseEntity.ok().body(responseBody);
+    } catch (Exception e) {
+        // Log and return error response
+        e.printStackTrace(); // Log the exception
+        Map<String, String> responseBody = new HashMap<>();
+        responseBody.put("message", "Failed to update event: " + e.getMessage());
+        responseBody.put("status", "500"); // Use appropriate error status
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseBody);
+    }
+  }
 
-//         Event existingEvent = optionalEvent.get();
-//         existingEvent.setName(eventViewModel.getEventName());
-//         existingEvent.setDescription(eventViewModel.getEventDescription());
-//         existingEvent.setVenue(eventViewModel.getEventVenue());
-//         existingEvent.setImageUrl(eventViewModel.geEventImageFile());
-//         existingEvent.setEventStartDate(eventViewModel.getEventDate());
-//         existingEvent.setEventEndDate(eventViewModel.getEventDate());
-//         existingEvent.setEventStartTime(eventViewModel.getEventStartTime());
-//         existingEvent.setEventEndTime(eventViewModel.getEventEndTime());
-//         existingEvent.setTicketSaleEndTime(eventViewModel.getSalesStartTime());
-//         existingEvent.setTicketSaleEndTime(eventViewModel.getSalesEndTime());
-//         existingEvent.setStatus("Active");
-//         Event updatedEvent = eventRepository.save(existingEvent);
-//         Map<String, String> responseBody = new HashMap<>();
-//         responseBody.put("message", "Event updated successfully");
-//         responseBody.put("status", "200");
-//         return ResponseEntity.ok().body(responseBody);
-//     } catch (Exception e) {
-//         e.printStackTrace();
-//         Map<String, String> responseBody = new HashMap<>();
-//         responseBody.put("message", "Failed to update event: " + e.getMessage());
-//         responseBody.put("status", "400");
-//         return ResponseEntity.ok().body(responseBody);
-//     }
-// }
 
 
 //   @RequestMapping(value = "/viewEvents", method = RequestMethod.GET)
