@@ -5,6 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+    <title>Ticketing Officer | Verify Tickets</title>
+
     <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}" />
 
     <!-- Include Bootstrap -->
@@ -19,6 +21,11 @@
             padding: 10px 18px;
             border-radius: 10px;
             transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+        }
+
+        .submitbtn, .submitbtn:hover, .submitbtn:active {
+            background-color: #151c55;
+            border: #151c55;
         }
 
         .sign-out-button {
@@ -36,11 +43,6 @@
             border: 3px solid #141B4D;
         }
         
-        @media (max-width: 768px) { /* Adjust this value based on your desired breakpoint */
-            .navbar-collapse .navbar-nav .nav-item + .nav-item {
-            margin-top: 7px; /* Adjust the value as needed for more space */
-            }
-        }
     </style>
 </head>
 <body>
@@ -55,9 +57,9 @@
 
                 <form method="post" role="form" v-on:submit.prevent="submitForm" class="mt-5">
                     <div class="form-group mt-4 mb-4">
-                        <label for="reference_no" class="mb-2">Ticket GUID/Reference No.</label>
+                        <label for="reference_no" class="mb-2">Ticket GUID</label>
     
-                        <textarea v-model="reference_no" placeholder="Enter Ticket GUID or Reference No. separated by ';' (e.g., 12345; 67890; 13579)" id="reference_no" class="form-control border-0 shadow-sm px-4 textarea mb-3" rows="5" required></textarea>
+                        <textarea v-model="reference_no" placeholder="Enter Ticket GUID separated by ';' (e.g., 12345; 67890; 13579)" id="reference_no" class="form-control border-0 shadow-sm px-4 textarea mb-3" rows="5" required></textarea>
                     </div>
     
                     <button type="submit" class="btn btn-primary btn-block shadow-sm w-100 mt-5 submitbtn" title="Verify Ticket(s)">Verify Ticket(s)</button>
@@ -72,7 +74,7 @@
 <!-- include Vue.js -->
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 <script type="module">
-    import NavBarComponent from './js/TicOffNavBarComponent.js';
+    import NavBarComponent from './js/navbar/TicOffNavBarComponent.js';
 
     const app = Vue.createApp({
         data() {

@@ -1,9 +1,9 @@
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Edit Event</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Manager | Edit Event</title>
 
         <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}" />
 
@@ -17,19 +17,24 @@
             .full-screen-container {
                 min-width: 100%;
             }
-
+    
             .submitbtn, .cancelbtn {
                 padding: 10px 18px;
                 border-radius: 10px;
                 transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
             }
-
+    
+            .submitbtn, .submitbtn:hover, .submitbtn:active {
+                background-color: #151c55;
+                border: #151c55;
+            }
+    
             @media(max-width: 767px) {
                 .starttime-field {
                     margin-top: 25px;
                 }
             }
-
+    
             .sign-out-button {
                 color: #141B4D; /* Text color */
                 border: 3px solid #141B4D; /* Add border here */
@@ -43,12 +48,6 @@
             .sign-out-button:hover {
                 color: #141B4D; 
                 border: 3px solid #141B4D;
-            }
-            
-            @media (max-width: 768px) { /* Adjust this value based on your desired breakpoint */
-                .navbar-collapse .navbar-nav .nav-item + .nav-item {
-                margin-top: 7px; /* Adjust the value as needed for more space */
-                }
             }
 
         </style>
@@ -75,9 +74,9 @@
     <!-- include Vue.js -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
-    <script type="module">
-    import EventFormComponent from '../js/EventFormComponent.js';
-    import NavBarComponent from '../js/EventManNavBarComponent.js';
+<script type="module">
+import EventFormComponent from './js/event/EventFormComponent.js';
+import NavBarComponent from './js/navbar/EventManNavBarComponent.js';
 
     const app = Vue.createApp({
             data() {

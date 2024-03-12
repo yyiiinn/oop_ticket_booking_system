@@ -69,12 +69,51 @@ public class MainController {
     }
 
     //Protected route
-    @RequestMapping(value = "/profile", method = RequestMethod.GET)
-    public String profile(Principal principal) {
+    @RequestMapping(value = "/custViewProfile", method = RequestMethod.GET)
+    public String custViewProfile(Principal principal) {
         // this attribute will be available in the view index.html as a thymeleaf variable
-        Authentication authentication = (Authentication) principal;
-        CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
-        return "profile";
+        // Authentication authentication = (Authentication) principal;
+        // CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
+
+        return "custViewProfile";
+    }
+
+    @RequestMapping(value = "/custViewEvents", method = RequestMethod.GET)
+    public String custViewEvents(Principal principal) {
+        // this attribute will be available in the view index.html as a thymeleaf variable
+        // Authentication authentication = (Authentication) principal;
+        // CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
+
+        return "custViewEvents";
+    }
+
+    @RequestMapping(value = "/custViewBookingHistory", method = RequestMethod.GET)
+    public String custViewBookingHistory(Principal principal) {
+        // this attribute will be available in the view index.html as a thymeleaf variable
+        // Authentication authentication = (Authentication) principal;
+        // CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
+
+        return "custViewBookingHistory";
+    }
+
+    @RequestMapping(value = "/custViewBookingDetails", method = RequestMethod.GET)
+    public String custViewBookingDetails(Principal principal) {
+        // this attribute will be available in the view index.html as a thymeleaf variable
+        // Authentication authentication = (Authentication) principal;
+        // CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
+
+        return "custViewBookingDetails";
+    }
+
+    // ==================================================== Ticketing Officer ====================================================
+    @RequestMapping(value = "/ticOffViewEvents", method = RequestMethod.GET)
+    public String ticOffViewEvents(Principal principal) {
+        // this attribute will be available in the view index.html as a thymeleaf variable
+        
+        // Authentication authentication = (Authentication) principal;
+        // CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
+
+        return "ticOffViewEvents";
     }
 
     @RequestMapping(value = "/ticOffVerifyTickets", method = RequestMethod.GET)
@@ -83,6 +122,7 @@ public class MainController {
 
         // Authentication authentication = (Authentication) principal;
         // CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
+
         return "ticOffVerifyTickets";
     }
 
@@ -92,7 +132,19 @@ public class MainController {
         
         // Authentication authentication = (Authentication) principal;
         // CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
+
         return "ticOffPurchaseTickets";
+    }
+
+    // ==================================================== Event Manager ====================================================
+    @RequestMapping(value = "/eventManViewEvents", method = RequestMethod.GET)
+    public String eventManViewEvents(Principal principal) {
+        // this attribute will be available in the view index.html as a thymeleaf variable
+        
+        // Authentication authentication = (Authentication) principal;
+        // CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
+
+        return "eventManViewEvents";
     }
 
     @RequestMapping(value = "/eventManCreateEvent", method = RequestMethod.GET)
@@ -101,6 +153,7 @@ public class MainController {
         
         // Authentication authentication = (Authentication) principal;
         // CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
+
         return "eventManCreateEvent";
     }
 
@@ -131,6 +184,7 @@ public class MainController {
         
         // Authentication authentication = (Authentication) principal;
         // CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
+
         return "eventManViewTicOfficer";
     }
 
@@ -140,5 +194,15 @@ public class MainController {
         model.addAttribute("activeEvents", activeEvents);
         return "viewEvents";
     }
+    @RequestMapping(value = "/eventManViewDashboard", method = RequestMethod.GET)
+    public String eventManViewDashboard(Principal principal) {
+        // this attribute will be available in the view index.html as a thymeleaf variable
+        
+        // Authentication authentication = (Authentication) principal;
+        // CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
+        
+        return "eventManViewDashboard";
+    }
+
     
 }

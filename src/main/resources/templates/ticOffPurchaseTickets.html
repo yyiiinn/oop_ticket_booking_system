@@ -5,6 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+    <title>Ticketing Officer | Purchase Tickets</title>
+
     <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}" />
 
     <!-- Include Bootstrap -->
@@ -30,8 +32,12 @@
             border-radius: 10px;
             transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
         }
-        
 
+        .submitbtn, .submitbtn:hover, .submitbtn:active {
+            background-color: #151c55;
+            border: #151c55;
+        }
+        
         @media (max-width: 768px) {
             .ticket-purchase-wrapper {
                 padding: 1rem;
@@ -62,11 +68,6 @@
             border: 3px solid #141B4D;
         }
         
-        @media (max-width: 768px) { /* Adjust this value based on your desired breakpoint */
-            .navbar-collapse .navbar-nav .nav-item + .nav-item {
-            margin-top: 7px; /* Adjust the value as needed for more space */
-            }
-        }
     </style>
 </head>
 <body>
@@ -95,7 +96,7 @@
     
                     <div class="form-group mb-3">
                         <label for="numberOfTickets">No. Tickets (Limit of 4 Tickets)</label>
-                        <select id="numberOfTickets" class="form-control border-0 shadow-sm px-4 field" v-model="form.numberOfTickets" required>
+                        <select id="numberOfTickets" class="form-select border-0 shadow-sm px-4 field" v-model="form.numberOfTickets" required>
                             <option value="" disabled selected>Select number of tickets</option>
                             <option v-for="n in 4" :key="n" :value="n">{{ n }}</option>
                         </select>
@@ -126,7 +127,7 @@
 
 
 <script  type="module">
-    import NavBarComponent from './js/TicOffNavBarComponent.js';
+    import NavBarComponent from './js/navbar/TicOffNavBarComponent.js';
 
     const app = Vue.createApp({
         data() {

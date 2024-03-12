@@ -141,3 +141,35 @@ label {
     display: flex;
     justify-content: space-between;
   }
+
+  @media (max-width: 768px) { /* Adjust this value based on your desired breakpoint */
+    .navbar-collapse .navbar-nav .nav-item + .nav-item {
+    margin-top: 7px; /* Adjust the value as needed for more space */
+    }
+}
+
+
+.filterbtn {
+  width: 48%;
+  height: 50px;
+  border-radius: 10px;
+}
+
+#searchbtn {
+  background-color: #151c55;
+  color: #FFFFFF;
+}
+
+#resetbtn {
+  background-color: transparent;
+  border: 3px solid #616161;
+  color:black;
+}
+
+[v-cloak] {
+  display: none;
+}
+
+.fixed-footer {
+  height: 30%
+}
