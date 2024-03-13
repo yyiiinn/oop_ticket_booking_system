@@ -39,10 +39,6 @@ public class EventController {
   @PostMapping("/api/createEvent")
   public ResponseEntity<Object> createEvent(@RequestBody EventViewModel eventViewModel) {  
       try {
-          System.out.println("abcdeee");
-          System.out.println(eventViewModel);
-          System.out.println(eventViewModel.getEventStartTime());
-          System.out.println(eventViewModel.getSalesEndTime());
           Event event = new Event(eventViewModel.getEventName(), eventViewModel.getEventDescription(), eventViewModel.getEventVenue(), 
           eventViewModel.geEventImageFile(), eventViewModel.getEventDate(), eventViewModel.getEventDate(), eventViewModel.getEventStartTime(), 
           eventViewModel.getEventEndTime(), eventViewModel.getSalesStartTime(), eventViewModel.getSalesEndTime(), 
@@ -69,7 +65,6 @@ public class EventController {
           Event event = eventOptional.get();
           return ResponseEntity.ok().body(event);
       } else {
-          // Handle case where event with given ID is not found
           Map<String, String> responseBody = new HashMap<>();
           responseBody.put("message", "No event details found");
           responseBody.put("status", "202");
@@ -86,21 +81,16 @@ public class EventController {
   @PostMapping("/api/submitEditEvent/{eventId}")
   public ResponseEntity<Object> submitEditEvent(@PathVariable("eventId") Long eventId, @RequestBody EventViewModel eventViewModel) {
     try {
-        System.out.println("aabbcc");
-        // Find the existing event by ID
-        Optional<Event> optionalEvent = eventRepository.findById((long) 23);
-        
+        Optional<Event> optionalEvent = eventRepository.findById((long) eventId);
         if (!optionalEvent.isPresent()) {
-            // Event not found, return 404 status
             Map<String, String> responseBody = new HashMap<>();
             responseBody.put("message", "Event with ID " + eventId + " not found");
             responseBody.put("status", "404");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseBody);
         }
-        
+
         Event existingEvent = optionalEvent.get();
         
-        // Update event details from the view model
         existingEvent.setName(eventViewModel.getEventName());
         existingEvent.setDescription(eventViewModel.getEventDescription());
         existingEvent.setVenue(eventViewModel.getEventVenue());
@@ -109,20 +99,17 @@ public class EventController {
         existingEvent.setEventEndDate(eventViewModel.getEventDate());
         existingEvent.setEventStartTime(eventViewModel.getEventStartTime());
         existingEvent.setEventEndTime(eventViewModel.getEventEndTime());
-        existingEvent.setTicketSaleStartTime(eventViewModel.getSalesStartTime()); // Fixed method name
+        existingEvent.setTicketSaleStartTime(eventViewModel.getSalesStartTime());
         existingEvent.setTicketSaleEndTime(eventViewModel.getSalesEndTime());
-        
-        // Save the updated event
+       
         Event updatedEvent = eventRepository.save(existingEvent);
         
-        // Return success response
         Map<String, String> responseBody = new HashMap<>();
         responseBody.put("message", "Event updated successfully");
         responseBody.put("status", "200");
         return ResponseEntity.ok().body(responseBody);
     } catch (Exception e) {
-        // Log and return error response
-        e.printStackTrace(); // Log the exception
+        e.printStackTrace(); 
         Map<String, String> responseBody = new HashMap<>();
         responseBody.put("message", "Failed to update event: " + e.getMessage());
         responseBody.put("status", "500"); // Use appropriate error status
@@ -130,13 +117,34 @@ public class EventController {
     }
   }
 
+  @PostMapping("/api/cancelEvent/{eventId}")
+    public ResponseEntity<Object> cancelEvent(@PathVariable("eventId") Long eventId, @RequestBody EventViewModel eventViewModel) {
+      try {
+        Optional<Event> optionalEvent = eventRepository.findById((long) eventId);
+        if (!optionalEvent.isPresent()) {
+            Map<String, String> responseBody = new HashMap<>();
+            responseBody.put("message", "Event with ID " + eventId + " not found");
+            responseBody.put("status", "404");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseBody);
+        }
+        Event existingEvent = optionalEvent.get();
 
+        existingEvent.setStatus("Cancelled");
+       
+        Event updatedEvent = eventRepository.save(existingEvent);
+        
+        // TO TRIGGER AUTOMATED REFUND
 
-//   @RequestMapping(value = "/viewEvents", method = RequestMethod.GET)
-//   public String viewEvents(Model model) {
-//         List<Event> activeEvents = eventRepository.findActiveEvents();
-//         model.addAttribute("activeEvents", activeEvents);
-//         return "viewEvents";
-//   }
-
+        Map<String, String> responseBody = new HashMap<>();
+        responseBody.put("message", "Event cancelled successfully");
+        responseBody.put("status", "200");
+        return ResponseEntity.ok().body(responseBody);
+    } catch (Exception e) {
+        e.printStackTrace(); 
+        Map<String, String> responseBody = new HashMap<>();
+        responseBody.put("message", "Failed to cancel event: " + e.getMessage());
+        responseBody.put("status", "500"); // Use appropriate error status
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseBody);
+    }
+    }
 }

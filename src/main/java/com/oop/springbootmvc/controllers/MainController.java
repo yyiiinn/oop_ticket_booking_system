@@ -156,6 +156,12 @@ public class MainController {
         return ResponseEntity.ok(activeEvents);
     }
 
+    @GetMapping("/api/allEvents")
+    public ResponseEntity<List<Event>> getAllEvents() {
+        List<Event> events = eventRepository.findAllEvents();
+        return ResponseEntity.ok(events);
+    }
+
     
     @RequestMapping(value = "/eventManCreateEvent", method = RequestMethod.GET)
     public String eventManCreateEvent(Principal principal) {

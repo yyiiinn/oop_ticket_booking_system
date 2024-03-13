@@ -125,7 +125,7 @@
                   </div>
                   <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" @click="showCancelEventModal = false">Close</button>
-                    <button type="button" class="btn btn-danger" @click="confirmCancellation">Confirm</button>
+                    <button type="button" class="btn btn-danger" @click="confirmCancellation(selectedCancellationEvent.id)">Confirm</button>
                   </div>
             </div>
             </div>
@@ -163,7 +163,7 @@
         },
         methods: {
             fetchEvents() {
-                fetch('/api/activeEvents')
+                fetch('/api/allEvents')
                     .then(response => response.json())
                     .then(data => {
                         this.events = data;
@@ -178,6 +178,7 @@
             },
             editEvent(event) {
                 // api call to go to the edit event page
+                
             },
 
             showEventDetails(event) {
@@ -193,13 +194,23 @@
                 this.selectedCancellationEvent = event;
                 this.showCancelEventModal = true;
             },
-
-            confirmCancellation() {
+            confirmCancellation(eventId) {
                 // Perform the cancellation action here
+                axios.post('/api/cancelEvent/' + BigInt(eventId), {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => {
+                    console.log(response.data);
+                })
+                .catch(error => {
+                    console.error('Error cancellingt event:', error);
+                });   
                 console.log('Event canceled!');
                 this.showCancelEventModal = false;
+                window.location.href = '/eventManViewEvents';
             },
-
             isSalePeriodOver(event) {
                 // Determine if the sale period is over
                 const now = new Date();

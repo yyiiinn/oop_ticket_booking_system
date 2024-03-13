@@ -77,10 +77,6 @@ public class EventViewModel {
         return this.eventStartTime;
     }
 
-    // public void setEventStartTime(Time eventStartTime) {
-    //     this.eventStartTime = eventEndTime;
-    // }
-
     @JsonProperty("eventStartTime")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
     public void setEventStartTime(String timeString) {
@@ -97,9 +93,6 @@ public class EventViewModel {
         return this.eventEndTime;
     }
 
-    // public void setEventEndTime(Time eventEndTime) {
-    //     this.eventEndTime = eventEndTime;
-    // }
     @JsonProperty("eventEndTime")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
     public void setEventEndTime(String timeString) {
@@ -112,22 +105,6 @@ public class EventViewModel {
         }
     }
 
-    // public Date getSalesStartDate() {
-    //     return salesStartDate;
-    // }
-
-    // public void setSalesStartDate(Date salesStartDate) {
-    //     this.salesStartDate = salesStartDate;
-    // }
-
-    // public Date getSalesEndDate() {
-    //     return salesEndDate;
-    // }
-
-    // public void setSalesEndDate(Date salesEndDate) {
-    //     this.salesEndDate = salesEndDate;
-    // }
-
     public Timestamp getSalesStartTime() {
         return salesStartTime;
     }
@@ -136,18 +113,6 @@ public class EventViewModel {
         this.salesStartTime = salesStartTime;
     }
 
-    // @JsonProperty("salesStartTime")
-    // @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
-    // public void setSalesStartTime(String timeString) {
-    //     try {
-    //         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
-    //         java.util.Date parsedDate = dateFormat.parse(timeString);
-    //         this.salesStartTime = new Time(parsedDate.getTime());
-    //     } catch (ParseException e) {
-    //         e.printStackTrace();
-    //     }
-    // }
-
     public Timestamp getSalesEndTime() {
         return salesEndTime;
     }
@@ -155,18 +120,6 @@ public class EventViewModel {
     public void setSalesEndTime(Timestamp salesEndTime) {
         this.salesEndTime = salesEndTime;
     }
-
-    // @JsonProperty("salesEndTime")
-    // @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
-    // public void setSalesEndTime(String timeString) {
-    //     try {
-    //         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
-    //         java.util.Date parsedDate = dateFormat.parse(timeString);
-    //         this.salesEndTime = new Time(parsedDate.getTime());
-    //     } catch (ParseException e) {
-    //         e.printStackTrace();
-    //     }
-    // }
 
     public Timestamp getTicketSaleStartDateTime() {
         // TODO Auto-generated method stub
