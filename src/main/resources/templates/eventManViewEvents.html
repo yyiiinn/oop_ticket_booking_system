@@ -94,9 +94,8 @@
                         </div>
                         
                         <div class="card-footer fixed-footer bg-white">
-                            <!-- need to change to pass the event over to the edit page -->
                             <a :href="'/eventManEditEvent/' + event.id" v-if="event.status === 'Active' && !isSalePeriodOver(event)" class="btn btn-primary me-2">Edit Event</a>
-                            <button v-if="event.status === 'Active' && isSaleOngoing(event) || !isSalePeriodOver(event)" type="button" class="btn btn-outline-danger" @click="toggleModal(event)">Cancel Event</button>
+                            <button v-if="event.status === 'Active' && (isSaleOngoing(event) || !isSalePeriodOver(event))" type="button" class="btn btn-outline-danger" @click="toggleModal(event)">Cancel Event</button>
                             <span v-if="event.status === 'Cancelled'">Event Cancelled</span>
                             <span v-if="event.status === 'Active' && isEventEnded(event)">Event Ended</span>
                             <span v-if="isEventOngoing(event)">Event is Ongoing</span>
@@ -204,7 +203,7 @@
             isSalePeriodOver(event) {
                 // Determine if the sale period is over
                 const now = new Date();
-                const saleEndDate = new Date(event.ticketSaleStartDateTime );
+                const saleEndDate = new Date(event.ticketSaleEndDateTime );
                 return now > saleEndDate;
             },
             isSaleOngoing(event) {

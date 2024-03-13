@@ -41,7 +41,10 @@ export default {
                 salesEndDateTime: '',
                 seatingOptionsErrors: [{}]
             },
-            eventData: {}
+            eventData: {},
+            isShowModal: false,
+            modalTitle: '',
+            modalBody: '',
         };
     },
     async mounted() {
@@ -125,14 +128,18 @@ export default {
                     .then(response => {
                         console.log(response)
                         if (response.ok) {
+                            this.showModal('Success', 'You have successfully created the event!');
                             return response.json();
+                        } else {
+                            this.showModal('Error', 'There was a problem creating your event. Please try again.');
+                            throw new Error('Network response was not ok.');
                         }
-                        throw new Error('Network response was not ok.');
                     })
                     .then(data => {
                         console.log('Response from backend:', data);
                     })
                     .catch(error => {
+                        this.showModal('Error', 'There was a problem creating your event. Please try again.');
                         console.error('Error:', error);
                     });
                 } else if (this.mode === 'edit') {
@@ -146,8 +153,10 @@ export default {
                     })
                     .then(response => {
                         console.log(response.data);
+                        this.showModal('Success', 'You have updated the event successfully!');
                     })
                     .catch(error => {
+                        this.showModal('Error', 'There was a problem updated your event. Please try again.');
                         console.error('Error submitting edit event:', error);
                     });                    
                 }
@@ -156,6 +165,15 @@ export default {
             }
             this.formData.salesStartTime = salesStartTimeOld;
             this.formData.salesEndTime = salesEndTimeOld;
+        },
+        showModal(messageTitle, messageBody) {
+            this.modalTitle = messageTitle;
+            this.modalBody = messageBody;
+            this.isShowModal = true;
+        },
+        hideModal() {
+            this.isShowModal = false;
+            window.location.href = '/eventManViewEvents';
         },
         handleImageUpload(event) {
             const file = event.target.files[0];
@@ -280,7 +298,11 @@ export default {
                 this.formErrors.salesEndDateTime = 'Sales End Date and Time must be before the Event Date and Time.';
                 return false;
             } else if (salesEndDateTime <= salesStartDateTime) {
-                this.formErrors.salesEndDateTime = 'Sales End Date and Time must be after the Sales Start Date and Time.';
+                if (salesEndDateTime < salesStartDateTime) {
+                    this.formErrors.salesEndDateTime = 'Sales End Date and Time must be after the Sales Start Date and Time.';
+                } else {
+                    this.formErrors.salesEndDateTime = 'Sales Start Date and Time cannot be the same as Sales End Date and Time.';
+                }
                 return false;
             }
             this.formErrors.salesEndDateTime = '';
@@ -483,6 +505,24 @@ export default {
                 <button type="submit" class="btn btn-primary btn-block shadow-sm w-100 submitbtn">
                         {{ mode === 'create' ? 'Create Event' : 'Update Event' }}
                 </button>
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div v-if="isShowModal" class="modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">{{ modalTitle }}</h5>
+                        <button type="button" class="btn-close" @click="hideModal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>{{ modalBody }}</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @click="hideModal">Close</button>
+                    </div>
+                </div>
             </div>
         </div>
     </form>
