@@ -180,7 +180,7 @@ public class MainController {
     // }
 
     @RequestMapping(value = "/eventManEditEvent/{eventId}", method = RequestMethod.GET)
-    public String eventManEditEvent(@PathVariable("eventId") Long eventId, Model model, Principal principal) {
+    public String eventManEditEvent(@PathVariable("eventId") int eventId, Model model, Principal principal) {
         // Optional<Event> eventOptional = eventRepository.findById(eventId);
         // if (eventOptional.isPresent()) {
         //     Event event = eventOptional.get();

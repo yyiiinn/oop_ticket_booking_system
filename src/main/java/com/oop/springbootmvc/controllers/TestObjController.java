@@ -21,7 +21,7 @@ public class TestObjController {
   }
 
   @GetMapping("/api/test/{id}")
-  Optional<TestObj> one(@PathVariable("id") Long id) {
+  Optional<TestObj> one(@PathVariable("id") int id) {
     return this.testObjRepository.findById(id);
   }
 

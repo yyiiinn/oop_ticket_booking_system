@@ -3,6 +3,7 @@ package com.oop.springbootmvc.model;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.util.List;
 
 import jakarta.persistence.*;
 
@@ -12,7 +13,7 @@ public class Event {
     private @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="id")
-    long id;
+    int id;
     @Column(nullable = false, unique = true)
     private String name;
     @Column(nullable = false)
@@ -35,6 +36,9 @@ public class Event {
     private Timestamp ticket_sale_end_date_time;
     @Column(nullable = false)
     private String status;
+    // @Column(nullable = false)
+    // private float cancellationFee;
+    // public Event(String name, String description, String venue, String image_url, Date event_start_date, Date event_end_date, Time event_start_time, Time event_end_time, Timestamp timestamp, Timestamp timestamp2, String status, float cancellationFee) {
     public Event(String name, String description, String venue, String image_url, Date event_start_date, Date event_end_date, Time event_start_time, Time event_end_time, Timestamp timestamp, Timestamp timestamp2, String status) {
         this.name = name;
         this.description = description;
@@ -47,13 +51,14 @@ public class Event {
         this.ticket_sale_start_date_time = timestamp;
         this.ticket_sale_end_date_time = timestamp2;
         this.status = status;
+        // this.cancellationFee = cancellationFee;
     }
 
     public Event() {
 
     }
 
-    public Long getId() {
+    public int getId() {
         return this.id;
     }
 
@@ -101,7 +106,7 @@ public class Event {
         return this.status;
     }
 
-    public void setId(Long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -148,6 +153,14 @@ public class Event {
     public void setStatus(String status) {
         this.status = status;
     }
+
+    // public float getCancellationFee() {
+    //     return this.cancellationFee;
+    // }
+
+    // public void setCancellationFee(float cancellationFee) {
+    //     this.cancellationFee = cancellationFee;
+    // }
 
     @Override
     public String toString() {

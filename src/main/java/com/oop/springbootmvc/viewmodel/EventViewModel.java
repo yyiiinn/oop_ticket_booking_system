@@ -11,19 +11,22 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class EventViewModel {
-    private long id;
+    private int id;
     private String eventName;
     private String eventDescription;
     private String eventCategory;
     private String eventVenue;
     private String eventImageFile;
-    private Date eventDate;
+    private Date eventStartDate;
+    private Date eventEndDate;
     private Time eventStartTime;
     private Time eventEndTime;
     // private Date salesStartDate;
     // private Date salesEndDate;
     private Timestamp salesStartTime;
     private Timestamp salesEndTime;
+    private float cancellationFee;
+    private List<SitViewModel> seatingOptions;
 
     public String getEventName() {
         return eventName;
@@ -65,13 +68,22 @@ public class EventViewModel {
         this.eventVenue = eventVenue;
     }
 
-    public Date getEventDate() {
-        return eventDate;
+    public Date getEventStartDate() {
+        return eventStartDate;
     }
 
-    public void setEventDate(Date eventDate) {
-        this.eventDate = eventDate;
+    public void setEventStartDate(Date eventStartDate) {
+        this.eventStartDate = eventStartDate;
     }
+
+    public Date getEventEndDate() {
+        return eventEndDate;
+    }
+
+    public void setEventEndDate(Date EventEndDate) {
+        this.eventEndDate = eventEndDate;
+    }
+
 
     public Time getEventStartTime() {
         return this.eventStartTime;
@@ -119,6 +131,22 @@ public class EventViewModel {
 
     public void setSalesEndTime(Timestamp salesEndTime) {
         this.salesEndTime = salesEndTime;
+    }
+
+    public List<SitViewModel> getSeatingOptions() {
+        return seatingOptions;
+    }
+
+    public void setSeatingOptions(List<SitViewModel> seatingOptions) {
+        this.seatingOptions = seatingOptions;
+    }
+
+    public float getCancellationFee() {
+        return this.cancellationFee;
+    }
+
+    public void setCancellationFee(float cancellationFee) {
+        this.cancellationFee = cancellationFee;
     }
 
     public Timestamp getTicketSaleStartDateTime() {

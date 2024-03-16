@@ -55,7 +55,7 @@ export default {
     async mounted() {
         console.log("mounted")
         if(this.mode === 'edit') {
-            const eventId = BigInt('23');
+            const eventId = 41;
             axios.get('/api/getEventDetails/' + eventId, {
                 headers: {
                     'Content-Type': 'application/json'
@@ -151,7 +151,8 @@ export default {
                 } else if (this.mode === 'edit') {
                     // Handle edit event API call
                     console.log("Editing event...");
-                    const eventId = BigInt('23');
+                    console.log(this.formData)
+                    const eventId = 41;
                     axios.post('/api/submitEditEvent/' + eventId, this.formData, {
                         headers: {
                             'Content-Type': 'application/json'
@@ -354,26 +355,24 @@ export default {
         },
         async convertEventDetailsKey(eventControllerData) {
             console.log("called method")
-            const [ticketSaleEndDate, ticketSaleEndTime] = new Date(eventControllerData.ticketSaleEndDateTime).toISOString().split('T');
-            const [ticketSaleStartDate, ticketSaleStartTime] = new Date(eventControllerData.ticketSaleStartDateTime).toISOString().split('T');
-            console.log(ticketSaleEndTime);
-            console.log(ticketSaleStartTime.slice(0, 8));
+            const [ticketSaleEndDate, ticketSaleEndTime] = new Date(eventControllerData.eventDetails.ticketSaleEndDateTime).toISOString().split('T');
+            const [ticketSaleStartDate, ticketSaleStartTime] = new Date(eventControllerData.eventDetails.ticketSaleStartDateTime).toISOString().split('T');
+           
             const updatedEventData = {
-                "eventName": eventControllerData.name,
-                "eventDescription": eventControllerData.description,
-                "eventStartDate": eventControllerData.eventStartDate,
-                "eventEndDate": eventControllerData.eventEndDate,
-                "eventStartTime": eventControllerData.eventStartTime,
-                "eventEndTime": eventControllerData.eventEndTime,
+                "eventName": eventControllerData.eventDetails.name,
+                "eventDescription": eventControllerData.eventDetails.description,
+                "eventStartDate": eventControllerData.eventDetails.eventStartDate,
+                "eventEndDate": eventControllerData.eventDetails.eventEndDate,
+                "eventStartTime": eventControllerData.eventDetails.eventStartTime,
+                "eventEndTime": eventControllerData.eventDetails.eventEndTime,
                 "eventCategory": "Category",
-                "eventImageFile": eventControllerData.imageUrl,
-                "eventVenue": eventControllerData.venue,
+                "eventImageFile": "testabc",
+                "eventVenue": eventControllerData.eventDetails.venue,
                 "salesEndDate": ticketSaleEndDate,
                 "salesEndTime": ticketSaleEndTime.slice(0, 8),
                 "salesStartDate": ticketSaleStartDate,
                 "salesStartTime": ticketSaleStartTime.slice(0, 8),
-                "cancellationFee": eventControllerData.cancellationFee,
-                "seatingOptions": []
+                "seatingOptions": eventControllerData.seats
             };
             console.log(ticketSaleStartTime.slice(0, 8))
             this.formData = updatedEventData;
