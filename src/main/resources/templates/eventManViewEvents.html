@@ -82,11 +82,12 @@
             <div class="row">
                 <div class="col-lg-4 mb-4" v-for="(event, index) in events" :key="index">
                     <div class="card h-100 event-card">
-                        <img :src="event.image" class="card-img-top" alt="Event Image" onerror="this.onerror=null; this.src='default-image-path.jpg'">
+                        
+                        <img :src="event.image" class="card-img-top" alt="Event Image" onerror="this.onerror=null;">
 
                         <div class="card-body" @click="showEventDetails(event)">
                             <h5 class="card-title">{{ event.name }}</h5> 
-                            <!-- <category-component :category="event.category"></category-component> -->
+                            <category-component :category="event.category"></category-component>
                             
                             <div class="card-text">{{ event.venue }}</div> 
                             <div class="card-datetime text-secondary"><small>{{ event.eventStartDate }}  - {{event.eventEndDate}}</small></div>
@@ -94,7 +95,7 @@
                         </div>
                         
                         <div class="card-footer fixed-footer bg-white">
-                            <a :href="'/eventManEditEvent/' + event.id" v-if="event.status === 'Active' && !isSalePeriodOver(event)" class="btn btn-primary me-2">Edit Event</a>
+                            <a :href="'/eventManEditEvent/' + event.id" v-if="event.status === 'Active' && !isSaleOngoing(event) && !isSalePeriodOver(event)" class="btn btn-primary me-2">Edit Event</a>
                             <button v-if="event.status === 'Active' && (isSaleOngoing(event) || (!isEventOngoing(event) && !isEventEnded(event) && isSalePeriodOver(event)))" type="button" class="btn btn-outline-danger" @click="toggleModal(event)">Cancel Event</button>
                             <span v-if="event.status === 'Cancelled'">Event Cancelled</span>
                             <span v-if="event.status === 'Active' && isEventEnded(event)">Event Ended</span>
@@ -167,22 +168,28 @@
                     .then(response => response.json())
                     .then(data => {
                         this.events = data;
-                        this.events.forEach(function(eventData) {
-                            console.log(eventData.image)
-                            var imageUrl = convertDataToURL(eventData.image);
-                            console.log(imageUrl)
-                            eventData.image = imageUrl;
+                        this.events.forEach(event => {
+                            if(event.image) { 
+                                event.image = this.convertDataToURL(event.image);
+                            }
                         });
-                        console.log(data);
                     })
                     .catch(error => {
                         console.error('Error fetching events:', error);
                     });
             },
             convertDataToURL(data) {
-            var blob = new Blob([data], { type: 'image/jpeg' });
-            var url = URL.createObjectURL(blob);
-            return url;
+                const base64Response = data.split(';base64,').pop();
+                const byteCharacters = atob(base64Response);
+                const byteNumbers = new Array(byteCharacters.length);
+                for (let i = 0; i < byteCharacters.length; i++) {
+                    byteNumbers[i] = byteCharacters.charCodeAt(i);
+                }
+                const byteArray = new Uint8Array(byteNumbers);
+                const blob = new Blob([byteArray], { type: 'image/jpeg' });
+                const url = URL.createObjectURL(blob);
+                
+                return url;
             },
             searchApi(event, category) {
               console.log(event, category)  

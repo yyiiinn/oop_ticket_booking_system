@@ -152,7 +152,7 @@ export default {
                     // Handle edit event API call
                     console.log("Editing event...");
                     console.log(this.formData)
-                    const eventId = 41;
+                    const eventId = window.location.pathname.split('/').pop();
                     axios.post('/api/submitEditEvent/' + eventId, this.formData, {
                         headers: {
                             'Content-Type': 'application/json'
