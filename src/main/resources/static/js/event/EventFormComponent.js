@@ -21,15 +21,17 @@ export default {
                 eventImageFile: '',
                 eventCategory: '', 
                 eventVenue: '',
-                eventDate: '',
+                eventStartDate: '',
+                eventEndDate: '',
                 eventStartTime: '',
                 eventEndTime: '',
                 salesStartDate: '',
                 salesEndDate: '',
                 salesStartTime: '',
                 salesEndTime: '',
+                cancellationFee: 0,
                 seatingOptions: [
-                    { type: '', cost: 0, numberOfSeats: 0, cancellationFee: 0 }
+                    { type: '', cost: 0, numberOfSeats: 0 }
                 ]
             },
             formErrors: {
@@ -37,8 +39,11 @@ export default {
                 eventDescription: '',
                 eventImageFile: '',
                 eventVenue: '',
+                eventStartDate: '',
+                eventEndDate: '',
                 salesStartDateTime: '',
                 salesEndDateTime: '',
+                cancellationFee: '',
                 seatingOptionsErrors: [{}]
             },
             eventData: {},
@@ -76,18 +81,19 @@ export default {
             this.formData.eventImageFile = this.eventData.eventImageFile; 
             this.formData.eventCategory = this.eventData.eventCategory;
             this.formData.eventVenue = this.eventData.eventVenue;
-            this.formData.eventDate = this.eventData.eventDate;
+            this.formData.eventStartDate = this.eventData.eventStartDate;
+            this.formData.eventEndDate = this.eventData.eventEndDate;
             this.formData.eventStartTime = this.eventData.eventStartTime;
             this.formData.eventEndTime = this.eventData.eventEndTime;
             this.formData.salesStartDate = this.eventData.salesStartDate;
             this.formData.salesEndDate = this.eventData.salesEndDate;
             this.formData.salesStartTime = this.eventData.salesStartTime;
             this.formData.salesEndTime = this.eventData.salesEndTime;
+            this.formData.cancellationFee = this.eventData.cancellationFee;
             this.formData.seatingOptions = this.eventData.seatingOptions.map(option => ({
                 type: option.type,
                 cost: option.cost,
                 numberOfSeats: option.numberOfSeats,
-                cancellationFee: option.cancellationFee
             }));
         }, 
         convertToTimeStamp(dateString, timeString) {
@@ -162,6 +168,7 @@ export default {
                 }
             } else {
                 console.log("Form validation failed");
+                this.showModal('Error', 'Form Validation Failed. Refer to the error message displayed.');
             }
             this.formData.salesStartTime = salesStartTimeOld;
             this.formData.salesEndTime = salesEndTimeOld;
@@ -172,8 +179,12 @@ export default {
             this.isShowModal = true;
         },
         hideModal() {
-            this.isShowModal = false;
-            window.location.href = '/eventManViewEvents';
+            if (this.modalTitle == "Error") {
+                this.isShowModal = false;
+            } else {
+                this.isShowModal = false;
+                window.location.href = '/eventManViewEvents';
+            }
         },
         handleImageUpload(event) {
             const file = event.target.files[0];
@@ -188,43 +199,16 @@ export default {
             }
         },
         addSeatingOption() {
-            this.formData.seatingOptions.push({ type: '', cost: 0, numberOfSeats: 0, cancellationFee: 0 });
+            this.formData.seatingOptions.push({ type: '', cost: 0, numberOfSeats: 0 });
             this.formErrors.seatingOptionsErrors.push({});
         },
         removeSeatingOption(index) {
             this.formData.seatingOptions.splice(index, 1);
             this.formErrors.seatingOptionsErrors.splice(index, 1);
         },
-        onReset() {
-            // Reset form fields
-            this.formData = {
-                eventName: '',
-                eventDescription: '',
-                eventImageFile: null,
-                eventCategory: '',
-                eventVenue: '',
-                eventDate: '',
-                eventStartTime: '',
-                eventEndTime: '',
-                salesStartDate: '',
-                salesEndDate: '',
-                salesStartTime: '',
-                salesEndTime: '',
-                seatingOptions: [
-                    { type: '', cost: 0, numberOfSeats: 0, cancellationFee: 0 }
-                ]
-            };
-
-            this.formErrors = {
-                eventName: '',
-                eventDescription: '',
-                eventImageFile: '',
-                eventEndTime: '',
-                salesStartDateTime: '',
-                salesEndDateTime: '',
-                seatingOptionsErrors: [{}]
-            };
-        },
+        onCancel() {
+            window.history.back();
+        }, 
         combineDateTime(date, time) {
             return new Date(`${date}T${time}`);
         },
@@ -265,22 +249,43 @@ export default {
         },
         
         validateEventDateTime() {
-            if (!this.formData.eventDate || !this.formData.eventStartTime) {
-                this.formErrors.eventDate = 'Event date and start time are required.';
+            const today = new Date().toISOString().split('T')[0];
+
+            if (!this.formData.eventStartDate || !this.formData.eventStartTime || !this.formData.eventEndDate || !this.formData.eventEndTime) {
+                this.formErrors.eventStartDate = 'Event date and time are required.';
                 return false;
             }
-            if (this.formData.eventEndTime && this.combineDateTime(this.formData.eventDate, this.formData.eventEndTime) <= this.combineDateTime(this.formData.eventDate, this.formData.eventStartTime)) {
+
+            if (this.formData.eventStartDate <= today) {
+                this.formErrors.eventStartDate = 'Event start date cannot be today or in the past.';
+                return false;
+            }
+
+            if (this.formData.eventEndTime && this.combineDateTime(this.formData.eventStartDate, this.formData.eventEndTime) <= this.combineDateTime(this.formData.eventStartDate, this.formData.eventStartTime)) {
                 this.formErrors.eventEndTime = 'Event end time must be after the event start time.';
                 return false;
             }
-            this.formErrors.eventDate = '';
+
+            if (this.formData.eventEndDate < this.formData.eventStartDate) {
+                this.formErrors.eventEndDate = 'Event end date must be after the event start date.';
+                return false;
+            }
+
+            this.formErrors.eventStartDate = '';
+            this.formErrors.eventEndDate = '';
             this.formErrors.eventEndTime = '';
             return true;
         },
         
         validateSalesStartDateTime() {
+            const today = new Date().toISOString().split('T')[0];
             const salesStartDateTime = this.combineDateTime(this.formData.salesStartDate, this.formData.salesStartTime);
-            const eventDateTime = this.combineDateTime(this.formData.eventDate, this.formData.eventStartTime);
+            const eventDateTime = this.combineDateTime(this.formData.eventStartDate, this.formData.eventStartTime);
+
+            if (this.formData.salesStartDate < today) {
+                this.formErrors.salesStartDateTime = 'Sales start date cannot be in the past.';
+                return false;
+            }
 
             if (salesStartDateTime >= eventDateTime) {
                 this.formErrors.salesStartDateTime = 'Sales Start Date and Time must be before the Event Date and Time.';
@@ -289,10 +294,11 @@ export default {
             this.formErrors.salesStartDateTime = '';
             return true;
         },
+
         validateSalesEndDateTime() {
             const salesStartDateTime = this.combineDateTime(this.formData.salesStartDate, this.formData.salesStartTime);
             const salesEndDateTime = this.combineDateTime(this.formData.salesEndDate, this.formData.salesEndTime);
-            const eventDateTime = this.combineDateTime(this.formData.eventDate, this.formData.eventStartTime);
+            const eventDateTime = this.combineDateTime(this.formData.eventStartDate, this.formData.eventStartTime);
 
             if (salesEndDateTime >= eventDateTime) {
                 this.formErrors.salesEndDateTime = 'Sales End Date and Time must be before the Event Date and Time.';
@@ -308,13 +314,24 @@ export default {
             this.formErrors.salesEndDateTime = '';
             return true;
         },
+
+        validateCancellationFee() {
+            const cancellationFee = this.formData.cancellationFee;
+
+            if (cancellationFee < 0) {
+                this.formErrors.cancellationFee = 'Cancellation Fee cannot be a negative number.';
+                return false;
+            }
+            
+            this.formErrors.salesEndDateTime = '';
+            return true;
+        },
         validateSeatingOptions() {
             this.formErrors.seatingOptionsErrors = this.formData.seatingOptions.map(option => {
                 const errors = {};
                 if (!option.type) errors.type = 'Seat type is required.';
                 if (option.cost <= 0) errors.cost = 'Cost must be greater than 0.';
                 if (option.numberOfSeats <= 0) errors.numberOfSeats = 'Number of seats must be greater than 0.';
-                if (option.cancellationFee < 0) errors.cancellationFee = 'Cancellation fee must not be negative.';
                 return errors;
             });
 
@@ -329,6 +346,7 @@ export default {
                 this.validateEventDateTime(),
                 this.validateSalesStartDateTime(),
                 this.validateSalesEndDateTime(),
+                this.validateCancellationFee(),
                 this.validateSeatingOptions()
             ];
         
@@ -343,7 +361,8 @@ export default {
             const updatedEventData = {
                 "eventName": eventControllerData.name,
                 "eventDescription": eventControllerData.description,
-                "eventDate": eventControllerData.eventStartDate,
+                "eventStartDate": eventControllerData.eventStartDate,
+                "eventEndDate": eventControllerData.eventEndDate,
                 "eventStartTime": eventControllerData.eventStartTime,
                 "eventEndTime": eventControllerData.eventEndTime,
                 "eventCategory": "Category",
@@ -353,6 +372,7 @@ export default {
                 "salesEndTime": ticketSaleEndTime.slice(0, 8),
                 "salesStartDate": ticketSaleStartDate,
                 "salesStartTime": ticketSaleStartTime.slice(0, 8),
+                "cancellationFee": eventControllerData.cancellationFee,
                 "seatingOptions": []
             };
             console.log(ticketSaleStartTime.slice(0, 8))
@@ -406,17 +426,23 @@ export default {
         <!--Event Date and Time-->
         <div class="row mb-4">
             <div class="col-md-6 form-group">
-                <label for="eventDate" class="mb-2">Event Date</label>
-                <input v-model="formData.eventDate" type="date" id="eventDate" required class="form-control border-0 shadow-sm px-4 field" />
+                <label for="eventStartDate" class="mb-2">Event Start Date</label>
+                <input v-model="formData.eventStartDate" type="date" id="eventStartDate" required class="form-control border-0 shadow-sm px-4 field" />
+                <div v-if="formErrors.eventStartDate" class="text-danger">{{ formErrors.eventStartDate }}</div>
             </div>
             <div class="col-md-6 form-group starttime-field">
-                <label for="eventStartTime" class="mb-2">Event Start Time</label>
-                <input v-model="formData.eventStartTime" type="time" id="eventStartTime" required class="form-control border-0 shadow-sm px-4 field" />
+                <label for="eventEndDate" class="mb-2">Event End Date</label>
+                <input v-model="formData.eventEndDate" type="date" id="eventEndDate" required class="form-control border-0 shadow-sm px-4 field" />
+                <div v-if="formErrors.eventEndDate" class="text-danger">{{ formErrors.eventEndDate }}</div>
             </div>
         </div>
 
         <div class="row mb-4">
             <div class="col-md-6 form-group">
+                <label for="eventStartTime" class="mb-2">Event Start Time</label>
+                <input v-model="formData.eventStartTime" type="time" id="eventStartTime" required class="form-control border-0 shadow-sm px-4 field" />
+            </div>
+            <div class="col-md-6 form-group starttime-field">
                 <label for="eventEndTime" class="mb-2">Event End Time</label>
                 <input v-model="formData.eventEndTime" type="time" id="eventEndTime" required class="form-control border-0 shadow-sm px-4 field" />
                 <div v-if="formErrors.eventEndTime" class="text-danger">{{ formErrors.eventEndTime }}</div>
@@ -436,7 +462,7 @@ export default {
             <div v-if="formErrors.salesStartDateTime" class="col-md-12 text-danger">{{ formErrors.salesStartDateTime }}</div>
         </div>
 
-        <div class="row mb-5">
+        <div class="row mb-4">
             <div class="col-md-6 form-group">
                 <label for="salesEndDate" class="mb-2">Sales End Date</label>
                 <input v-model="formData.salesEndDate" type="date" id="salesEndDate" required class="form-control border-0 shadow-sm px-4 field" />
@@ -447,6 +473,15 @@ export default {
             </div>
             <div v-if="formErrors.salesEndDateTime" class="col-md-12 text-danger">{{ formErrors.salesEndDateTime }}</div>
         </div>
+
+        <div class="row mb-5">
+            <div class="form-group mb-2">
+                <label>Cancellation Fee</label>
+                <input v-model="formData.cancellationFee" type="number" min="0" placeholder="Cancellation fee" class="form-control border-0 shadow-sm px-4 field" />
+                <span class="text-danger">{{ formErrors.cancellationFee }}</span>
+            </div>
+        </div>
+
 
         <!-- Seating Options Section -->
         <div class="seating-options-section">
@@ -472,13 +507,6 @@ export default {
                     <span class="text-danger">{{ formErrors.seatingOptionsErrors[index]?.numberOfSeats }}</span>
                 </div>
                 
-                <div class="form-group mb-2">
-                    <label>Cancellation Fee</label>
-                    <input v-model.number="option.cancellationFee" type="number" min="0" placeholder="Cancellation fee" class="form-control border-0 shadow-sm px-4 field" />
-                    <span class="text-danger">{{ formErrors.seatingOptionsErrors[index]?.cancellationFee }}</span>
-                </div>
-                
-                
                 <div style="text-align: right;">
                     <span style="cursor: pointer;" class="text-danger" @click="removeSeatingOption(index)">
                         <u>- Remove Option</u>
@@ -497,7 +525,7 @@ export default {
         <!--Buttons-->
         <div class="row mt-4">
             <div class="col-sm-6 form-group mb-4">
-                <button type="reset" class="btn btn-secondary btn-block shadow-sm w-100 cancelbtn" @click="onReset">
+                <button type="reset" class="btn btn-secondary btn-block shadow-sm w-100 cancelbtn" @click="onCancel">
                         Cancel
                 </button>
             </div>
