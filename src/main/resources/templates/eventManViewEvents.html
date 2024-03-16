@@ -83,7 +83,7 @@
                 <div class="col-lg-4 mb-4" v-for="(event, index) in events" :key="index">
                     <div class="card h-100 event-card">
                         
-                        <img :src="event.image" class="card-img-top" alt="Event Image" onerror="this.onerror=null;">
+                        <img :src="event.image" class="card-img-top" alt="Event Image" width="300" height="260" onerror="this.onerror=null;">
 
                         <div class="card-body" @click="showEventDetails(event)">
                             <h5 class="card-title">{{ event.name }}</h5> 

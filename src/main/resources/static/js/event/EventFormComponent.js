@@ -55,7 +55,7 @@ export default {
     async mounted() {
         console.log("mounted")
         if(this.mode === 'edit') {
-            const eventId = 41;
+            const eventId = window.location.pathname.split('/').pop();
             axios.get('/api/getEventDetails/' + eventId, {
                 headers: {
                     'Content-Type': 'application/json'
@@ -371,8 +371,8 @@ export default {
                 "eventEndDate": eventControllerData.eventDetails.eventEndDate,
                 "eventStartTime": eventControllerData.eventDetails.eventStartTime,
                 "eventEndTime": eventControllerData.eventDetails.eventEndTime,
-                "eventCategory": "Category",
-                "eventImageFile": "testabc",
+                "eventCategory": eventControllerData.eventDetails.eventCategory,
+                "eventImageFile": eventControllerData.eventDetails.image,
                 "eventVenue": eventControllerData.eventDetails.venue,
                 "salesEndDate": ticketSaleEndDate,
                 "salesEndTime": ticketSaleEndTime.slice(0, 8),
