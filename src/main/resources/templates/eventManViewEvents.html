@@ -82,7 +82,7 @@
             <div class="row">
                 <div class="col-lg-4 mb-4" v-for="(event, index) in events" :key="index">
                     <div class="card h-100 event-card">
-                        <img :src="event.imageUrl" class="card-img-top" alt="Event Image" onerror="this.onerror=null; this.src='default-image-path.jpg'">
+                        <img :src="event.image" class="card-img-top" alt="Event Image" onerror="this.onerror=null; this.src='default-image-path.jpg'">
 
                         <div class="card-body" @click="showEventDetails(event)">
                             <h5 class="card-title">{{ event.name }}</h5> 
@@ -167,11 +167,22 @@
                     .then(response => response.json())
                     .then(data => {
                         this.events = data;
+                        this.events.forEach(function(eventData) {
+                            console.log(eventData.image)
+                            var imageUrl = convertDataToURL(eventData.image);
+                            console.log(imageUrl)
+                            eventData.image = imageUrl;
+                        });
                         console.log(data);
                     })
                     .catch(error => {
                         console.error('Error fetching events:', error);
                     });
+            },
+            convertDataToURL(data) {
+            var blob = new Blob([data], { type: 'image/jpeg' });
+            var url = URL.createObjectURL(blob);
+            return url;
             },
             searchApi(event, category) {
               console.log(event, category)  

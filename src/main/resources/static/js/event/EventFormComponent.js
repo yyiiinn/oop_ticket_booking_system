@@ -118,7 +118,7 @@ export default {
             let salesEndTimeOld = this.formData.salesEndTime;
             this.formData.salesStartTime = this.convertToTimeStamp(this.formData.salesStartDate, this.formData.salesStartTime);
             this.formData.salesEndTime = this.convertToTimeStamp(this.formData.salesEndDate, this.formData.salesEndTime);
-            this.formData.eventImageFile = "testimageeee";
+            console.log(this.formData.eventImageFile)
             console.log(this.formData)
             if (this.validateForm()) {
                 if (this.mode === 'create') {
@@ -189,10 +189,16 @@ export default {
         },
         handleImageUpload(event) {
             const file = event.target.files[0];
+            console.log(file)
             if (file) {
-                // change it based on supabase approach
-                this.formData.eventImageFile = file;
-                this.formErrors.eventImageFile = '';
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const base64String = reader.result.split(",")[1]; 
+                    this.formData.eventImageFile = base64String;
+                    console.log(base64String)
+                    this.formErrors.eventImageFile = '';
+                };
+                reader.readAsDataURL(file);
             } else {
                 if (this.mode === 'create') {
                     this.formErrors.eventImageFile = 'An event image file is required.';
@@ -371,6 +377,7 @@ export default {
                 "salesEndDate": ticketSaleEndDate,
                 "salesEndTime": ticketSaleEndTime.slice(0, 8),
                 "salesStartDate": ticketSaleStartDate,
+                "cancellationFee": eventControllerData.eventDetails.cancellationFee,
                 "salesStartTime": ticketSaleStartTime.slice(0, 8),
                 "seatingOptions": eventControllerData.seats
             };

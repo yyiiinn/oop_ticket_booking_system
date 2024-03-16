@@ -39,7 +39,7 @@ public class EventController {
           Event event = new Event(eventViewModel.getEventName(), eventViewModel.getEventDescription(), eventViewModel.getEventVenue(), 
           eventViewModel.geEventImageFile(), eventViewModel.getEventStartDate(), eventViewModel.getEventEndDate(), eventViewModel.getEventStartTime(), 
           eventViewModel.getEventEndTime(), eventViewModel.getSalesStartTime(), eventViewModel.getSalesEndTime(), 
-          "Active");
+          "Active", eventViewModel.getEventCategory(), eventViewModel.getCancellationFee());
           Event createdEvent = eventRepository.save(event);
           List<SitViewModel> sitViewModels = eventViewModel.getSeatingOptions();
           if (createdEvent != null){
@@ -101,13 +101,15 @@ public class EventController {
         existingEvent.setName(eventViewModel.getEventName());
         existingEvent.setDescription(eventViewModel.getEventDescription());
         existingEvent.setVenue(eventViewModel.getEventVenue());
-        existingEvent.setImageUrl(eventViewModel.geEventImageFile());
+        existingEvent.setImage(eventViewModel.geEventImageFile());
         existingEvent.setEventStartDate(eventViewModel.getEventStartDate());
         existingEvent.setEventEndDate(eventViewModel.getEventStartDate());
         existingEvent.setEventStartTime(eventViewModel.getEventStartTime());
         existingEvent.setEventEndTime(eventViewModel.getEventEndTime());
         existingEvent.setTicketSaleStartTime(eventViewModel.getSalesStartTime());
         existingEvent.setTicketSaleEndTime(eventViewModel.getSalesEndTime());
+        existingEvent.setEventCategory(eventViewModel.getEventCategory());
+        existingEvent.setCancellationFee(eventViewModel.getCancellationFee());
        
         Event updatedEvent = eventRepository.save(existingEvent);
         if (updatedEvent != null) {
@@ -139,6 +141,8 @@ public class EventController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseBody);
         }
         Event existingEvent = optionalEvent.get();
+
+        // TO CHECK IF EVENT CAN BE CANCELLED
 
         existingEvent.setStatus("Cancelled");
        

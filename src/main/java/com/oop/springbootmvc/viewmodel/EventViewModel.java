@@ -5,6 +5,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Base64;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -14,9 +15,8 @@ public class EventViewModel {
     private int id;
     private String eventName;
     private String eventDescription;
-    private String eventCategory;
     private String eventVenue;
-    private String eventImageFile;
+    private byte[] eventImageFile;
     private Date eventStartDate;
     private Date eventEndDate;
     private Time eventStartTime;
@@ -25,7 +25,8 @@ public class EventViewModel {
     // private Date salesEndDate;
     private Timestamp salesStartTime;
     private Timestamp salesEndTime;
-    private float cancellationFee;
+    private Float cancellation_fee;
+    private String eventCategory;
     private List<SitViewModel> seatingOptions;
 
     public String getEventName() {
@@ -36,12 +37,13 @@ public class EventViewModel {
         this.eventName = eventName;
     }
 
-    public String geEventImageFile() {
+    public byte[] geEventImageFile() {
         return eventImageFile;
     }
 
     public void setEventImageFile(String eventImageFile) {
-        this.eventImageFile = eventImageFile;
+        System.out.println(eventImageFile);
+        this.eventImageFile = Base64.getDecoder().decode(eventImageFile);;
     }
 
     public String getEventDescription() {
@@ -80,7 +82,7 @@ public class EventViewModel {
         return eventEndDate;
     }
 
-    public void setEventEndDate(Date EventEndDate) {
+    public void setEventEndDate(Date eventEndDate) {
         this.eventEndDate = eventEndDate;
     }
 
@@ -141,12 +143,12 @@ public class EventViewModel {
         this.seatingOptions = seatingOptions;
     }
 
-    public float getCancellationFee() {
-        return this.cancellationFee;
+    public Float getCancellationFee() {
+        return this.cancellation_fee;
     }
 
-    public void setCancellationFee(float cancellationFee) {
-        this.cancellationFee = cancellationFee;
+    public void setCancellationFee(Float cancellationFee) {
+        this.cancellation_fee = cancellationFee;
     }
 
     public Timestamp getTicketSaleStartDateTime() {

@@ -21,7 +21,7 @@ public class Event {
     @Column(nullable = false)
     private String venue;
     @Column(nullable = false)
-    private String image_url;
+    private byte[] image;
     @Column(nullable = false)
     private Date event_start_date;
     @Column(nullable = false)
@@ -36,14 +36,15 @@ public class Event {
     private Timestamp ticket_sale_end_date_time;
     @Column(nullable = false)
     private String status;
-    // @Column(nullable = false)
-    // private float cancellationFee;
-    // public Event(String name, String description, String venue, String image_url, Date event_start_date, Date event_end_date, Time event_start_time, Time event_end_time, Timestamp timestamp, Timestamp timestamp2, String status, float cancellationFee) {
-    public Event(String name, String description, String venue, String image_url, Date event_start_date, Date event_end_date, Time event_start_time, Time event_end_time, Timestamp timestamp, Timestamp timestamp2, String status) {
+    @Column(nullable = false)
+    private String category;
+    @Column(nullable = false)
+    private Float cancellation_fee;
+    public Event(String name, String description, String venue, byte[] image, Date event_start_date, Date event_end_date, Time event_start_time, Time event_end_time, Timestamp timestamp, Timestamp timestamp2, String status, String category, Float cancellationFee) {
         this.name = name;
         this.description = description;
         this.venue = venue;
-        this.image_url = image_url;
+        this.image = image;
         this.event_start_date = event_start_date;
         this.event_end_date = event_end_date;
         this.event_start_time = event_start_time;
@@ -51,7 +52,8 @@ public class Event {
         this.ticket_sale_start_date_time = timestamp;
         this.ticket_sale_end_date_time = timestamp2;
         this.status = status;
-        // this.cancellationFee = cancellationFee;
+        this.category = category;
+        this.cancellation_fee = cancellationFee;
     }
 
     public Event() {
@@ -74,8 +76,8 @@ public class Event {
         return this.venue;
     }
 
-    public String getImageUrl() {
-        return this.image_url;
+    public byte[] getImage() {
+        return this.image;
     }
 
     public Date getEventStartDate() {
@@ -122,8 +124,8 @@ public class Event {
         this.venue = venue;
     }
 
-    public void setImageUrl(String image_url) {
-        this.image_url = image_url;
+    public void setImage(byte[] image) {
+        this.image = image;
     }
 
     public void setEventStartDate(Date event_start_date) {
@@ -154,13 +156,31 @@ public class Event {
         this.status = status;
     }
 
-    // public float getCancellationFee() {
-    //     return this.cancellationFee;
-    // }
+    public String getCategory() {
+        return this.category;
+    }
 
-    // public void setCancellationFee(float cancellationFee) {
-    //     this.cancellationFee = cancellationFee;
-    // }
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+
+    public Float getCancellationFee() {
+        return this.cancellation_fee;
+    }
+
+    public void setCancellationFee(Float cancellationFee) {
+        this.cancellation_fee = cancellationFee;
+    }
+
+    public String getEventCategory() {
+        return this.category;
+    }
+
+    public void setEventCategory(String category) {
+        this.category = category;
+    }
+
 
     @Override
     public String toString() {
@@ -169,7 +189,7 @@ public class Event {
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", venue='" + venue + '\'' +
-                ", image_url='" + image_url + '\'' +
+                ", image='" + image + '\'' +
                 ", event_start_date=" + event_start_date +
                 ", event_end_date=" + event_end_date +
                 ", event_start_time=" + event_start_time +
@@ -177,6 +197,8 @@ public class Event {
                 ", ticket_sale_start_date_time=" + ticket_sale_start_date_time +
                 ", ticket_sale_end_date_time=" + ticket_sale_end_date_time +
                 ", status='" + status + '\'' +
+                ", category='" + category + '\'' +
+                ", cancellation_fee='" + cancellation_fee + '\'' +
                 '}';
     }
    
