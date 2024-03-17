@@ -1,245 +1,364 @@
 export default {
-    name: 'EventFormComponent',
-    props: {
-        mode: {
-            type: String,
-            required: true,
-            validator: function(value) {
-                return ['create', 'edit'].includes(value.toLowerCase());
-            }
-        },
-        eventData: {
-            type: Object,
-            default: null
-        }
+  name: "EventFormComponent",
+  props: {
+    mode: {
+      type: String,
+      required: true,
+      validator: function (value) {
+        return ["create", "edit"].includes(value.toLowerCase());
+      },
     },
-    data() {
-        return {
-            formData: {
-                eventName: '',
-                eventDescription: '',
-                eventImageFile: '',
-                eventCategory: '', 
-                eventVenue: '',
-                eventDate: '',
-                eventStartTime: '',
-                eventEndTime: '',
-                salesStartDate: '',
-                salesEndDate: '',
-                salesStartTime: '',
-                salesEndTime: '',
-                seatingOptions: [
-                    { type: '', cost: 0, numberOfSeats: 0, cancellationFee: 0 }
-                ]
-            },
-            formErrors: {
-                eventName: '',
-                eventDescription: '',
-                eventImageFile: '',
-                eventVenue: '',
-                salesStartDateTime: '',
-                salesEndDateTime: '',
-                seatingOptionsErrors: [{}]
-            }
-        };
+    eventData: {
+      type: Object,
+      default: null,
     },
-    mounted() {
-        console.log(this.eventData)
-        if (this.mode === 'edit' && this.eventData) {
-            this.populateFormData();
-        }
+  },
+  data() {
+    return {
+      formData: {
+        eventName: "",
+        eventDescription: "",
+        eventImageFile: "",
+        eventCategory: "",
+        eventVenue: "",
+        eventStartTime: "",
+        eventEndTime: "",
+        salesStartDate: "",
+        salesEndDate: "",
+        salesStartTime: "",
+        salesEndTime: "",
+        seatingOptions: [
+          { type: "", cost: 0, numberOfSeats: 0, cancellationFee: 0 },
+        ],
+      },
+      formErrors: {
+        eventName: "",
+        eventDescription: "",
+        eventImageFile: "",
+        eventVenue: "",
+        salesStartDateTime: "",
+        salesEndDateTime: "",
+        seatingOptionsErrors: [{}],
+      },
+    };
+  },
+  mounted() {
+    console.log(this.eventData);
+    if (this.mode === "edit" && this.eventData) {
+      this.populateFormData();
+    }
+  },
+  methods: {
+    populateFormData() {
+      this.formData.eventName = this.eventData.eventName;
+      this.formData.eventDescription = this.eventData.eventDescription;
+      this.formData.eventImageFile = this.eventData.eventImageFile;
+      this.formData.eventCategory = this.eventData.eventCategory;
+      this.formData.eventVenue = this.eventData.eventVenue;
+      this.formData.eventStartDate = this.eventData.eventStartDate;
+      this.formData.eventStartTime = this.eventData.eventStartTime;
+      this.formData.eventEndDate = this.eventData.eventEndDate;
+      this.formData.eventEndTime = this.eventData.eventEndTime;
+      this.formData.salesStartDate = this.eventData.salesStartDate;
+      this.formData.salesEndDate = this.eventData.salesEndDate;
+      this.formData.salesStartTime = this.eventData.salesStartTime;
+      this.formData.salesEndTime = this.eventData.salesEndTime;
+      this.formData.seatingOptions = this.eventData.seatingOptions.map(
+        (option) => ({
+          type: option.type,
+          cost: option.cost,
+          numberOfSeats: option.numberOfSeats,
+          cancellationFee: option.cancellationFee,
+        })
+      );
     },
-    methods: {
-        populateFormData() {
-            this.formData.eventName = this.eventData.eventName;
-            this.formData.eventDescription = this.eventData.eventDescription;
-            this.formData.eventImageFile = this.eventData.eventImageFile; 
-            this.formData.eventCategory = this.eventData.eventCategory;
-            this.formData.eventVenue = this.eventData.eventVenue;
-            this.formData.eventDate = this.eventData.eventDate;
-            this.formData.eventStartTime = this.eventData.eventStartTime;
-            this.formData.eventEndTime = this.eventData.eventEndTime;
-            this.formData.salesStartDate = this.eventData.salesStartDate;
-            this.formData.salesEndDate = this.eventData.salesEndDate;
-            this.formData.salesStartTime = this.eventData.salesStartTime;
-            this.formData.salesEndTime = this.eventData.salesEndTime;
-            this.formData.seatingOptions = this.eventData.seatingOptions.map(option => ({
-                type: option.type,
-                cost: option.cost,
-                numberOfSeats: option.numberOfSeats,
-                cancellationFee: option.cancellationFee
-            }));
-        },        
-        submitForm() {
-            if (this.validateForm()) {
-                if (this.mode === 'create') {
-                    // Handle create event API call
-                    console.log("Creating event...");
-                } else if (this.mode === 'edit') {
-                    // Handle edit event API call
-                    console.log("Editing event...");
-                }
-            } else {
-                console.log("Form validation failed");
-            }
-        },
-        handleImageUpload(event) {
-            const file = event.target.files[0];
-            if (file) {
-                // change it based on supabase approach
-                this.formData.eventImageFile = file;
-                this.formErrors.eventImageFile = '';
-            } else {
-                if (this.mode === 'create') {
-                    this.formErrors.eventImageFile = 'An event image file is required.';
-                }
-            }
-        },
-        addSeatingOption() {
-            this.formData.seatingOptions.push({ type: '', cost: 0, numberOfSeats: 0, cancellationFee: 0 });
-            this.formErrors.seatingOptionsErrors.push({});
-        },
-        removeSeatingOption(index) {
-            this.formData.seatingOptions.splice(index, 1);
-            this.formErrors.seatingOptionsErrors.splice(index, 1);
-        },
-        onReset() {
-            // Reset form fields
-            this.formData = {
-                eventName: '',
-                eventDescription: '',
-                eventImageFile: null,
-                eventCategory: '',
-                eventVenue: '',
-                eventDate: '',
-                eventStartTime: '',
-                eventEndTime: '',
-                salesStartDate: '',
-                salesEndDate: '',
-                salesStartTime: '',
-                salesEndTime: '',
-                seatingOptions: [
-                    { type: '', cost: 0, numberOfSeats: 0, cancellationFee: 0 }
-                ]
-            };
+    submitForm() {
+      if (this.validateForm()) {
+        if (this.mode === "create") {
+          // Handle create event API call
+          // Build ViewModel
+          let listOfItem = [];
 
-            this.formErrors = {
-                eventName: '',
-                eventDescription: '',
-                eventImageFile: '',
-                eventEndTime: '',
-                salesStartDateTime: '',
-                salesEndDateTime: '',
-                seatingOptionsErrors: [{}]
-            };
-        },
-        combineDateTime(date, time) {
-            return new Date(`${date}T${time}`);
-        },
-        validateEventName() {
-            if (this.formData.eventName.length <= 5) {
-                this.formErrors.eventName = 'Event Name must be longer than 5 characters.';
-                return false;
-            }
-            this.formErrors.eventName = '';
-            return true;
-        },
+          let createViewModel = {
+            name: this.formData.eventName,
+            description: this.formData.eventDescription,
+            category: this.formData.eventCategory,
+            venue: this.formData.eventVenue,
+            imageURL: this.formData.eventImageFile,
+            eventStartDate: this.formData.eventStartDate,
+            eventEndDate: this.formData.eventEndDate,
+            eventStartTime: this.formData.eventStartTime,
+            eventEndTime: this.formData.eventEndTime,
+            ticketSaleStartDateTime: this.combineDateTime(
+              this.formData.salesStartDate,
+              this.formData.salesStartTime
+            ),
+            ticketSaleEndDateTime: this.combineDateTime(
+              this.formData.salesEndDate,
+              this.formData.salesEndTime
+            ),
+            status: "Published",
+            seats: this.formData.seatingOptions.flatMap((x) => x),
+          };
+          console.log("Creating event...");
+          console.log(createViewModel);
 
-        validateEventDescription() {
-            if (this.formData.eventDescription.length <= 5) {
-                this.formErrors.eventDescription = 'Event Description must be longer than 5 characters.';
-                return false;
-            }
-            this.formErrors.eventDescription = '';
-            return true;
-        },
-
-        validateImageUpload() {
-            if (!this.formData.eventImageFile) {
-                this.formErrors.eventImageFile = 'An event image file is required.';
-                return false;
-            }
-            this.formErrors.eventImageFile = '';
-            return true;
-        },
-
-        validateEventVenue() {
-            if (this.formData.eventVenue.length <= 5) {
-                this.formErrors.eventVenue = 'Event Venue must be longer than 5 characters.';
-                return false;
-            }
-            this.formErrors.eventVenue = '';
-            return true;
-        },
-        
-        validateEventDateTime() {
-            if (!this.formData.eventDate || !this.formData.eventStartTime) {
-                this.formErrors.eventDate = 'Event date and start time are required.';
-                return false;
-            }
-            if (this.formData.eventEndTime && this.combineDateTime(this.formData.eventDate, this.formData.eventEndTime) <= this.combineDateTime(this.formData.eventDate, this.formData.eventStartTime)) {
-                this.formErrors.eventEndTime = 'Event end time must be after the event start time.';
-                return false;
-            }
-            this.formErrors.eventDate = '';
-            this.formErrors.eventEndTime = '';
-            return true;
-        },
-        
-        validateSalesStartDateTime() {
-            const salesStartDateTime = this.combineDateTime(this.formData.salesStartDate, this.formData.salesStartTime);
-            const eventDateTime = this.combineDateTime(this.formData.eventDate, this.formData.eventStartTime);
-
-            if (salesStartDateTime >= eventDateTime) {
-                this.formErrors.salesStartDateTime = 'Sales Start Date and Time must be before the Event Date and Time.';
-                return false;
-            }
-            this.formErrors.salesStartDateTime = '';
-            return true;
-        },
-        validateSalesEndDateTime() {
-            const salesStartDateTime = this.combineDateTime(this.formData.salesStartDate, this.formData.salesStartTime);
-            const salesEndDateTime = this.combineDateTime(this.formData.salesEndDate, this.formData.salesEndTime);
-            const eventDateTime = this.combineDateTime(this.formData.eventDate, this.formData.eventStartTime);
-
-            if (salesEndDateTime >= eventDateTime) {
-                this.formErrors.salesEndDateTime = 'Sales End Date and Time must be before the Event Date and Time.';
-                return false;
-            } else if (salesEndDateTime <= salesStartDateTime) {
-                this.formErrors.salesEndDateTime = 'Sales End Date and Time must be after the Sales Start Date and Time.';
-                return false;
-            }
-            this.formErrors.salesEndDateTime = '';
-            return true;
-        },
-        validateSeatingOptions() {
-            this.formErrors.seatingOptionsErrors = this.formData.seatingOptions.map(option => {
-                const errors = {};
-                if (!option.type) errors.type = 'Seat type is required.';
-                if (option.cost <= 0) errors.cost = 'Cost must be greater than 0.';
-                if (option.numberOfSeats <= 0) errors.numberOfSeats = 'Number of seats must be greater than 0.';
-                if (option.cancellationFee < 0) errors.cancellationFee = 'Cancellation fee must not be negative.';
-                return errors;
+          axios
+            .post("/api/manager/event/create", createViewModel)
+            .then((res) => {
+              //Perform Success Action
+              alert("Added successfully");
+            })
+            .catch((error) => {
+              console.log(error);
+              alert("Fail to add");
+            })
+            .finally(() => {
+              //Perform action in always
             });
-
-            return this.formErrors.seatingOptionsErrors.every(errors => Object.keys(errors).length === 0);
-        },
-        validateForm() {
-            const validations = [
-                this.validateEventName(),
-                this.validateEventDescription(),
-                this.validateImageUpload(),
-                this.validateEventVenue(),
-                this.validateEventDateTime(),
-                this.validateSalesStartDateTime(),
-                this.validateSalesEndDateTime(),
-                this.validateSeatingOptions()
-            ];
-        
-            return validations.every(valid => valid);
+        } else if (this.mode === "edit") {
+          // Handle edit event API call
+          console.log("Editing event...");
         }
+      } else {
+        console.log("Form validation failed");
+      }
     },
-    template: `
+    handleImageUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        // change it based on supabase approach
+        this.formData.eventImageFile = file;
+        this.formErrors.eventImageFile = "";
+      } else {
+        if (this.mode === "create") {
+          this.formErrors.eventImageFile = "An event image file is required.";
+        }
+      }
+    },
+    addSeatingOption() {
+      this.formData.seatingOptions.push({
+        type: "",
+        cost: 0,
+        numberOfSeats: 0,
+        cancellationFee: 0,
+      });
+      this.formErrors.seatingOptionsErrors.push({});
+    },
+    removeSeatingOption(index) {
+      this.formData.seatingOptions.splice(index, 1);
+      this.formErrors.seatingOptionsErrors.splice(index, 1);
+    },
+    onReset() {
+      // Reset form fields
+      this.formData = {
+        eventName: "",
+        eventDescription: "",
+        eventImageFile: "",
+        eventCategory: "",
+        eventVenue: "",
+        eventStartDate: "",
+        eventEndDate: "",
+        eventStartTime: "",
+        eventEndTime: "",
+        salesStartDate: "",
+        salesEndDate: "",
+        salesStartTime: "",
+        salesEndTime: "",
+        seatingOptions: [
+          { type: "", cost: 0, numberOfSeats: 0, cancellationFee: 0 },
+        ],
+      };
+
+      this.formErrors = {
+        eventName: "",
+        eventDescription: "",
+        eventImageFile: "",
+        eventEndTime: "",
+        salesStartDateTime: "",
+        salesEndDateTime: "",
+        seatingOptionsErrors: [{}],
+      };
+    },
+    combineDateTime(date, time) {
+      return new Date(`${date}T${time}`);
+    },
+    validateEventName() {
+      if (this.formData.eventName.length <= 5) {
+        this.formErrors.eventName =
+          "Event Name must be longer than 5 characters.";
+        return false;
+      }
+      this.formErrors.eventName = "";
+      return true;
+    },
+
+    validateEventDescription() {
+      if (this.formData.eventDescription.length <= 5) {
+        this.formErrors.eventDescription =
+          "Event Description must be longer than 5 characters.";
+        return false;
+      }
+      this.formErrors.eventDescription = "";
+      return true;
+    },
+
+    validateImageUpload() {
+      if (!this.formData.eventImageFile) {
+        this.formErrors.eventImageFile = "An event image file is required.";
+        return false;
+      }
+      this.formErrors.eventImageFile = "";
+      return true;
+    },
+
+    validateEventVenue() {
+      if (this.formData.eventVenue.length <= 5) {
+        this.formErrors.eventVenue =
+          "Event Venue must be longer than 5 characters.";
+        return false;
+      }
+      this.formErrors.eventVenue = "";
+      return true;
+    },
+
+    validateEventDateTime() {
+      if (!this.formData.eventStartDate) {
+        this.formErrors.eventStartDate = "Event start date is required.";
+        return false;
+      }
+
+      if (!this.formData.eventStartTime) {
+        this.formErrors.eventStartTime = "Event start time is required.";
+        return false;
+      }
+
+      if (!this.formData.eventEndDate) {
+        this.formErrors.eventEndDate = "Event end date is required.";
+        return false;
+      }
+
+      if (!this.formData.eventEndTime) {
+        this.formErrors.eventEndTime = "Event end time is required.";
+        return false;
+      }
+
+      if (
+        this.formData.eventEndTime &&
+        this.combineDateTime(
+          this.formData.eventStartDate,
+          this.formData.eventEndTime
+        ) <=
+          this.combineDateTime(
+            this.formData.eventStartDate,
+            this.formData.eventStartTime
+          )
+      ) {
+        this.formErrors.eventEndTime =
+          "Event end time must be after the event start time.";
+        return false;
+      }
+
+      if (
+        this.formData.eventEndDate &&
+        this.combineDateTime(
+          this.formData.eventEndDate,
+          this.formData.eventStartTime
+        ) <=
+          this.combineDateTime(
+            this.formData.eventStartDate,
+            this.formData.eventStartTime
+          )
+      ) {
+        this.formErrors.eventEndTime =
+          "Event end date must be after the event start time.";
+        return false;
+      }
+      this.formErrors.eventStartDate = "";
+      this.formErrors.eventStartTime = "";
+      this.formErrors.eventEndDate = "";
+      this.formErrors.eventEndTime = "";
+      return true;
+    },
+
+    validateSalesStartDateTime() {
+      const salesStartDateTime = this.combineDateTime(
+        this.formData.salesStartDate,
+        this.formData.salesStartTime
+      );
+      const eventDateTime = this.combineDateTime(
+        this.formData.eventStartDate,
+        this.formData.eventStartTime
+      );
+
+      if (salesStartDateTime >= eventDateTime) {
+        this.formErrors.salesStartDateTime =
+          "Sales Start Date and Time must be before the Event Date and Time.";
+        return false;
+      }
+      this.formErrors.salesStartDateTime = "";
+      return true;
+    },
+    validateSalesEndDateTime() {
+      const salesStartDateTime = this.combineDateTime(
+        this.formData.salesStartDate,
+        this.formData.salesStartTime
+      );
+      const salesEndDateTime = this.combineDateTime(
+        this.formData.salesEndDate,
+        this.formData.salesEndTime
+      );
+      const eventDateTime = this.combineDateTime(
+        this.formData.eventStartDate,
+        this.formData.eventStartTime
+      );
+
+      if (salesEndDateTime >= eventDateTime) {
+        this.formErrors.salesEndDateTime =
+          "Sales End Date and Time must be before the Event Date and Time.";
+        return false;
+      } else if (salesEndDateTime <= salesStartDateTime) {
+        this.formErrors.salesEndDateTime =
+          "Sales End Date and Time must be after the Sales Start Date and Time.";
+        return false;
+      }
+      this.formErrors.salesEndDateTime = "";
+      return true;
+    },
+    validateSeatingOptions() {
+      this.formErrors.seatingOptionsErrors = this.formData.seatingOptions.map(
+        (option) => {
+          const errors = {};
+          if (!option.type) errors.type = "Seat type is required.";
+          if (option.cost <= 0) errors.cost = "Cost must be greater than 0.";
+          if (option.numberOfSeats <= 0)
+            errors.numberOfSeats = "Number of seats must be greater than 0.";
+          if (option.cancellationFee < 0)
+            errors.cancellationFee = "Cancellation fee must not be negative.";
+          return errors;
+        }
+      );
+
+      return this.formErrors.seatingOptionsErrors.every(
+        (errors) => Object.keys(errors).length === 0
+      );
+    },
+    validateForm() {
+      const validations = [
+        this.validateEventName(),
+        this.validateEventDescription(),
+        this.validateImageUpload(),
+        this.validateEventVenue(),
+        this.validateEventDateTime(),
+        this.validateSalesStartDateTime(),
+        this.validateSalesEndDateTime(),
+        this.validateSeatingOptions(),
+      ];
+
+      return validations.every((valid) => valid);
+    },
+  },
+  template: `
         
     <form method="post" role="form" v-on:submit.prevent="submitForm">
 
@@ -258,9 +377,9 @@ export default {
         </div>
 
         <!--Event Image Upload-->
-        <div class="custom-file-container">
+        <div class="form-group mt-5 mb-4">
             <label for="eventImageFile" class="custom-file-label">Event Image</label>
-            <input type="file" id="eventImageFile" @change="handleImageUpload" class="custom-file-input" />
+            <input v-model="formData.eventImageFile" id="eventImageFile" type="text" placeholder="Event Image URL" required class="form-control border-0 shadow-sm px-4 field" />
             <div v-if="formErrors.eventImageFile" class="text-danger">{{ formErrors.eventImageFile }}</div>
         </div>
 
@@ -285,16 +404,23 @@ export default {
         <!--Event Date and Time-->
         <div class="row mb-4">
             <div class="col-md-6 form-group">
-                <label for="eventDate" class="mb-2">Event Date</label>
-                <input v-model="formData.eventDate" type="date" id="eventDate" required class="form-control border-0 shadow-sm px-4 field" />
+                <label for="eventStartDate" class="mb-2">Event Date</label>
+                <input v-model="formData.eventStartDate" type="date" id="eventStartDate" required class="form-control border-0 shadow-sm px-4 field" />
+                <div v-if="formErrors.eventStartDate" class="text-danger">{{ formErrors.eventStartDate }}</div>
             </div>
             <div class="col-md-6 form-group starttime-field">
                 <label for="eventStartTime" class="mb-2">Event Start Time</label>
                 <input v-model="formData.eventStartTime" type="time" id="eventStartTime" required class="form-control border-0 shadow-sm px-4 field" />
+                <div v-if="formErrors.eventStartTime" class="text-danger">{{ formErrors.eventStartTime }}</div>
             </div>
         </div>
 
         <div class="row mb-4">
+            <div class="col-md-6 form-group">
+                <label for="eventEndDate" class="mb-2">Event Date</label>
+                <input v-model="formData.eventEndDate" type="date" id="eventEndDate" required class="form-control border-0 shadow-sm px-4 field" />
+                <div v-if="formErrors.eventEndDate" class="text-danger">{{ formErrors.eventEndDate }}</div>
+            </div>
             <div class="col-md-6 form-group">
                 <label for="eventEndTime" class="mb-2">Event End Time</label>
                 <input v-model="formData.eventEndTime" type="time" id="eventEndTime" required class="form-control border-0 shadow-sm px-4 field" />
@@ -387,5 +513,5 @@ export default {
             </div>
         </div>
     </form>
-    `
-}
+    `,
+};

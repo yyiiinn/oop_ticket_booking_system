@@ -1,9 +1,11 @@
 package com.oop.springbootmvc.model;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.List;
 
 public class CustomUserDetails implements UserDetails {
 
@@ -15,8 +17,11 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + this.user.role.getName().toString());
+        return List.of(authority);
     }
+
+
 
     @Override
     public String getPassword() {
@@ -50,6 +55,10 @@ public class CustomUserDetails implements UserDetails {
 
     public String getName() {
         return user.getName();
+    }
+
+    public Role getRole() {
+        return user.getRole();
     }
 
 }

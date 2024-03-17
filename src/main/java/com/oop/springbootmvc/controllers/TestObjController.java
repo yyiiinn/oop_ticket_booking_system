@@ -6,8 +6,6 @@ import com.oop.springbootmvc.model.TestObj;
 import com.oop.springbootmvc.repository.TestObjRepository;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 public class TestObjController {
   private final TestObjRepository testObjRepository;
