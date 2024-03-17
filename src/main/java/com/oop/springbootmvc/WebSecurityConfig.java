@@ -39,9 +39,9 @@ public class WebSecurityConfig {
 
         http.authenticationProvider(authenticationProvider());
 
-        http
+        // http
         // CSRF Token
-        .csrf(AbstractHttpConfigurer::disable);
+        // .csrf(AbstractHttpConfigurer::disable);
 
         http.authorizeHttpRequests(auth ->
             auth
