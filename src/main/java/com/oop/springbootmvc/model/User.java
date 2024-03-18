@@ -1,8 +1,11 @@
 package com.oop.springbootmvc.model;
 
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+
 import jakarta.persistence.*;
 
 @Entity
+@EnableAutoConfiguration
 @Table(name = "users")
 public class User {
     private @Id
@@ -16,19 +19,20 @@ public class User {
     @Column(nullable = false)
     private String password;
     @Column(nullable = false)
-    private String role;
-    @Column(nullable = false)
     private Boolean hasPasswordChange;
     @Column(nullable = false)
     private float balance;
-    public User(String name, String role, String username, String password,  Boolean hasPasswordChange, float balance) {
+    @ManyToOne
+    // @Column(nullable = false)
+    Role role;
 
+    public User(String username, String name, String password, Boolean hasPasswordChange, float balance, Role role) {
+        this.username = username;
         this.name = name;
-        this.role = role;
-        this.balance = balance;
         this.password = password;
         this.hasPasswordChange = hasPasswordChange;
-        this.username = username;
+        this.balance = balance;
+        this.role = role;
     }
 
     public User() {
@@ -45,10 +49,6 @@ public class User {
 
     public String getUsername() {
         return this.username;
-    }
-
-    public String getRole() {
-        return this.role;
     }
 
     public String getPassword() {
@@ -69,10 +69,6 @@ public class User {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
     }
 
     public void setPassword(String password) {

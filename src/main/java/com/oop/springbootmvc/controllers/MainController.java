@@ -3,33 +3,24 @@ package com.oop.springbootmvc.controllers;
 import com.oop.springbootmvc.model.CustomUserDetails;
 import com.oop.springbootmvc.model.User;
 import com.oop.springbootmvc.repository.EventRepository;
-import com.oop.springbootmvc.service.EventService;
-import com.oop.springbootmvc.model.Event;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.security.Principal;
-import java.util.List;
-import java.util.Optional;
 
 
 @Controller
 public class MainController {
 
-    private final EventRepository eventRepository;
 
     @Autowired
     public MainController(EventRepository eventRepository) {
-        this.eventRepository = eventRepository;
     }
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
@@ -72,7 +63,7 @@ public class MainController {
     }
 
     //Protected route
-    @RequestMapping(value = "/custViewProfile", method = RequestMethod.GET)
+    @RequestMapping(value = "/customer/ViewProfile", method = RequestMethod.GET)
     public String custViewProfile(Principal principal) {
         // this attribute will be available in the view index.html as a thymeleaf variable
         // Authentication authentication = (Authentication) principal;
@@ -81,7 +72,7 @@ public class MainController {
         return "custViewProfile";
     }
 
-    @RequestMapping(value = "/custViewEvents", method = RequestMethod.GET)
+    @RequestMapping(value = "/customer/ViewEvents", method = RequestMethod.GET)
     public String custViewEvents(Principal principal) {
         // this attribute will be available in the view index.html as a thymeleaf variable
         // Authentication authentication = (Authentication) principal;
@@ -90,7 +81,7 @@ public class MainController {
         return "custViewEvents";
     }
 
-    @RequestMapping(value = "/custViewBookingHistory", method = RequestMethod.GET)
+    @RequestMapping(value = "/customer/ViewBookingHistory", method = RequestMethod.GET)
     public String custViewBookingHistory(Principal principal) {
         // this attribute will be available in the view index.html as a thymeleaf variable
         // Authentication authentication = (Authentication) principal;
@@ -99,7 +90,7 @@ public class MainController {
         return "custViewBookingHistory";
     }
 
-    @RequestMapping(value = "/custViewBookingDetails", method = RequestMethod.GET)
+    @RequestMapping(value = "/customer/ViewBookingDetails", method = RequestMethod.GET)
     public String custViewBookingDetails(Principal principal) {
         // this attribute will be available in the view index.html as a thymeleaf variable
         // Authentication authentication = (Authentication) principal;
@@ -109,7 +100,7 @@ public class MainController {
     }
 
     // ==================================================== Ticketing Officer ====================================================
-    @RequestMapping(value = "/ticOffViewEvents", method = RequestMethod.GET)
+    @RequestMapping(value = "/officer/ViewEvents", method = RequestMethod.GET)
     public String ticOffViewEvents(Principal principal) {
         // this attribute will be available in the view index.html as a thymeleaf variable
         
@@ -119,7 +110,7 @@ public class MainController {
         return "ticOffViewEvents";
     }
 
-    @RequestMapping(value = "/ticOffVerifyTickets", method = RequestMethod.GET)
+    @RequestMapping(value = "/officer/VerifyTickets", method = RequestMethod.GET)
     public String ticOffVerifyTickets(Principal principal) {
         // this attribute will be available in the view index.html as a thymeleaf variable
 
@@ -129,7 +120,7 @@ public class MainController {
         return "ticOffVerifyTickets";
     }
 
-    @RequestMapping(value = "/ticOffPurchaseTickets", method = RequestMethod.GET)
+    @RequestMapping(value = "/officer/PurchaseTickets", method = RequestMethod.GET)
     public String ticOffPurchaseTickets(Principal principal) {
         // this attribute will be available in the view index.html as a thymeleaf variable
         
@@ -140,7 +131,7 @@ public class MainController {
     }
 
     // ==================================================== Event Manager ====================================================
-    @RequestMapping(value = "/eventManViewEvents", method = RequestMethod.GET)
+    @RequestMapping(value = "/manager/ViewEvents", method = RequestMethod.GET)
     public String eventManViewEvents(Principal principal) {
         // this attribute will be available in the view index.html as a thymeleaf variable
         
@@ -149,21 +140,8 @@ public class MainController {
 
         return "eventManViewEvents";
     }
-
-    @GetMapping("/api/activeEvents")
-    public ResponseEntity<List<Event>> getActiveEvents() {
-        List<Event> activeEvents = eventRepository.findActiveEvents();
-        return ResponseEntity.ok(activeEvents);
-    }
-
-    @GetMapping("/api/allEvents")
-    public ResponseEntity<List<Event>> getAllEvents() {
-        List<Event> events = eventRepository.findAllEvents();
-        return ResponseEntity.ok(events);
-    }
-
     
-    @RequestMapping(value = "/eventManCreateEvent", method = RequestMethod.GET)
+    @RequestMapping(value = "/manager/CreateEvent", method = RequestMethod.GET)
     public String eventManCreateEvent(Principal principal) {
         // this attribute will be available in the view index.html as a thymeleaf variable
         
@@ -179,7 +157,7 @@ public class MainController {
     //     return "eventManEditEvent";
     // }
 
-    @RequestMapping(value = "/eventManEditEvent/{eventId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/manager/EditEvent/{eventId}", method = RequestMethod.GET)
     public String eventManEditEvent(@PathVariable("eventId") int eventId, Model model, Principal principal) {
         // Optional<Event> eventOptional = eventRepository.findById(eventId);
         // if (eventOptional.isPresent()) {
@@ -194,7 +172,7 @@ public class MainController {
     }
 
 
-    @RequestMapping(value = "/eventManViewTicOfficer", method = RequestMethod.GET)
+    @RequestMapping(value = "/manager/ViewTicOfficer", method = RequestMethod.GET)
     public String eventManViewTicOfficer(Principal principal) {
         // this attribute will be available in the view index.html as a thymeleaf variable
         
@@ -211,7 +189,7 @@ public class MainController {
     //     return "viewEvents";
     // }
 
-    @RequestMapping(value = "/eventManViewDashboard", method = RequestMethod.GET)
+    @RequestMapping(value = "/manager/ViewDashboard", method = RequestMethod.GET)
     public String eventManViewDashboard(Principal principal) {
         // this attribute will be available in the view index.html as a thymeleaf variable
         

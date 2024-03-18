@@ -1,41 +1,39 @@
 package com.oop.springbootmvc.model;
 
-import java.sql.Time;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "sits")
-public class Sit {
+@EnableAutoConfiguration
+@Table(name = "seats")
+public class Seat {
     private @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="id")
     int id;
     @Column(nullable = false)
-    private int event_id;
-    @Column(nullable = false)
     private String type;
     @Column(nullable = false)
     private float cost;
     @Column(nullable = false)
-    private int number_of_sits;
-    public Sit(int event_id, String type, float cost, int number_of_sits) {
-        this.event_id = event_id;
+    private int numberOfSits;
+    @ManyToOne
+    // @Column(nullable = false)
+    Event event;  
+    public Seat( String type, float cost, int numberOfSits, Event event) {
         this.type = type;
         this.cost = cost;
-        this.number_of_sits =  number_of_sits;
+        this.numberOfSits =  numberOfSits;
+        this.event = event;
     }
 
-    public Sit() {
+    public Seat() {
 
     }
 
     public int getId() {
         return this.id;
-    }
-
-    public int getEventId() {
-        return this.event_id;
     }
 
     public String getType() {
@@ -47,15 +45,11 @@ public class Sit {
     }
 
     public int getNumberOfSeats() {
-        return this.number_of_sits;
+        return this.numberOfSits;
     }
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public void setEventId(int event_id) {
-        this.event_id = event_id;
     }
 
     public void setType(String type) {
@@ -66,8 +60,8 @@ public class Sit {
         this.cost = cost;
     }
 
-    public void setNumberOfSeats(int number_of_sits) {
-        this.number_of_sits = number_of_sits;
+    public void setNumberOfSeats(int numberOfSits) {
+        this.numberOfSits = numberOfSits;
     }
    
 }
