@@ -8,9 +8,8 @@ import com.oop.springbootmvc.repository.TransactionRepository;
 import com.oop.springbootmvc.repository.UserRepository;
 import com.oop.springbootmvc.model.Event;
 import com.oop.springbootmvc.repository.EventRepository;
-import com.oop.springbootmvc.model.Sit;
+import com.oop.springbootmvc.repository.SeatRepository;
 import com.oop.springbootmvc.model.Ticket;
-import com.oop.springbootmvc.repository.SitRepository;
 import com.oop.springbootmvc.repository.TicketRepository;
 import com.oop.springbootmvc.viewmodel.BookingViewModel;
 import com.oop.springbootmvc.viewmodel.RegisterViewModel;
@@ -40,7 +39,7 @@ public class TransactionController {
     @Autowired
     private TransactionRepository transactionRepository;
     @Autowired
-    private SitRepository sitRepository;
+    private SeatRepository seatRepository;
     @Autowired
     private TicketRepository ticketRepository;
 

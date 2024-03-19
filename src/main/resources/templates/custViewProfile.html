@@ -10,27 +10,40 @@
     <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}" />
 
     <!-- Include Bootstrap -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
 
     <!-- Optional theme -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
+      integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+      crossorigin="anonymous"
+    ></script>
 
     <style>
       .sign-out-button {
-            color: #141B4D; /* Text color */
-            border: 3px solid #141B4D; /* Add border here */
-            padding:5px 20px;
-            margin-left: 20px; /* Spacing from the navbar links */
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s, border-color 0.3s;
-            }
-        
-        .sign-out-button:hover {
-            color: #141B4D; 
-            border: 3px solid #141B4D;
-        }
+        color: #141b4d; /* Text color */
+        border: 3px solid #141b4d; /* Add border here */
+        padding: 5px 20px;
+        margin-left: 20px; /* Spacing from the navbar links */
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s, border-color 0.3s;
+      }
+
+      .sign-out-button:hover {
+        color: #141b4d;
+        border: 3px solid #141b4d;
+      }
     </style>
   </head>
   <body>
@@ -42,34 +55,40 @@
           <h2 class="text-center mb-4">My Profile</h2>
 
           <div class="container col-12 bg-white pb-5">
-  
             <div class="row mb-2 pt-4">
               <div class="col-12 col-sm-3">
                 <strong>Username: </strong>
               </div>
-              <div class="col-12 col-sm-9">
-                {{ user.name }}
-              </div>
+              <<<<<<< HEAD
+              <div class="col-12 col-sm-9">{{ user.name }}</div>
+              =======
+              <div class="col-12 col-sm-9">{{ user.username }}</div>
+              >>>>>>> main
             </div>
             <div class="row mb-2">
               <div class="col-12 col-sm-3">
                 <strong>Email: </strong>
               </div>
+              <<<<<<< HEAD
               <div class="col-12 col-sm-9">
-                {{ user.username }} <!-- username = email -->
+                {{ user.username }}
+                <!-- username = email -->
               </div>
+              =======
+              <div class="col-12 col-sm-9">{{ user.email }}</div>
+              >>>>>>> main
             </div>
             <div class="row mb-2">
               <div class="col-12 col-sm-3">
                 <strong>Account Balance: </strong>
               </div>
-              <div class="col-12 col-sm-9">
-                ${{ user.balance }} SGD
-              </div>
+              <div class="col-12 col-sm-9">${{ user.balance }} SGD</div>
             </div>
-            
+
             <div class="pt-5 pb-3 row justify-content-center">
-                <div class="col-auto"><h5 class="text-decoration-underline">Transaction History</h5></div>
+              <div class="col-auto">
+                <h5 class="text-decoration-underline">Transaction History</h5>
+              </div>
             </div>
 
             <div class="table-responsive border border-solid mb-5">
@@ -78,31 +97,64 @@
                   <tr class="text-center">
                     <th></th>
                     <th>Event Name</th>
-                    <th>Transaction Date/Time</th>  
+                    <th>Transaction Date/Time</th>
                     <th>Amount</th>
                     <th>Status</th>
-
                   </tr>
                 </thead>
                 <tbody>
-                  <tr class="text-center" v-for="(transaction, index) in transactions" :key="index">
+                  <tr
+                    class="text-center"
+                    v-for="(transaction, index) in transactions"
+                    :key="index"
+                  >
                     <td>{{index + 1}}</td>
                     <td>{{ transaction.eventName }}</td>
                     <td>{{ formatDate(transaction.purchasedDateTime)}}</td>
                     <td>
-                    {{ transaction.cost }} SGD
-                    <br v-if="transaction.status === 'cancelled'"><span v-if="transaction.status === 'cancelled'">Cancellation Cost: <span class="text-danger">{{ transaction.userCancellationCost }}</span></span>
+                      {{ transaction.cost }} SGD
+                      <br v-if="transaction.status === 'cancelled'" /><span
+                        v-if="transaction.status === 'cancelled'"
+                        >Cancellation Cost:
+                        <span class="text-danger"
+                          >{{ transaction.userCancellationCost }}</span
+                        ></span
+                      >
+                      <tr
+                        class="text-center"
+                        v-for="transaction in user.transactions"
+                        :key="transaction.id"
+                        @click="handleRowClick(transaction)"
+                      >
+                        <td>{{ transaction.id }}</td>
+                        <td>
+                          {{ transaction.eventName }} <br />
+                          {{ transaction.eventDate }} | {{
+                          transaction.eventStartTime }}
+                        </td>
+                        <td>
+                          {{ transaction.transactionDate }} | {{
+                          transaction.transactionTime }}
+                        </td>
+                        <td
+                          :class="{ 'text-success': transaction.status === 'Completed (Refunded)', 'text-danger': transaction.status === 'Pending' || transaction.status === 'Completed' }"
+                        >
+                          {{ transaction.status === 'Pending' ||
+                          transaction.status === 'Completed' ? '-' : '+' }}{{
+                          transaction.amount }} SGD
+                        </td>
+                        <td
+                          :class="{ 'border border-primary bg-primary text-light': transaction.status === 'booked', 'border border-warning bg-warning text-dark': transaction.status === 'cancelled' }"
+                        >
+                          {{ transaction.status }}
+                        </td>
+                      </tr>
                     </td>
-                    <td :class="{ 'border border-primary bg-primary text-light': transaction.status === 'booked', 'border border-warning bg-warning text-dark': transaction.status === 'cancelled' }">
-                      {{ transaction.status }}</td>
- 
                   </tr>
                 </tbody>
               </table>
             </div>
-
           </div>
-
         </div>
       </div>
     </div>
@@ -113,112 +165,110 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
     <script type="module">
-      import NavBarComponent from './js/navbar/CustomerNavBarComponent.js';
+      import NavBarComponent from "/js/navbar/CustomerNavBarComponent.js";
 
       const app = Vue.createApp({
         data() {
           return {
-          custId : 1,
-          transactions: [],
-          user : {},
-          // return {
-          //   // user: {
-          //   //         username: 'JohnDoe',
-          //   //         email: 'johndoe@gmail.com',
-          //   //         balance: 800,
-          //   //         transactions: [
-          //   //             {
-          //   //                 id: 'TX123',
-          //   //                 eventName: 'Concert A',
-          //   //                 eventDate: '2024-04-20',
-          //   //                 eventStartTime: '18:00',
-          //   //                 eventEndTime: '20:00',
-          //   //                 transactionDate: '2024-01-20',
-          //   //                 transactionTime: '05:00',
-          //   //                 amount: 100,
-          //   //                 status: 'Pending'
-          //   //             },
-          //   //             {
-          //   //                 id: 'TX124',
-          //   //                 eventName: 'Concert B',
-          //   //                 eventDate: '2024-08-20',
-          //   //                 eventStartTime: '18:00',
-          //   //                 eventEndTime: '20:00',
-          //   //                 transactionDate: '2024-06-20',
-          //   //                 transactionTime: '05:00',
-          //   //                 amount: 100,
-          //   //                 status: 'Completed'
-          //   //             },
-          //   //             {
-          //   //                 id: 'TX125',
-          //   //                 eventName: 'Concert C',
-          //   //                 eventDate: '2024-10-20',
-          //   //                 eventStartTime: '18:00',
-          //   //                 eventEndTime: '20:00',
-          //   //                 transactionDate: '2024-07-20',
-          //   //                 transactionTime: '05:00',
-          //   //                 amount: 100,
-          //   //                 status: 'Completed (Refunded)'
-          //   //             },
-          //   //         ]
-          //   //     }
-          // }
+            custId: 1,
+            transactions: [],
+            user: {},
+            // return {
+            //   // user: {
+            //   //         username: 'JohnDoe',
+            //   //         email: 'johndoe@gmail.com',
+            //   //         balance: 800,
+            //   //         transactions: [
+            //   //             {
+            //   //                 id: 'TX123',
+            //   //                 eventName: 'Concert A',
+            //   //                 eventDate: '2024-04-20',
+            //   //                 eventStartTime: '18:00',
+            //   //                 eventEndTime: '20:00',
+            //   //                 transactionDate: '2024-01-20',
+            //   //                 transactionTime: '05:00',
+            //   //                 amount: 100,
+            //   //                 status: 'Pending'
+            //   //             },
+            //   //             {
+            //   //                 id: 'TX124',
+            //   //                 eventName: 'Concert B',
+            //   //                 eventDate: '2024-08-20',
+            //   //                 eventStartTime: '18:00',
+            //   //                 eventEndTime: '20:00',
+            //   //                 transactionDate: '2024-06-20',
+            //   //                 transactionTime: '05:00',
+            //   //                 amount: 100,
+            //   //                 status: 'Completed'
+            //   //             },
+            //   //             {
+            //   //                 id: 'TX125',
+            //   //                 eventName: 'Concert C',
+            //   //                 eventDate: '2024-10-20',
+            //   //                 eventStartTime: '18:00',
+            //   //                 eventEndTime: '20:00',
+            //   //                 transactionDate: '2024-07-20',
+            //   //                 transactionTime: '05:00',
+            //   //                 amount: 100,
+            //   //                 status: 'Completed (Refunded)'
+            //   //             },
+            //   //         ]
+            //   //     }
+            // }
           };
         },
         mounted() {
           // Perform Axios call when component is mounted
-          axios.get(`/api/transactions/getTransactions/${this.custId}`)
-            .then(response => {
+          axios
+            .get(`/api/transactions/getTransactions/${this.custId}`)
+            .then((response) => {
               this.transactions = response.data;
               console.log(this.transactions);
-              console.log('Data loaded successfully:', response.data);
+              console.log("Data loaded successfully:", response.data);
 
-              // Optionally, handle the response data 
+              // Optionally, handle the response data
             })
-            .catch(error => {
-              console.error('Error loading data:', error);
+            .catch((error) => {
+              console.error("Error loading data:", error);
               // Optionally, handle the error
             });
-            axios.get(`/getUser/${this.custId}`)
-            .then(response => {
+          axios
+            .get(`/getUser/${this.custId}`)
+            .then((response) => {
               this.user = response.data;
               console.log(this.user);
-              console.log('Data loaded successfully:', response.data);
-              // Optionally, handle the response data 
+              console.log("Data loaded successfully:", response.data);
+              // Optionally, handle the response data
             })
-            .catch(error => {
-              console.error('Error loading data:', error);
+            .catch((error) => {
+              console.error("Error loading data:", error);
               // Optionally, handle the error
-            });   
-                 
+            });
         },
 
         methods: {
-        formatDate(timestamp) {
-          // Convert timestamp to Date object
-          const date = new Date(timestamp);
-          
-          // Get individual date components
-          const year = date.getFullYear();
-          const month = ('0' + (date.getMonth() + 1)).slice(-2); // Months are zero-based
-          const day = ('0' + date.getDate()).slice(-2);
-          const hours = ('0' + date.getHours()).slice(-2);
-          const minutes = ('0' + date.getMinutes()).slice(-2);
-          const seconds = ('0' + date.getSeconds()).slice(-2);
-          
-          // Construct date string in desired format
-          const dateString = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-          
-          return dateString;
-        }
-  }
-    
-      })
+          formatDate(timestamp) {
+            // Convert timestamp to Date object
+            const date = new Date(timestamp);
 
-      app.component('navbar-component', NavBarComponent);
-      app.mount('#app');
+            // Get individual date components
+            const year = date.getFullYear();
+            const month = ("0" + (date.getMonth() + 1)).slice(-2); // Months are zero-based
+            const day = ("0" + date.getDate()).slice(-2);
+            const hours = ("0" + date.getHours()).slice(-2);
+            const minutes = ("0" + date.getMinutes()).slice(-2);
+            const seconds = ("0" + date.getSeconds()).slice(-2);
+
+            // Construct date string in desired format
+            const dateString = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+
+            return dateString;
+          },
+        },
+      });
+
+      app.component("navbar-component", NavBarComponent);
+      app.mount("#app");
     </script>
-
   </body>
 </html>
-

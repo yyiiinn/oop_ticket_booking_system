@@ -1,32 +1,38 @@
 package com.oop.springbootmvc.model;
+
+import java.sql.Date;
+import java.sql.Time;
 import java.sql.Timestamp;
+import java.util.Set;
+
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+
 import jakarta.persistence.*;
 
 @Entity
+@EnableAutoConfiguration
 @Table(name = "events")
-
-
 public class Event {
     private @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="id",  unique = true)
+    @Column(name="id")
     long id;
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String name;
     @Column(nullable = false)
     private String description;
     @Column(nullable = false)
     private String venue;
     @Column(nullable = false)
-    private String imageUrl;
+    private byte[] image;
     @Column(nullable = false)
-    private Timestamp eventStartDate;
+    private Date eventStartDate;
     @Column(nullable = false)
-    private Timestamp eventEndDate;
+    private Date eventEndDate;
     @Column(nullable = false)
-    private Timestamp eventStartTime;
+    private Time eventStartTime;
     @Column(nullable = false)
-    private Timestamp eventEndTime;
+    private Time eventEndTime;
     @Column(nullable = false)
     private Timestamp ticketSaleStartDateTime;
     @Column(nullable = false)
@@ -36,86 +42,178 @@ public class Event {
     @Column(nullable = false)
     private String category;
     @Column(nullable = false)
-    private float cancellationCost;
+    private Float cancellationFee;
+    @OneToMany(mappedBy="event")
+    private Set<Seat> seats;
+    
+    public Set<Seat> getSeats() {
+        return seats;
+    }
 
+    public void setSeats(Set<Seat> seats) {
+        this.seats = seats;
+    }
 
-    public Event(String name, String description, String venue, String imageUrl, Timestamp eventStartDate,
-                 Timestamp eventEndDate, Timestamp eventStartTime, Timestamp eventEndTime, Timestamp ticketSaleStartDateTime,
-                 Timestamp ticketSaleEndDateTime, String status, String category, float cancellationCost) {
+    public Event(String name, String description, String venue, byte[] image, Date eventStartDate, Date eventEndDate, Time eventStartTime, Time eventEndTime, Timestamp timestamp, Timestamp timestamp2, String status, String category, Float cancellationFee) {
         this.name = name;
         this.description = description;
         this.venue = venue;
-        this.imageUrl = imageUrl;
+        this.image = image;
         this.eventStartDate = eventStartDate;
         this.eventEndDate = eventEndDate;
         this.eventStartTime = eventStartTime;
         this.eventEndTime = eventEndTime;
-        this.ticketSaleStartDateTime = ticketSaleStartDateTime;
-        this.ticketSaleEndDateTime = ticketSaleEndDateTime;
+        this.ticketSaleStartDateTime = timestamp;
+        this.ticketSaleEndDateTime = timestamp2;
         this.status = status;
         this.category = category;
-        this.cancellationCost = cancellationCost;
+        this.cancellationFee = cancellationFee;
     }
 
-    public Event(){
+    public Event() {
 
     }
 
-    // Getters
     public long getId() {
-        return id;
+        return this.id;
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public String getDescription() {
-        return description;
+        return this.description;
     }
 
     public String getVenue() {
-        return venue;
+        return this.venue;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
+    public byte[] getImage() {
+        return this.image;
     }
 
-    public Timestamp getEventStartDate() {
-        return eventStartDate;
+    public Date getEventStartDate() {
+        return this.eventStartDate;
     }
 
-    public Timestamp getEventEndDate() {
-        return eventEndDate;
+    public Date getEventEndDate() {
+        return this.eventEndDate;
     }
 
-    public Timestamp getEventStartTime() {
-        return eventStartTime;
+    public Time getEventStartTime() {
+        return this.eventStartTime;
     }
 
-    public Timestamp getEventEndTime() {
-        return eventEndTime;
+    public Time getEventEndTime() {
+        return this.eventEndTime;
+    }
+    
+    public Timestamp getTicketSaleStartDateTime(){
+        return this.ticketSaleStartDateTime;
     }
 
-    public Timestamp getTicketSaleStartDateTime() {
-        return ticketSaleStartDateTime;
+    public Timestamp getTicketSaleEndDateTime(){
+        return this.ticketSaleEndDateTime;
     }
 
-    public Timestamp getTicketSaleEndDateTime() {
-        return ticketSaleEndDateTime;
+    public String getStatus(){
+        return this.status;
     }
 
-    public String getStatus() {
-        return status;
+    public void setId(int id) {
+        this.id = id;
     }
 
-    public String getCategory(){
-        return category;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public float getCancellationCost() {
-        return cancellationCost;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
+    public void setVenue(String venue) {
+        this.venue = venue;
+    }
+
+    public void setImage(byte[] image) {
+        this.image = image;
+    }
+
+    public void setEventStartDate(Date eventStartDate) {
+        this.eventStartDate = eventStartDate;
+    }
+
+    public void setEventEndDate(Date eventEndDate) {
+        this.eventEndDate = eventEndDate;
+    }
+
+    public void setEventStartTime(Time eventStartTime) {
+        this.eventStartTime = eventStartTime;
+    }
+
+    public void setEventEndTime(Time eventEndTime) {
+        this.eventEndTime = eventEndTime;
+    }
+
+    public void setTicketSaleStartTime(Timestamp ticket_sale_start_time) {
+        this.ticketSaleStartDateTime = ticket_sale_start_time;
+    }
+
+    public void setTicketSaleEndTime(Timestamp ticket_sale_end_time) {
+        this.ticketSaleEndDateTime = ticket_sale_end_time;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getCategory() {
+        return this.category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+
+    public Float getCancellationFee() {
+        return this.cancellationFee;
+    }
+
+    public void setCancellationFee(Float cancellationFee) {
+        this.cancellationFee = cancellationFee;
+    }
+
+    public String getEventCategory() {
+        return this.category;
+    }
+
+    public void setEventCategory(String category) {
+        this.category = category;
+    }
+
+
+    @Override
+    public String toString() {
+        return "Event{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", venue='" + venue + '\'' +
+                ", image='" + image + '\'' +
+                ", eventStartDate=" + eventStartDate +
+                ", eventEndDate=" + eventEndDate +
+                ", eventStartTime=" + eventStartTime +
+                ", eventEndTime=" + eventEndTime +
+                ", ticketSaleStartDateTime=" + ticketSaleStartDateTime +
+                ", ticketSaleEndDateTime=" + ticketSaleEndDateTime +
+                ", status='" + status + '\'' +
+                ", category='" + category + '\'' +
+                ", cancellationFee='" + cancellationFee + '\'' +
+                '}';
+    }
+   
 }

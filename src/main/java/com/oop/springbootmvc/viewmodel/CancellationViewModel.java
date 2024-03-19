@@ -1,7 +1,7 @@
 package com.oop.springbootmvc.viewmodel;
 
 public class CancellationViewModel {
-    private long numberOfSits;
+    private int numberOfSits;
     private float cost;
     private float cancellationCost;
 
@@ -9,17 +9,17 @@ public class CancellationViewModel {
         // Default constructor
     }
     
-    public CancellationViewModel(long numberOfSits, float cost, float cancellationCost){
+    public CancellationViewModel(int numberOfSits, float cost, float cancellationCost){
         this.numberOfSits = numberOfSits;
         this.cost = cost;
         this.cancellationCost = cancellationCost;
     }
 
-    public long getNumberOfSits() {
+    public int getNumberOfSits() {
         return numberOfSits;
     }
 
-    public void setNumberOfSits(long numberOfSits) {
+    public void setNumberOfSits(int numberOfSits) {
         this.numberOfSits = numberOfSits;
     }
 

@@ -2,10 +2,10 @@ package com.oop.springbootmvc.viewmodel;
 
 public class BookingViewModel {
     private float bookingCost;
-    private long noOfSits;
+    private int noOfSits;
 
     // Constructor
-    public BookingViewModel(float bookingCost, long noOfSits) {
+    public BookingViewModel(float bookingCost, int noOfSits) {
         this.bookingCost = bookingCost;
         this.noOfSits = noOfSits;
     }
@@ -19,7 +19,7 @@ public class BookingViewModel {
         return bookingCost;
     }
 
-    public long getNoOfSits(){
+    public int getNoOfSits(){
         return noOfSits;
     }
 
@@ -28,7 +28,7 @@ public class BookingViewModel {
         this.bookingCost = bookingCost;
     }
 
-    public void setNoOfSits(long noOfSits){
+    public void setNoOfSits(int noOfSits){
         this.noOfSits = noOfSits;
     }
 }
