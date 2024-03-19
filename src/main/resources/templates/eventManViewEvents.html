@@ -1,203 +1,124 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-  <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Event Manager | View Events</title>
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}" />
+  <title>Event Manager | View Events</title>
 
-    <!-- Include Bootstrap -->
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
-      crossorigin="anonymous"
-    />
-    <!-- Optional theme -->
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
-      integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-      crossorigin="anonymous"
-    ></script>
+  <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}" />
 
-    <style>
-      .fixed-footer {
-        height: 30%;
-      }
+  <!-- Include Bootstrap -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+    integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
+  <!-- Optional theme -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
+    integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+    crossorigin="anonymous"></script>
 
-      /* Modal */
-      .modal {
-        display: flex;
-        position: fixed;
-        z-index: 1000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
+  <style>
+    .fixed-footer {
+      height: 30%;
+    }
 
-        justify-content: center;
-        align-items: center;
-      }
+    /* Modal */
+    .modal {
+      display: flex;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
 
-      .modal-dialog {
-        width: 100%;
-        max-width: 700px;
-      }
+      justify-content: center;
+      align-items: center;
+    }
 
-      .modal-content {
-        padding: 20px;
-      }
+    .modal-dialog {
+      width: 100%;
+      max-width: 700px;
+    }
 
-      .sign-out-button {
-        color: #141b4d; /* Text color */
-        border: 3px solid #141b4d; /* Add border here */
-        padding: 5px 20px;
-        margin-left: 20px; /* Spacing from the navbar links */
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background-color 0.3s, border-color 0.3s;
-      }
+    .modal-content {
+      padding: 20px;
+    }
 
-      .sign-out-button:hover {
-        color: #141b4d;
-        border: 3px solid #141b4d;
-      }
+    .sign-out-button {
+      color: #141b4d;
+      /* Text color */
+      border: 3px solid #141b4d;
+      /* Add border here */
+      padding: 5px 20px;
+      margin-left: 20px;
+      /* Spacing from the navbar links */
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s, border-color 0.3s;
+    }
 
-      [v-cloak] {
-        display: none;
-      }
-    </style>
-  </head>
-  <body>
-    <div id="app" v-cloak>
-      <div class="full-screen-container">
-        <navbar-component active-link="viewEvents"></navbar-component>
+    .sign-out-button:hover {
+      color: #141b4d;
+      border: 3px solid #141b4d;
+    }
 
-        <search-filter-component
-          :search-api="searchApi"
-          :statuses="statuses"
-        ></search-filter-component>
+    [v-cloak] {
+      display: none;
+    }
+    
+  </style>
+</head>
 
-        <div class="container pt-5">
-          <h2 class="text-center mb-4">All Events</h2>
+<body>
+  <div id="app" v-cloak>
+    <div class="full-screen-container">
+      <navbar-component active-link="viewEvents"></navbar-component>
 
-          <div class="d-flex justify-content-end mt-5 mb-3">
-            <a th:href="@{/manager/CreateEvent}" class="btn btn-primary"
-              >Create Event</a
-            >
-          </div>
+      <search-filter-component :search-api="searchApi" :statuses="statuses"></search-filter-component>
 
-          <!-- Events Cards -->
-          <div class="row">
-            <div
-              class="col-lg-4 mb-4"
-              v-for="(event, index) in events"
-              :key="index"
-            >
-              <div class="card h-100 event-card">
-                <img
-                  :src="event.image"
-                  class="card-img-top"
-                  alt="Event Image"
-                  width="300"
-                  height="260"
-                  onerror="this.onerror=null;"
-                />
+      <div class="container pt-5">
+        <h2 class="text-center mb-4">All Events</h2>
 
-                        <div class="card-body" @click="showEventDetails(event)">
-                            <h5 class="card-title">{{ event.name }}</h5> 
-                            <category-component :category="event.category"></category-component>
-                            
-                            <div class="card-text">{{ event.venue }}</div> 
-                            <div class="card-datetime text-secondary"><small>{{ event.eventStartDate }}  - {{event.eventEndDate}}</small></div>
-                            <div class="card-datetime text-secondary mb-2"><small> {{ event.eventStartTime }} - {{ event.eventEndTime }}</small></div>
-                        </div>
-                        
-                        <div class="card-footer fixed-footer bg-white">
-                          <a
-                            :href="'/manager/EditEvent/' + event.id"
-                            v-if="event.status === 'Active' && !isSaleOngoing(event) && !isSalePeriodOver(event)"
-                            class="btn btn-primary me-2"
-                            >Edit Event</a
-                          >
-                          <button
-                            v-if="event.status === 'Active' && (isSaleOngoing(event) || (!isEventOngoing(event) && !isEventEnded(event) && !isSalePeriodOver(event)))"
-                            type="button"
-                            class="btn btn-outline-danger"
-                            @click="toggleModal(event)"
-                          >
-                            Cancel Event
-                          </button>
-                          <span v-if="event.status === 'Cancelled'"
-                            >Event Cancelled</span
-                          >
-                          <span v-if="event.status === 'Active' && isEventEnded(event)"
-                            >Event Ended</span
-                          >
-                          <span v-if="isEventOngoing(event)">Event is Ongoing</span>
-                        </div>
-                    </div>
-                </div>
-
-                
-              </div>
-            </div>
-          </div>
+        <div class="d-flex justify-content-end mt-5 mb-3">
+          <a th:href="@{/manager/CreateEvent}" class="btn btn-primary">Create Event</a>
         </div>
 
-        <div class="modal" tabindex="-1" role="dialog" v-if="showDetailsModal">
-          <div class="modal-dialog" role="document">
-            <details-component
-              :event-data="selectedEvent"
-              @close="closeModal"
-            ></details-component>
-          </div>
-        </div>
+        <!-- Events Cards -->
+        <div class="row">
+          <div class="col-lg-4 mb-4" v-for="(event, index) in events" :key="index">
+            <div class="card h-100 event-card">
+              <img :src="event.image" class="card-img-top" alt="Event Image" width="300" height="260"
+                onerror="this.onerror=null;" />
 
-        <div
-          class="modal"
-          tabindex="-1"
-          role="dialog"
-          v-if="showCancelEventModal" v-cloak
-        >
-          <div class="modal-dialog" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title">Cancel Event</h5>
-                <button
-                  type="button"
-                  class="btn-close"
-                  @click="showCancelEventModal = false"
-                ></button>
+              <div class="card-body" @click="showEventDetails(event)">
+                <h5 class="card-title">{{ event.name }}</h5>
+                <category-component :category="event.category"></category-component>
+
+                <div class="card-text">{{ event.venue }}</div>
+                <div class="card-datetime text-secondary"><small>{{ event.eventStartDate }} -
+                    {{event.eventEndDate}}</small></div>
+                <div class="card-datetime text-secondary mb-2"><small> {{ event.eventStartTime }} - {{
+                    event.eventEndTime }}</small></div>
               </div>
-              <div class="modal-body">
-                Are you sure you want to cancel
-                {{selectedCancellationEvent.name}}?
-              </div>
-              <div class="modal-footer">
+
+              <div class="card-footer fixed-footer bg-white">
+                <a :href="'/manager/EditEvent/' + event.id"
+                  v-if="event.status === 'Active' && !isSaleOngoing(event) && !isSalePeriodOver(event)"
+                  class="btn btn-primary me-2">Edit Event</a>
                 <button
-                  type="button"
-                  class="btn btn-secondary"
-                  @click="showCancelEventModal = false"
-                >
-                  Close
+                  v-if="event.status === 'Active' && (isSaleOngoing(event) || (!isEventOngoing(event) && !isEventEnded(event) && !isSalePeriodOver(event)))"
+                  type="button" class="btn btn-outline-danger" @click="toggleModal(event)">
+                  Cancel Event
                 </button>
-                <button
-                  type="button"
-                  class="btn btn-danger"
-                  @click="confirmCancellation(selectedCancellationEvent.id)"
-                >
-                  Confirm
-                </button>
+                <span v-if="event.status === 'Cancelled'">Event Cancelled</span>
+                <span v-if="event.status === 'Active' && isEventEnded(event)">Event Ended</span>
+                <span v-if="isEventOngoing(event)">Event is Ongoing</span>
               </div>
             </div>
           </div>
@@ -205,138 +126,170 @@
       </div>
     </div>
 
-    <!-- include axios.js -->
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <!-- Vue 3 -->
-    <script src="https://unpkg.com/vue@3"></script>
+    <div class="modal" tabindex="-1" role="dialog" v-if="showDetailsModal">
+      <div class="modal-dialog" role="document">
+        <details-component :event-data="selectedEvent" @close="closeModal"></details-component>
+      </div>
+    </div>
+  
+    <div class="modal" tabindex="-1" role="dialog" v-if="showCancelEventModal" v-cloak>
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Cancel Event</h5>
+            <button type="button" class="btn-close" @click="showCancelEventModal = false"></button>
+          </div>
+          <div class="modal-body">
+            Are you sure you want to cancel
+            {{selectedCancellationEvent.name}}?
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" @click="showCancelEventModal = false">
+              Close
+            </button>
+            <button type="button" class="btn btn-danger" @click="confirmCancellation(selectedCancellationEvent.id)">
+              Confirm
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
-    <script type="module">
-      import NavBarComponent from "/js/navbar/EventManNavBarComponent.js";
-      import CategoryComponent from "/js/event/EventCategoryBadgeComponent.js";
-      import DetailsModal from "/js/event/EventDetailsModalComponent.js";
-      import SearchFilterComponent from "/js/search/SearchFilterComponent.js";
+  </div>
 
-      const app = Vue.createApp({
-        data() {
-          return {
-            // For search
-            statuses: [
-              "Available for Purchase",
-              "Event Cancelled",
-              "Upcoming Event",
-            ],
-            events: [],
-            showCancelEventModal: false,
-            selectedCancellationEvent: null,
-            showDetailsModal: false,
-            selectedEvent: null,
-          };
-        },
-        mounted() {
-          this.fetchEvents();
-        },
-        methods: {
-          fetchEvents() {
-            fetch("/api/allEvents")
-              .then((response) => response.json())
-              .then((data) => {
-                this.events = data;
-                this.events.forEach((event) => {
-                  if (event.image) {
-                    event.image = this.convertDataToURL(event.image);
-                  }
-                });
-              })
-              .catch((error) => {
-                console.error("Error fetching events:", error);
+  <!-- include axios.js -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <!-- Vue 3 -->
+  <script src="https://unpkg.com/vue@3"></script>
+
+  <script type="module">
+    import NavBarComponent from "/js/navbar/EventManNavBarComponent.js";
+    import CategoryComponent from "/js/event/EventCategoryBadgeComponent.js";
+    import DetailsModal from "/js/event/EventDetailsModalComponent.js";
+    import SearchFilterComponent from "/js/search/SearchFilterComponent.js";
+
+    const app = Vue.createApp({
+      data() {
+        return {
+          // For search
+          statuses: [
+            "Available for Purchase",
+            "Event Cancelled",
+            "Upcoming Event",
+          ],
+          events: [],
+          showCancelEventModal: false,
+          selectedCancellationEvent: null,
+          showDetailsModal: false,
+          selectedEvent: null,
+        };
+      },
+      mounted() {
+        this.fetchEvents();
+      },
+      methods: {
+        fetchEvents() {
+          fetch("/api/allEvents")
+            .then((response) => response.json())
+            .then((data) => {
+              this.events = data;
+              this.events.forEach((event) => {
+                if (event.image) {
+                  event.image = this.convertDataToURL(event.image);
+                }
               });
-          },
-          convertDataToURL(data) {
-            const base64Response = data.split(";base64,").pop();
-            const byteCharacters = atob(base64Response);
-            const byteNumbers = new Array(byteCharacters.length);
-            for (let i = 0; i < byteCharacters.length; i++) {
-              byteNumbers[i] = byteCharacters.charCodeAt(i);
-            }
-            const byteArray = new Uint8Array(byteNumbers);
-            const blob = new Blob([byteArray], { type: "image/jpeg" });
-            const url = URL.createObjectURL(blob);
-
-            return url;
-          },
-          searchApi(event, category) {
-            console.log(event, category);
-          },
-
-          showEventDetails(event) {
-            this.selectedEvent = event;
-            this.showDetailsModal = true;
-          },
-          closeModal() {
-            this.showDetailsModal = false;
-          },
-
-          toggleModal(event) {
-            console.log("cancel");
-            this.selectedCancellationEvent = event;
-            this.showCancelEventModal = true;
-          },
-          confirmCancellation(eventId) {
-            // Perform the cancellation action here
-            axios
-              .post("/api/cancelEvent/" + BigInt(eventId), {
-                headers: {
-                  "Content-Type": "application/json",
-                },
-              })
-              .then((response) => {
-                console.log(response.data);
-              })
-              .catch((error) => {
-                console.error("Error cancellingt event:", error);
-              });
-            console.log("Event canceled!");
-            this.showCancelEventModal = false;
-            window.location.href = "/manager/ViewEvents";
-          },
-          isSalePeriodOver(event) {
-            // Determine if the sale period is over
-            const now = new Date();
-            const saleEndDate = new Date(event.ticketSaleEndDateTime);
-            return now > saleEndDate;
-          },
-          isSaleOngoing(event) {
-            const now = new Date();
-            const saleStartDate = new Date(event.ticketSaleStartDateTime);
-            const saleEndDate = new Date(event.ticketSaleEndDateTime);
-            return now >= saleStartDate && now <= saleEndDate;
-          },
-          isEventEnded(event) {
-            const eventEndDateTimeStr = `${event.eventEndDate}T${event.eventEndTime}`;
-            const eventEndDateTime = new Date(eventEndDateTimeStr);
-
-            const now = new Date();
-            return now > eventEndDateTime;
-          },
-          isEventOngoing(event) {
-            const now = new Date();
-
-            const eventStartDateTimeStr = `${event.eventStartDate}T${event.eventStartTime}`;
-            const eventStartDateTime = new Date(eventStartDateTimeStr);
-
-            const eventEndDateTimeStr = `${event.eventEndDate}T${event.eventEndTime}`;
-            const eventEndDateTime = new Date(eventEndDateTimeStr);
-
-            return now >= eventStartDateTime && now <= eventEndDateTime;
-          },
+            })
+            .catch((error) => {
+              console.error("Error fetching events:", error);
+            });
         },
-      });
+        convertDataToURL(data) {
+          const base64Response = data.split(";base64,").pop();
+          const byteCharacters = atob(base64Response);
+          const byteNumbers = new Array(byteCharacters.length);
+          for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+          }
+          const byteArray = new Uint8Array(byteNumbers);
+          const blob = new Blob([byteArray], { type: "image/jpeg" });
+          const url = URL.createObjectURL(blob);
 
-      app.component("navbar-component", NavBarComponent);
-      app.component("search-filter-component", SearchFilterComponent);
-      app.component("category-component", CategoryComponent);
-      app.component("details-component", DetailsModal);
-      app.mount("#app");
-    </script>
-  </body>
+          return url;
+        },
+        searchApi(event, category) {
+          console.log(event, category);
+        },
+
+        showEventDetails(event) {
+          this.selectedEvent = event;
+          this.showDetailsModal = true;
+        },
+        closeModal() {
+          this.showDetailsModal = false;
+        },
+
+        toggleModal(event) {
+          console.log("cancel");
+          this.selectedCancellationEvent = event;
+          this.showCancelEventModal = true;
+        },
+        confirmCancellation(eventId) {
+          // Perform the cancellation action here
+          axios
+            .post("/api/cancelEvent/" + BigInt(eventId), {
+              headers: {
+                "Content-Type": "application/json",
+              },
+            })
+            .then((response) => {
+              console.log(response.data);
+            })
+            .catch((error) => {
+              console.error("Error cancellingt event:", error);
+            });
+          console.log("Event canceled!");
+          this.showCancelEventModal = false;
+          window.location.href = "/manager/ViewEvents";
+        },
+        isSalePeriodOver(event) {
+          // Determine if the sale period is over
+          const now = new Date();
+          const saleEndDate = new Date(event.ticketSaleEndDateTime);
+          return now > saleEndDate;
+        },
+        isSaleOngoing(event) {
+          const now = new Date();
+          const saleStartDate = new Date(event.ticketSaleStartDateTime);
+          const saleEndDate = new Date(event.ticketSaleEndDateTime);
+          return now >= saleStartDate && now <= saleEndDate;
+        },
+        isEventEnded(event) {
+          const eventEndDateTimeStr = `${event.eventEndDate}T${event.eventEndTime}`;
+          const eventEndDateTime = new Date(eventEndDateTimeStr);
+
+          const now = new Date();
+          return now > eventEndDateTime;
+        },
+        isEventOngoing(event) {
+          const now = new Date();
+
+          const eventStartDateTimeStr = `${event.eventStartDate}T${event.eventStartTime}`;
+          const eventStartDateTime = new Date(eventStartDateTimeStr);
+
+          const eventEndDateTimeStr = `${event.eventEndDate}T${event.eventEndTime}`;
+          const eventEndDateTime = new Date(eventEndDateTimeStr);
+
+          return now >= eventStartDateTime && now <= eventEndDateTime;
+        },
+      },
+    });
+
+    app.component("navbar-component", NavBarComponent);
+    app.component("search-filter-component", SearchFilterComponent);
+    app.component("category-component", CategoryComponent);
+    app.component("details-component", DetailsModal);
+    app.mount("#app");
+  </script>
+</body>
+
 </html>
