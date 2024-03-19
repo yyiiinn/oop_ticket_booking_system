@@ -71,6 +71,10 @@
         color: #141b4d;
         border: 3px solid #141b4d;
       }
+
+      [v-cloak] {
+        display: none;
+      }
     </style>
   </head>
   <body>
@@ -119,39 +123,32 @@
                         </div>
                         
                         <div class="card-footer fixed-footer bg-white">
-                            <a :href="'/eventManEditEvent/' + event.id" v-if="event.status === 'Active' && !isSaleOngoing(event) && !isSalePeriodOver(event)" class="btn btn-primary me-2">Edit Event</a>
-                            <button v-if="event.status === 'Active' && (isSaleOngoing(event) || (!isEventOngoing(event) && !isEventEnded(event) && isSalePeriodOver(event)))" type="button" class="btn btn-outline-danger" @click="toggleModal(event)">Cancel Event</button>
-                            <!-- <button type="button" class="btn btn-outline-danger" @click="toggleModal(event)">Cancel Event</button> -->
-                            <span v-if="event.status === 'Cancelled'">Event Cancelled</span>
-                            <span v-if="event.status === 'Active' && isEventEnded(event)">Event Ended</span>
-                            <span v-if="isEventOngoing(event)">Event is Ongoing</span>
+                          <a
+                            :href="'/manager/EditEvent/' + event.id"
+                            v-if="event.status === 'Active' && !isSaleOngoing(event) && !isSalePeriodOver(event)"
+                            class="btn btn-primary me-2"
+                            >Edit Event</a
+                          >
+                          <button
+                            v-if="event.status === 'Active' && (isSaleOngoing(event) || (!isEventOngoing(event) && !isEventEnded(event) && !isSalePeriodOver(event)))"
+                            type="button"
+                            class="btn btn-outline-danger"
+                            @click="toggleModal(event)"
+                          >
+                            Cancel Event
+                          </button>
+                          <span v-if="event.status === 'Cancelled'"
+                            >Event Cancelled</span
+                          >
+                          <span v-if="event.status === 'Active' && isEventEnded(event)"
+                            >Event Ended</span
+                          >
+                          <span v-if="isEventOngoing(event)">Event is Ongoing</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="card-footer fixed-footer bg-white">
-                  <a
-                    :href="'/manager/EditEvent/' + event.id"
-                    v-if="event.status === 'Active' && !isSaleOngoing(event) && !isSalePeriodOver(event)"
-                    class="btn btn-primary me-2"
-                    >Edit Event</a
-                  >
-                  <button
-                    v-if="event.status === 'Active' && (isSaleOngoing(event) || (!isEventOngoing(event) && !isEventEnded(event) && isSalePeriodOver(event)))"
-                    type="button"
-                    class="btn btn-outline-danger"
-                    @click="toggleModal(event)"
-                  >
-                    Cancel Event
-                  </button>
-                  <span v-if="event.status === 'Cancelled'"
-                    >Event Cancelled</span
-                  >
-                  <span v-if="event.status === 'Active' && isEventEnded(event)"
-                    >Event Ended</span
-                  >
-                  <span v-if="isEventOngoing(event)">Event is Ongoing</span>
-                </div>
+                
               </div>
             </div>
           </div>
@@ -170,7 +167,7 @@
           class="modal"
           tabindex="-1"
           role="dialog"
-          v-if="showCancelEventModal"
+          v-if="showCancelEventModal" v-cloak
         >
           <div class="modal-dialog" role="document">
             <div class="modal-content">
