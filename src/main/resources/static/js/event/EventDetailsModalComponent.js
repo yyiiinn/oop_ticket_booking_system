@@ -35,7 +35,7 @@ export default {
                 <button type="button" class="btn-close" aria-label="Close" @click="closeModal"></button>
             </div>
             <div class="modal-body pt-1"> 
-                <div>{{ eventData.desc }}</div>
+                <div>{{ eventData.description }}</div>
                 <div class="pt-4 row">
                     <div class="col-6"> 
                         <strong>Venue:</strong> <br> {{ eventData.venue }}

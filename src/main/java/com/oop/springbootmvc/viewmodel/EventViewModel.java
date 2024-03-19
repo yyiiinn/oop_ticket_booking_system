@@ -120,7 +120,7 @@ public class EventViewModel {
     }
 
     public Timestamp getSalesStartTime() {
-        return salesStartTime;
+        return this.salesStartTime;
     }
 
     public void setSalesStartTime(Timestamp salesStartTime) {
@@ -128,7 +128,7 @@ public class EventViewModel {
     }
 
     public Timestamp getSalesEndTime() {
-        return salesEndTime;
+        return this.salesEndTime;
     }
 
     public void setSalesEndTime(Timestamp salesEndTime) {
