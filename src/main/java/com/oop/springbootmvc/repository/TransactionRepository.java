@@ -6,7 +6,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.*;
 import com.oop.springbootmvc.model.Transaction;
-import com.oop.springbootmvc.model.Sit;
 import com.oop.springbootmvc.model.Event;
 import com.oop.springbootmvc.model.User;
 

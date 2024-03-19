@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Modifying;
 
 import java.util.*;
 import com.oop.springbootmvc.model.Transaction;
-import com.oop.springbootmvc.model.Sit;
 import com.oop.springbootmvc.model.Event;
 import com.oop.springbootmvc.model.User;
 import com.oop.springbootmvc.model.Ticket;
