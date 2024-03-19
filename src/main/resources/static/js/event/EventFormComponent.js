@@ -126,7 +126,7 @@ export default {
                 if (this.mode === 'create') {
                     // Handle create event API call
                     console.log("Creating event...");
-                    fetch('/api/createEvent', {
+                    fetch('/api/manager/createEvent', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
