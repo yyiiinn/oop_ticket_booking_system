@@ -1,22 +1,32 @@
 package com.oop.springbootmvc.controllers;
 
+import com.oop.springbootmvc.model.Sit;
 import com.oop.springbootmvc.model.TestObj;
+import com.oop.springbootmvc.model.Transaction;
 import com.oop.springbootmvc.model.User;
 import com.oop.springbootmvc.repository.TestObjRepository;
 import com.oop.springbootmvc.repository.UserRepository;
+import com.oop.springbootmvc.service.CustomUserDetailsService;
 import com.oop.springbootmvc.viewmodel.LoginViewModel;
 import com.oop.springbootmvc.viewmodel.RegisterViewModel;
 import com.oop.springbootmvc.viewmodel.UserViewModel;
+import com.oop.springbootmvc.viewmodel.CancellationViewModel;
+import com.oop.springbootmvc.viewmodel.BookingViewModel;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 public class UserController {
+
+ 
   private final UserRepository userRepository;
 
   public UserController(UserRepository userRepository) {
@@ -40,11 +50,50 @@ public class UserController {
 
     }
   }
-//
-//  @PostMapping("/api/register")
-//  public TestObj add(@RequestBody User user) {
-//    return this.testObjRepository.save(testObj);
-//  }
+  @GetMapping("/getUser/{userID}")
+  public ResponseEntity<User> getUserById(@PathVariable("userID") long userId) {
+      // Fetch user by the given user ID
+      Optional<User> userOptional = userRepository.findById(userId);
+      
+      // Check if the user exists
+      if (userOptional.isPresent()) {
+          // Return user with a HTTP status of OK (200)
+          return ResponseEntity.ok().body(userOptional.get());
+      } else {
+          // If user not found, return HTTP status of NOT FOUND (404)
+          return ResponseEntity.notFound().build();
+      }
+  }
+    //UPDATE User record (increase balance)
+    @PutMapping("/increaseBalance/{id}")
+    public ResponseEntity<User> increaseBalance(@PathVariable("id") long id, @RequestBody CancellationViewModel viewModel ) {
+        Optional<User> user = this.userRepository.findById(id);
+        if (user.isPresent()) {
+            User existingUser = user.get();
+            existingUser.setBalance(existingUser.getBalance() + viewModel.getCost() - viewModel.getCancellationCost());;
+            userRepository.save(existingUser);
+            return ResponseEntity.ok(existingUser);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }  
+    //UPDATE User record (deduct balance)
+    @PutMapping("/deductBalance/{id}")
+    public ResponseEntity<User> deductBalance(@PathVariable("id") long id, @RequestBody BookingViewModel viewModel ) {
+        Optional<User> user = this.userRepository.findById(id);
+        if (user.isPresent()) {
+            User existingUser = user.get();
+            existingUser.setBalance(existingUser.getBalance() - viewModel.getBookingCost());;
+            userRepository.save(existingUser);
+            return ResponseEntity.ok(existingUser);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }  
 
-
+  
 }
+
+
+
+

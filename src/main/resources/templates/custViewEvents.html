@@ -80,7 +80,7 @@
                             <category-component :category="event.category"></category-component>
                             <!-- <p class="card-text description">{{ event.desc }}</p> -->
                             <div class="card-text">{{ event.venue }}</div> 
-                            <div class="card-datetime text-secondary mb-2"><small>{{ event.date }} | {{ event.startTime }} - {{ event.endTime }}</small></div>
+                            <div class="card-datetime text-secondary mb-2"><small>{{ formatDate(event.date) }} | {{ formatTime(event.startTime) }} - {{ formatTime(event.endTime) }}</small></div>
                         </div>
                         
                         <div class="card-footer fixed-footer bg-white">
@@ -98,7 +98,7 @@
 
         <div class="modal" tabindex="-1" role="dialog" v-if="showDetailsModal">
             <div class="modal-dialog" role="document">
-                <details-component :event-data="selectedEvent" @close="closeModal"></details-component>
+                <details-component :event-data="selectedEvent" :format-date="formatDate" :format-time-date="formatTimeDate" :format-time="formatTime" @close="closeModal"></details-component>
             </div>
         </div>
 
@@ -108,7 +108,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Ticket(s) Purchase for {{ selectedEvent.name }}</h5>
-                        <button type="button" class="btn-close" @click="showTicketPurchaseModal = false"></button>
+                        <button type="button" class="btn-close" @click="closeTicketPurchaseModal"></button>
                     </div>
                     <div class="modal-body">
                         <p>You have selected <input type="number" v-model="numberOfTickets" min="1" max="4" class="text-center" disabled> ticket(s). Please confirm your preferred quantity and click Confirm Purchase to continue.</p>
@@ -129,7 +129,7 @@
                             <label for="numberOfTickets">Number of Tickets (Limit of 4 Tickets): </label>
                             <select id="modalNumberOfTickets" class="form-select border-0 shadow-sm px-4 field" v-model="numberOfTickets" required>
                                 <option value="" disabled selected>Select number of tickets</option>
-                                <option v-for="n in 4" :key="n" :value="n">{{ n }}</option>
+                                <option v-for="n in ticketsMaxAmount()" :key="n" :value="n">{{ n }}</option>
                             </select>
                         </div>
 
@@ -144,8 +144,11 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" @click="showTicketPurchaseModal = false">Cancel</button>
-                        <button type="button" class="btn btn-success" @click="confirmTicketPurchase">Confirm Purchase</button>
+                        <button type="button" class="btn btn-secondary" @click="closeTicketPurchaseModal">Cancel</button>
+                        <span v-if="user.balance >= calculatedTotalPrice">
+                            <button v-if="numberOfTickets!=0" type="button" class="btn btn-success" @click="confirmTicketPurchase">Confirm Purchase</button>
+                        </span>
+                        <span v-else class="text-danger font-weight-bold">Balance Insufficient!</span>
                     </div>
                 </div>
             </div>
@@ -171,116 +174,218 @@
             return {
                 // For search
                 statuses: ["Available for Purchase", "Event Cancelled", "Upcoming Event"],
+                custId : 1, //session
 
-                events: [
-                    {
-                        "id": 1,
-                        "name": "Concert A",
-                        "desc": "This is a detailed description of Concert A.",
-                        "category": "Concert",
-                        "date": "2024-07-20",
-                        "startTime": "18:00",
-                        "endTime": "20:00",
-                        "venue": "The Esplanade",
-                        "availableTickets": 100,
-                        "imageUrl": "path/to/concert-a-image.jpg",
-                        "status": "active",
-                        "sales_startdate": "2024-03-01",
-                        "sales_starttime": "10:00",
-                        "sales_enddate": "2024-05-20",
-                        "sales_endtime": "23:59",
-                        "seatingOptions": [
-                            {
-                                "type": "VIP",
-                                "cost": 150,
-                                "numberOfSeats": 50,
-                                "remainingSeats": 50,
-                                "cancellationFee": 10
-                            },
-                            {
-                                "type": "General Admission",
-                                "cost": 100,
-                                "numberOfSeats": 150,
-                                "remainingSeats": 100,
-                                "cancellationFee": 5
-                            }
-                        ]
-                    },
-                    {
-                        "id": 2,
-                        "name": "Concert B",
-                        "desc": "This is a detailed description of Concert B.",
-                        "category": "Theatre Shows",
-                        "date": "2024-08-15",
-                        "startTime": "12:00",
-                        "endTime": "14:30",
-                        "venue": "Marina Bay Sands",
-                        "availableTickets": 50,
-                        "imageUrl": "path/to/concert-b-image.jpg",
-                        "status": "cancelled",
-                        "sales_startdate": "2024-05-01",
-                        "sales_starttime": "08:00",
-                        "sales_enddate": "2024-06-01",
-                        "sales_endtime": "23:59",
-                        "seatingOptions": [
-                            {
-                                "type": "Premium",
-                                "cost": 200,
-                                "numberOfSeats": 25,
-                                "remainingSeats": 20,
-                                "cancellationFee": 20
-                            },
-                            {
-                                "type": "Standard",
-                                "cost": 120,
-                                "numberOfSeats": 100,
-                                "remainingSeats": 30,
-                                "cancellationFee": 10
-                            }
-                        ]
-                    },
-                    {
-                        "id": 3,
-                        "name": "Concert C",
-                        "desc": "This is a detailed description of Concert C.",
-                        "category": "Seminars",
-                        "date": "2024-09-05",
-                        "startTime": "17:00",
-                        "endTime": "20:00",
-                        "venue": "National Stadium",
-                        "availableTickets": 0,
-                        "imageUrl": "path/to/concert-c-image.jpg",
-                        "status": "active",
-                        "sales_startdate": "2024-06-10",
-                        "sales_starttime": "09:00",
-                        "sales_enddate": "2024-07-10",
-                        "sales_endtime": "23:59",
-                        "seatingOptions": [
-                            {
-                                "type": "Premium",
-                                "cost": 200,
-                                "numberOfSeats": 25,
-                                "remainingSeats": 20,
-                                "cancellationFee": 20
-                            },
-                            {
-                                "type": "Standard",
-                                "cost": 120,
-                                "numberOfSeats": 100,
-                                "remainingSeats": 30,
-                                "cancellationFee": 10
-                            }
-                        ]
-                    },
-                ],
+                // events: [
+                //     {
+                //         "id": 1,
+                //         "name": "Concert A",
+                //         "desc": "This is a detailed description of Concert A.",
+                //         "category": "Concert",
+                //         "date": "2024-07-20",
+                //         "startTime": "18:00",
+                //         "endTime": "20:00",
+                //         "venue": "The Esplanade",
+                //         "availableTickets": 100,
+                //         "imageUrl": "path/to/concert-a-image.jpg",
+                //         "status": "active",
+                //         "sales_startdate": "2024-03-01",
+                //         "sales_starttime": "10:00",
+                //         "sales_enddate": "2024-05-20",
+                //         "sales_endtime": "23:59",
+                //         "seatingOptions": [
+                //             {
+                //                 "type": "VIP",
+                //                 "cost": 150,
+                //                 "numberOfSeats": 50,
+                //                 "remainingSeats": 50,
+                //                 "cancellationFee": 10
+                //             },
+                //             {
+                //                 "type": "General Admission",
+                //                 "cost": 100,
+                //                 "numberOfSeats": 150,
+                //                 "remainingSeats": 100,
+                //                 "cancellationFee": 5
+                //             }
+                //         ]
+                //     },
+                //     {
+                //         "id": 2,
+                //         "name": "Concert B",
+                //         "desc": "This is a detailed description of Concert B.",
+                //         "category": "Theatre Shows",
+                //         "date": "2024-08-15",
+                //         "startTime": "12:00",
+                //         "endTime": "14:30",
+                //         "venue": "Marina Bay Sands",
+                //         "availableTickets": 50,
+                //         "imageUrl": "path/to/concert-b-image.jpg",
+                //         "status": "cancelled",
+                //         "sales_startdate": "2024-05-01",
+                //         "sales_starttime": "08:00",
+                //         "sales_enddate": "2024-06-01",
+                //         "sales_endtime": "23:59",
+                //         "seatingOptions": [
+                //             {
+                //                 "type": "Premium",
+                //                 "cost": 200,
+                //                 "numberOfSeats": 25,
+                //                 "remainingSeats": 20,
+                //                 "cancellationFee": 20
+                //             },
+                //             {
+                //                 "type": "Standard",
+                //                 "cost": 120,
+                //                 "numberOfSeats": 100,
+                //                 "remainingSeats": 30,
+                //                 "cancellationFee": 10
+                //             }
+                //         ]
+                //     },
+                //     {
+                //         "id": 3,
+                //         "name": "Concert C",
+                //         "desc": "This is a detailed description of Concert C.",
+                //         "category": "Seminars",
+                //         "date": "2024-09-05",
+                //         "startTime": "17:00",
+                //         "endTime": "20:00",
+                //         "venue": "National Stadium",
+                //         "availableTickets": 0,
+                //         "imageUrl": "path/to/concert-c-image.jpg",
+                //         "status": "active",
+                //         "sales_startdate": "2024-06-10",
+                //         "sales_starttime": "09:00",
+                //         "sales_enddate": "2024-07-10",
+                //         "sales_endtime": "23:59",
+                //         "seatingOptions": [
+                //             {
+                //                 "type": "Premium",
+                //                 "cost": 200,
+                //                 "numberOfSeats": 25,
+                //                 "remainingSeats": 20,
+                //                 "cancellationFee": 20
+                //             },
+                //             {
+                //                 "type": "Standard",
+                //                 "cost": 120,
+                //                 "numberOfSeats": 100,
+                //                 "remainingSeats": 30,
+                //                 "cancellationFee": 10
+                //             }
+                //         ]
+                //     },
+                // ],
+                user: {},
+                events: [],
                 showDetailsModal: false,
                 selectedEvent: null,
                 showTicketPurchaseModal: false,
                 numberOfTickets: 0,
                 selectedSeatType: null, 
+                selectedAvailableSeats: 0,
             }
         },
+        mounted() {
+          // Perform Axios call when component is mounted
+          
+          axios.get(`/api/event/getViewEvents`)
+            .then(response => {
+              this.events = response.data;
+
+              console.log('Data loaded successfully:', response.data);
+
+              // Optionally, handle the response data 
+            })
+            .catch(error => {
+              console.error('Error loading data:', error);
+              // Optionally, handle the error
+            });
+            axios.get(`/getUser/${this.custId}`)
+            .then(response => {
+              this.user = response.data;
+              console.log(this.user);
+              console.log('Data loaded successfully:', response.data);
+              // Optionally, handle the response data 
+            })
+            .catch(error => {
+              console.error('Error loading data:', error);
+              // Optionally, handle the error
+            });   
+
+          
+
+        },
+
         methods: {
+            generateGuid() {
+                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                    var r = Math.random() * 16 | 0,
+                        v = c == 'x' ? r : (r & 0x3 | 0x8);
+                    return v.toString(16);
+                });
+            },
+            closeTicketPurchaseModal(){
+                this.numberOfTickets = 0;
+                this.selectedEvent = null;
+                this.selectedAvailableSeats = null;
+                this.selectedSeatType = null;
+                this.showTicketPurchaseModal = false;
+            },
+
+            ticketsMaxAmount(){
+                if (this.selectedAvailableSeats > 3){
+                    return 4;
+                }
+                else {
+                    return this.selectedAvailableSeats;
+                }
+            },
+            formatTime(timestamp) {
+            const date = new Date(timestamp);
+            const hours = date.getHours();
+            const minutes = date.getMinutes();
+            const seconds = date.getSeconds();
+            
+            // Formatting hours, minutes, and seconds to ensure they are always two digits
+            const formattedTime = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            
+            return formattedTime;
+            },
+
+            formatDate(timestamp) {
+            const date = new Date(timestamp);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            
+            const formattedDate = `${year}-${month}-${day}`;
+            
+            return formattedDate;
+            },
+
+
+
+
+            formatTimeDate(timestamp) {
+            // Convert timestamp to Date object
+            const date = new Date(timestamp);
+            
+            // Get individual date components
+            const year = date.getFullYear();
+            const month = ('0' + (date.getMonth() + 1)).slice(-2); // Months are zero-based
+            const day = ('0' + date.getDate()).slice(-2);
+            const hours = ('0' + date.getHours()).slice(-2);
+            const minutes = ('0' + date.getMinutes()).slice(-2);
+            const seconds = ('0' + date.getSeconds()).slice(-2);
+            
+            // Construct date string in desired format
+            const dateString = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+            
+            return dateString;
+            },
+
             searchApi(event, category) {
               console.log(event, category)  
             },
@@ -291,6 +396,7 @@
                 this.showDetailsModal = true;
             },
             closeModal() {
+                this.selectedEvent = null;
                 this.showDetailsModal = false;
             },
 
@@ -301,21 +407,66 @@
                 this.showTicketPurchaseModal = true;
             },
             confirmTicketPurchase() {
-                
-                // this.showTicketPurchaseModal = false;
+                //in progress
+                //update sits, update balance, create transaction, create tickets
+                // const respData = {bookingCost: calculatedTotalPrice, noOfSits: this.numberOfTickets};
+                // const deductSits = axios.put(`/api/sit/deductSits/${sitId}`,respData);
+                //     const deductBalance = deductSits.then(response1 => {
+                //         console.log("Deducted Sits");
+                //         return axios.put(`/deductBalance/${this.custId}`,respData);
+                //     });
+                //     const createTransaction = deductBalance.then(response2 => {
+                //         console.log("Deducted Balance");
+                //         // Create a new Date object for current purchasedDateTime
+                //         var currentDate = new Date();
+
+                //         // Get the individual components of the date and time
+                //         var year = currentDate.getFullYear();
+                //         var month = ('0' + (currentDate.getMonth() + 1)).slice(-2); // Adding 1 because January is 0
+                //         var day = ('0' + currentDate.getDate()).slice(-2);
+                //         var hours = ('0' + currentDate.getHours()).slice(-2);
+                //         var minutes = ('0' + currentDate.getMinutes()).slice(-2);
+                //         var seconds = ('0' + currentDate.getSeconds()).slice(-2);
+
+                //         // Format the timestamp
+                //         var timestamp = year + '-' + month + '-' + day + ' ' + hours + ':' + minutes + ':' + seconds;                        
+                //         const respData = {status: "booked", customerId: this.custId, sitId: sitid, purchasedDateTime: timestamp, cost: calculatedTotalPrice, cancellationCost: this.selectedEvent.cancellationCost}
+                //         return axios.post(`/api/transactions/createTransaction`,respData);
+                //     });
+                //     const getCreatedTransaction = createTransaction.then(response3 => {
+                //         console.log("Transaction created");
+                //         return axios.get("/api/transactions/latestTransaction");
+                //     });
+                //     getCreatedTransaction.then(response4 => {
+                //         for (let i = 0; i < this.numberOfTickets; i++){
+                //             var tempGuid = generateGuid();
+                //             //seatNo? ticket status.
+                //             const promise = axios.post("/api/tickets/createTickets")
+                //         }
+                //     })
+
+
+
+
+
+                //after crud done
+                this.numberOfTickets = 0;
+                this.selectedEvent = null;
+                this.selectedAvailableSeats = null;
+                this.selectedSeatType = null;
+                this.showTicketPurchaseModal = false;
             },
 
             isSalePeriodStarted(event) {
                 const now = new Date();
-                const salesStartDateString = `${event.sales_startdate} ${event.sales_starttime}`;
-                const salesStartDate = new Date(salesStartDateString);
 
+                const salesStartDate = new Date(event.saleStart)
                 return now >= salesStartDate;
             },
             isSalePeriodOver(event) {
                 // Determine if the sale period is over
                 const now = new Date();
-                const saleEndDate = new Date(event.sales_enddate);
+                const saleEndDate = new Date(event.saleEnd);
                 return now > saleEndDate;
             },
             isEventEnded(event) {
@@ -331,7 +482,8 @@
                     return 0; // Return 0 if no event or seat type is selected
                 }
                 const selectedOption = this.selectedEvent.seatingOptions.find(option => option.type === this.selectedEvent.selectedSeatType);
-                return selectedOption ? selectedOption.remainingSeats : 0; 
+                this.selectedAvailableSeats = selectedOption.numberOfSits;
+                return selectedOption ? selectedOption.numberOfSits : 0; 
             },
             calculatedTotalPrice() {
                 if (!this.selectedEvent || !this.selectedEvent.selectedSeatType || this.numberOfTickets <= 0) {

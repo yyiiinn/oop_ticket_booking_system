@@ -11,10 +11,6 @@ public class RegisterViewModel {
         this.password = password;
     }
 
-    public RegisterViewModel() {
-
-    }
-
     public String getUsername() {
         return username;
     }

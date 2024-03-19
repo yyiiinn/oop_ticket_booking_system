@@ -8,8 +8,13 @@ export default {
     props: {
         eventData: {
             type: Object,
-            required: true
-        }
+            required: true,
+
+
+        },
+        formatDate: Function,
+        formatTimeDate: Function,
+        formatTime: Function
     },
     emits: ['close'], 
     methods: {
@@ -34,20 +39,27 @@ export default {
                     <strong>Venue:</strong> <br> {{ eventData.venue }}
                     </div>
                 </div>
+                
                 <div class="pt-4 row">
                     <div class="col-6"> 
-                    <strong>Date:</strong> <br> {{ eventData.date }}
+                    <strong>Cancellation Fee:</strong> <br> {{ eventData.cancellationCost }}
+                    </div>
+                </div>
+                
+                <div class="pt-4 row">
+                    <div class="col-6"> 
+                    <strong>Date:</strong> <br> {{ formatDate(eventData.date) }}
                     </div>
                     <div class="col-6">
-                    <strong>Time:</strong> <br> {{ eventData.startTime }} to {{ eventData.endTime }}
+                    <strong>Time:</strong> <br> {{ formatTime(eventData.startTime) }} to {{ formatTime(eventData.endTime) }}
                     </div>
                 </div>
                 <div class="pt-4 row">
                     <div class="col-6"> 
-                        <strong>Sales Start Date & Time:</strong> <br> {{ eventData.sales_startdate }} | {{ eventData.sales_starttime }}
+                        <strong>Sales Start DateTime:</strong> <br> {{ formatTimeDate(eventData.saleStart) }}
                     </div>
                     <div class="col-6">
-                        <strong>Sales End Date & Time:</strong> <br>  {{ eventData.sales_enddate }} | {{ eventData.sales_endtime }}
+                        <strong>Sales End DateTime:</strong> <br>  {{ formatTimeDate(eventData.saleEnd) }}
                     </div>
                 </div>
                 <div class="pt-4" v-if="eventData.seatingOptions && eventData.seatingOptions.length > 0">
@@ -58,15 +70,13 @@ export default {
                                 <th>Type</th>
                                 <th>Cost ($)</th>
                                 <th>Remaining Seats</th>
-                                <th>Cancellation Fee (S)</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="option in eventData.seatingOptions" :key="option.type">
                                 <td>{{ option.type }}</td>
                                 <td>{{ option.cost }}</td>
-                                <td>{{ option.remainingSeats }}</td>
-                                <td>{{ option.cancellationFee }}</td>
+                                <td>{{ option.numberOfSits }}</td>
                             </tr>
                         </tbody>
                     </table>

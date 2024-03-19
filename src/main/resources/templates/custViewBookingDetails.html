@@ -41,8 +41,8 @@
         <navbar-component active-link="viewBookingHistory"></navbar-component>
 
         <div class="container pt-5">
-            <h2 class="text-center">Booking Details for {{eventName}}</h2>
-            <h4 class="text-center text-secondary mb-4">{{date}} | {{startTime}} - {{endTime}}</h4>
+            <h2 class="text-center">Booking Details for {{eventDetails.eventName}}</h2>
+            <h4 class="text-center text-secondary mb-4">{{eventDetails.startDate}} | {{eventDetails.startTime}} - {{eventDetails.endTime}}</h4>
 
             <div class="table-responsive">
                 <table class="table">
@@ -50,7 +50,7 @@
                     <tr>
                       <th scope="col">GUID</th>
                       <th scope="col">Seat Type</th>
-                      <th scope="col">Seating No</th>
+                      <th scope="col">Ticket Status</th>
                     </tr>
                   </thead>
 
@@ -59,7 +59,7 @@
                     <tr v-for="ticket in tickets" :key="ticket.guid">
                       <td>{{ ticket.guid }}</td>
                       <td>{{ ticket.seatType }}</td>
-                      <td>{{ ticket.seatingNo }}</td>
+                      <td>{{ ticket.status }}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -78,20 +78,54 @@
       const app = Vue.createApp({
         data() {
           return {
+            transactionId: '',
             tickets: [
-                {guid: '123456', seatType: 'Cat 1', seatingNo: '12A'},
-                {guid: '789012', seatType: 'Cat 1', seatingNo: '12B'},
-                {guid: '345678', seatType: 'Cat 1', seatingNo: '12C'},
+                // {guid: '123456', seatType: 'Cat 1', seatingNo: '12A'},
+                // {guid: '789012', seatType: 'Cat 1', seatingNo: '12B'},
+                // {guid: '345678', seatType: 'Cat 1', seatingNo: '12C'},
             ],
-            eventName: "Concert A",
-            date: "2024-07-20",
-            startTime: "18:00",
-            endTime: "21:00",
+            eventDetails: {},
+            // eventName: "Concert A",
+            // date: "2024-07-20",
+            // startTime: "18:00",
+            // endTime: "21:00",
           }
         },
         methods: {
          
         },
+        mounted() {
+          // Perform Axios call when component is mounted
+          this.transactionId = sessionStorage.getItem('transactionId');
+          sessionStorage.removeItem('transactionId');
+          
+          axios.get(`/api/transactions/getTickets/${this.transactionId}`)
+            .then(response => {
+              this.tickets = response.data;
+
+              console.log('Data loaded successfully:', response.data);
+
+              // Optionally, handle the response data 
+            })
+            .catch(error => {
+              console.error('Error loading data:', error);
+              // Optionally, handle the error
+            });
+            axios.get(`/api/transactions/getEventDetails/${this.transactionId}`)
+            .then(response => {
+              this.eventDetails = response.data;
+              console.log('Data loaded successfully:', response.data);
+              // Optionally, handle the response data 
+            })
+            .catch(error => {
+              console.error('Error loading data:', error);
+              // Optionally, handle the error
+            });   
+          // Removing a specific session item
+          
+
+        },
+
       })
 
       app.component('navbar-component', NavBarComponent);

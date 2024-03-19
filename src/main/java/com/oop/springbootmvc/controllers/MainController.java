@@ -53,6 +53,8 @@ public class MainController {
         }
     }
 
+
+
     //Protected route
     @RequestMapping(value = "/custViewProfile", method = RequestMethod.GET)
     public String custViewProfile(Principal principal) {
@@ -83,13 +85,13 @@ public class MainController {
 
     @RequestMapping(value = "/custViewBookingDetails", method = RequestMethod.GET)
     public String custViewBookingDetails(Principal principal) {
-        // this attribute will be available in the view index.html as a thymeleaf variable
-        // Authentication authentication = (Authentication) principal;
-        // CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
-
+        // Assuming you have some data to send to the Thymeleaf template
+        
+        // model.addAttribute("transaction_id", encodedPathVariable);
+        // Add more attributes if needed
+    
         return "custViewBookingDetails";
     }
-
     // ==================================================== Ticketing Officer ====================================================
     @RequestMapping(value = "/ticOffViewEvents", method = RequestMethod.GET)
     public String ticOffViewEvents(Principal principal) {

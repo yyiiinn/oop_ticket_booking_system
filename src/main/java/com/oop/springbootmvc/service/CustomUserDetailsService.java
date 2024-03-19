@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-import java.util.Optional;
+import java.util.*;
 
 public class CustomUserDetailsService implements UserDetailsService {
 
@@ -22,6 +22,11 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException("User not found");
         }
         return new CustomUserDetails(user.get());
+    }
+
+    //test
+    public Collection<User> findByRole(String role){
+        return userRepo.findByRoleNative(role);
     }
 
 }

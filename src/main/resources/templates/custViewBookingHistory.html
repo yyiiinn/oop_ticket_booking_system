@@ -77,7 +77,7 @@
                   <thead>
                     <tr class="text-nowrap">
                       <th scope="col">
-                        <a href="#" class="text-decoration-none text-dark">Transaction ID</a>
+                        <a href="#" class="text-decoration-none text-dark">No</a>
                       </th>
                       <th scope="col">
                         <a href="#" class="text-decoration-none text-dark">Event Name</a>
@@ -95,26 +95,27 @@
                   </thead>
                   <tbody>
                     <tr v-for="(transaction, key) in transactions" :key="key">
-                      <td class="id">
-                          {{ transaction.id }}
+                      <td>
+                          {{ key + 1 }}
                       </td>
                       <td class="name">
-                        {{ transaction.event.name }}
+                        {{ transaction.eventName }}
                       </td>
                       <td class="time">
-                        {{ transaction.transaction_time }}
+                        {{ formatDate(transaction.purchasedDateTime)}}
                       </td>
                       <td class="pl-0 border-top">
-                        {{ transaction.no_tickets }}
+                        {{ transaction.noTickets }}
                       </td>
-                      <td>${{ transaction.total_amount }} SGD</td>
+                      <td>${{ transaction.cost }} SGD</td>
                       <td>{{ transaction.status }}</td>
                       <td>
                         <!-- need to update to pass the data over -->
-                        <a th:href="@{/custViewBookingDetails}" class="btn btn-primary">View Ticket(s)</a>
+                        
+                        <button v-if="checkIfCanCancel(transaction)" @click="viewTickets(transaction.id)" class="btn btn-primary">View Ticket(s)</button>
                       </td>
                       <td>
-                        <button class="btn btn-danger" @click="toggleModal(transaction)">Cancel Booking</button>
+                        <button v-if="checkIfCanCancel(transaction)" class="btn btn-danger" @click="toggleModal(transaction)">Cancel Booking</button>
                       </td>
                     </tr>               
                   </tbody>
@@ -127,19 +128,19 @@
           <div class="modal-dialog" role="document">
               <div class="modal-content">
                   <div class="modal-header">
-                      <h5 class="modal-title">Cancel Booking for {{ selectedTransaction.event ? selectedTransaction.event.name : '' }}</h5>
+                      <h5 class="modal-title">Cancel Booking for {{ selectedTransaction.eventName }}</h5>
                       <button type="button" class="btn-close" @click="showCancelBookingModal = false"></button>
                   </div>
                   <div class="modal-body">
-                      <p>By cancelling your booking, <strong> ${{selectedTransaction.total_amount}} SGD</strong> will be refunded back to your account.</p>
+                      <p>By cancelling your booking, <strong> ${{selectedTransaction.cost}} SGD</strong> will be refunded back to your account.</p>
 
-                      <p>There will be a <strong>${{ selectedTransaction.event ? selectedTransaction.event.seating[0].cancellationFee * selectedTransaction.no_tickets : '' }} SGD <span class="text-danger font-weight-bold">Cancellation fee</span></strong>. Click <strong><span class="text-success">Confirm</span></strong> to continue.</p>
+      <!-- Not Yet--><p>There will be a <strong>${{ selectedTransaction.eventCancellationCost }} SGD <span class="text-danger font-weight-bold">Cancellation fee</span></strong>. Click <strong><span class="text-success">Confirm</span></strong> to continue.</p>
                   </div>
                   <div class="modal-footer">
                       <span class="text-success" v-if="cancellationConfirmed">A cancellation mail has been sent to your email. Your request is being processed</span>
                       
-                      <button type="button" class="btn btn-secondary" @click="showCancelBookingModal = false">Cancel</button>
-                      <button type="button" class="btn btn-success" @click="confirmCancellation(transaction)" v-if="!cancellationConfirmed">Confirm</button>
+                      <button type="button" class="btn btn-secondary" @click="refreshPage()">Cancel</button>
+                      <button type="button" class="btn btn-success" @click="confirmCancellation(selectedTransaction)" v-if="!cancellationConfirmed">Confirm</button>
                   </div>
               </div>
           </div>
@@ -160,86 +161,165 @@
       const app = Vue.createApp({
         data() {
           return {
-            transactions: [
-                {
-                    id: 1,
-                    event: {
-                        id: 1,
-                        name: "Concert A",
-                        desc: "This is a detailed description of Concert A.",
-                        category: "Concert",
-                        date: "2024-07-20",
-                        startTime: "18:00",
-                        endTime: "20:00",
-                        venue: "The Esplanade",
-                        status: "active",
-                        sales_startdate: "2024-03-01",
-                        sales_starttime: "10:00",
-                        sales_enddate: "2024-05-20",
-                        sales_endtime: "23:59",
-                        seating: [
-                            {
-                                type: "Cat 1",
-                                pricePerTicket: 150,
-                                seatingNo: [1, 2, 3, 4],
-                                cancellationFee: 10
-                            }
+            // transactions: [
+            //     {
+            //         id: 1,
+            //         event: {
+            //             id: 1,
+            //             name: "Concert A",
+            //             desc: "This is a detailed description of Concert A.",
+            //             category: "Concert",
+            //             date: "2024-07-20",
+            //             startTime: "18:00",
+            //             endTime: "20:00",
+            //             venue: "The Esplanade",
+            //             status: "active",
+            //             sales_startdate: "2024-03-01",
+            //             sales_starttime: "10:00",
+            //             sales_enddate: "2024-05-20",
+            //             sales_endtime: "23:59",
+            //             seating: [
+            //                 {
+            //                     type: "Cat 1",
+            //                     pricePerTicket: 150,
+            //                     seatingNo: [1, 2, 3, 4],
+            //                     cancellationFee: 10
+            //                 }
 
-                        ],
-                    },
-                    transaction_time: "2024-04-20",
-                    no_tickets: "4",
-                    total_amount: 600,
-                    status: "Pending/Completed"
-                },
-                {
-                    id: 2,
-                    event: {
-                        id: 2,
-                        name: "Concert B",
-                        desc: "This is a detailed description of Concert B.",
-                        category: "Concert",
-                        date: "2024-07-20",
-                        startTime: "15:00",
-                        endTime: "20:00",
-                        venue: "The Esplanade",
-                        status: "active",
-                        sales_startdate: "2024-05-10",
-                        sales_starttime: "10:00",
-                        sales_enddate: "2024-06-20",
-                        sales_endtime: "23:59",
-                        seating: [
-                            {
-                                type: "Cat 1",
-                                pricePerTicket: 150,
-                                seatingNo: [1, 2, 3, 4],
-                                cancellationFee: 10
-                            }
+            //             ],
+            //         },
+            //         transaction_time: "2024-04-20",
+            //         no_tickets: "4",
+            //         total_amount: 600,
+            //         status: "Pending/Completed"
+            //     },
+            //     {
+            //         id: 2,
+            //         event: {
+            //             id: 2,
+            //             name: "Concert B",
+            //             desc: "This is a detailed description of Concert B.",
+            //             category: "Concert",
+            //             date: "2024-07-20",
+            //             startTime: "15:00",
+            //             endTime: "20:00",
+            //             venue: "The Esplanade",
+            //             status: "active",
+            //             sales_startdate: "2024-05-10",
+            //             sales_starttime: "10:00",
+            //             sales_enddate: "2024-06-20",
+            //             sales_endtime: "23:59",
+            //             seating: [
+            //                 {
+            //                     type: "Cat 1",
+            //                     pricePerTicket: 150,
+            //                     seatingNo: [1, 2, 3, 4],
+            //                     cancellationFee: 10
+            //                 }
 
-                        ],
-                    },
-                    transaction_time: "2024-05-20",
-                    no_tickets: "4",
-                    total_amount: 600,
-                    status: "Pending/Completed"
-                },
-            ],
+            //             ],
+            //         },
+            //         transaction_time: "2024-05-20",
+            //         no_tickets: "4",
+            //         total_amount: 600,
+            //         status: "Pending/Completed"
+            //     },
+            // ],
+            custId : 1,
+            transactions: [],
             selectedTransaction: {},
             showCancelBookingModal: false,
             cancellationConfirmed: false,
           }
         },
+        mounted() {
+          // Perform Axios call when component is mounted
+          axios.get(`/api/transactions/getTransactions/${this.custId}`)
+            .then(response => {
+              this.transactions = response.data;
+              console.log(this.transactions);
+              console.log('Data loaded successfully:', response.data);
+
+              // Optionally, handle the response data 
+            })
+            .catch(error => {
+              console.error('Error loading data:', error);
+              // Optionally, handle the error
+            });
+  
+                 
+        },
+
         methods: {
+          checkIfCanCancel(transaction){
+            if (transaction.status == "cancelled"){
+              return false;
+            }
+            const combinedDateTimeString = transaction.eventStartDate + "T" + transaction.eventStartTime;
+            const referenceTimestamp = Date.parse(combinedDateTimeString);
+            const localTimestamp = Date.now(); // Get the current local time timestamp
+            const twoDaysBeforeReferenceTimestamp = referenceTimestamp - (2 * 24 * 60 * 60 * 1000);
+
+            // Check if the local time timestamp is less than the timestamp of two days before the reference time
+            return localTimestamp < twoDaysBeforeReferenceTimestamp;
+          },
+          formatDate(timestamp) {
+          // Convert timestamp to Date object
+          const date = new Date(timestamp);
+          
+          // Get individual date components
+          const year = date.getFullYear();
+          const month = ('0' + (date.getMonth() + 1)).slice(-2); // Months are zero-based
+          const day = ('0' + date.getDate()).slice(-2);
+          const hours = ('0' + date.getHours()).slice(-2);
+          const minutes = ('0' + date.getMinutes()).slice(-2);
+          const seconds = ('0' + date.getSeconds()).slice(-2);
+          
+          // Construct date string in desired format
+          const dateString = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+          
+          return dateString;
+        },
           toggleModal(transaction) {
             this.selectedTransaction = transaction;
             this.showCancelBookingModal = !this.showCancelBookingModal;
           },
           // to be updated
           confirmCancellation(transaction) {
+            //need viewmodel
+            const deleteTickets= axios.put(`/api/tickets/cancelTicket/${transaction.id}`)
+                const updateTransaction = deleteTickets.then(response1 => {
+                  console.log('Set tickets to cancelled:', response1.data);
+                    return axios.put(`/api/transactions/${transaction.id}`);
+
+                });
+                const updateSitRecord = updateTransaction.then(response2 => {
+                    console.log('Update Transaction:', response2.data);
+                    const respData = {numberOfSits: transaction.noTickets, cost: transaction.cost, cancellationCost: transaction.eventCancellationCost};
+                    return axios.put(`/api/sit/addSits/${transaction.sitId}`, respData);
+                });
+                const updateBalance = updateSitRecord.then(response3 => {
+                    const respData = {numberOfSits: transaction.noTickets, cost: transaction.cost, cancellationCost: transaction.eventCancellationCost};
+                    console.log('Update no of sits', respData);
+                    return axios.put(`/increaseBalance/${transaction.customerId}`, respData);
+                });
+                updateBalance.then(response4 => {
+                  console.log("Balance updated")
+                });
+
 
             this.cancellationConfirmed = true; 
+          },
+          refreshPage() {
+            // Refresh the page
+            location.reload();
+          },
+          viewTickets(id){
+            sessionStorage.setItem('transactionId', String(id));
+            window.location.href = '/custViewBookingDetails';
           }
-        },
+
+      }
       })
 
       app.component('navbar-component', NavBarComponent);
