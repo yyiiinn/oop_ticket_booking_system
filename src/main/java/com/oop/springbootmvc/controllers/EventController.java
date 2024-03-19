@@ -1,14 +1,15 @@
 package com.oop.springbootmvc.controllers;
 
-import com.oop.springbootmvc.service.SitService;
+import com.oop.springbootmvc.service.SeatService;
 
 import com.oop.springbootmvc.model.Event;
-import com.oop.springbootmvc.model.Sit;
+import com.oop.springbootmvc.model.EventWithSeats;
+import com.oop.springbootmvc.model.Seat;
+import com.oop.springbootmvc.model.Seat;
 import com.oop.springbootmvc.repository.EventRepository;
+import com.oop.springbootmvc.repository.SeatRepository;
 import com.oop.springbootmvc.viewmodel.EventViewModel;
-import com.oop.springbootmvc.viewmodel.SitViewModel;
-
-import jakarta.persistence.EntityManager;
+import com.oop.springbootmvc.viewmodel.SeatViewModel;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,27 +32,59 @@ import java.util.Optional;
 @RestController
 public class EventController {
   private final EventRepository eventRepository;
+  private final SeatRepository seatRepository;
 
   @Autowired
-  private SitService sitService;
+  private SeatService seatService;
 
-  public EventController(EventRepository eventRepository) {
+  public EventController(EventRepository eventRepository, SeatRepository seatRepository) {
     this.eventRepository = eventRepository;
+    this.seatRepository = seatRepository;
   }
 
-  @PostMapping("/api/createEvent")
+  @GetMapping("/api/activeEvents")
+  public ResponseEntity<List<EventWithSeats>> getActiveEvents() {
+    List<Event> activeEvents = eventRepository.findActiveEvents();
+    List<EventWithSeats> eventWithSitsList = new ArrayList<>();
+    for (Event event : activeEvents) {
+        List<Seat> seats = seatRepository.findSeatByEventId(event.getId());
+        EventWithSeats response = new EventWithSeats(activeEvents, seats);
+        eventWithSitsList.add(response);
+    }
+    return ResponseEntity.ok(eventWithSitsList);
+  }
+
+    // @GetMapping("/api/allEvents")
+    // public ResponseEntity<List<EventWithSits>> getAllEvents() {
+    //     List<Event> events = eventRepository.findAllEvents();
+    //     List<EventWithSits> eventWithSitsList = new ArrayList<>();
+    //     for (Event event : events) {
+    //         List<Sit> seats = sitRepository.findSitByEventId(event.getId());
+    //         EventWithSits response = new EventWithSits(events, seats);
+    //         eventWithSitsList.add(response);
+    //     }
+    //     return ResponseEntity.ok(eventWithSitsList);
+    // }
+
+  @GetMapping("/api/allEvents")
+  public ResponseEntity<List<Event>> getAllEvents() {
+      List<Event> events = eventRepository.findAllEvents();
+      return ResponseEntity.ok(events);
+  }
+  
+  @PostMapping("/api/manager/createEvent")
   public ResponseEntity<Object> createEvent(@RequestBody EventViewModel eventViewModel) {  
       try {
           Event event = new Event(eventViewModel.getEventName(), eventViewModel.getEventDescription(), eventViewModel.getEventVenue(), 
           eventViewModel.geEventImageFile(), eventViewModel.getEventStartDate(), eventViewModel.getEventEndDate(), eventViewModel.getEventStartTime(), 
           eventViewModel.getEventEndTime(), eventViewModel.getSalesStartTime(), eventViewModel.getSalesEndTime(), 
-          "Active", eventViewModel.getEventCategory(), eventViewModel.getCancellationFee(), eventViewModel.getImageName());
+          "Active", eventViewModel.getEventCategory(), eventViewModel.getCancellationFee());
           Event createdEvent = eventRepository.save(event);
-          List<SitViewModel> sitViewModels = eventViewModel.getSeatingOptions();
+          List<SeatViewModel> sitViewModels = eventViewModel.getSeatingOptions();
           boolean seatsAdded = false;
           if (createdEvent != null){
-            int event_id = createdEvent.getId();
-            seatsAdded = sitService.createSitsByEventId(event_id, sitViewModels);
+            long event_id = createdEvent.getId();
+            seatsAdded = seatService.createSeatsByEvent(createdEvent, sitViewModels);
           }
           if (seatsAdded == true) {
             Map<String, String> responseBody = new HashMap<>();
@@ -77,10 +111,11 @@ public class EventController {
       Optional<Event> eventOptional = eventRepository.findById(eventId);
       if (eventOptional.isPresent()) {
           Event event = eventOptional.get();
-          List<Sit> sits = sitService.getSitsByEventId(eventId);
+          List<Seat> seats = new ArrayList<>();
+          seats.addAll(event.getSeats());
           Map<String, Object> responseMap = new HashMap<>();
           responseMap.put("eventDetails", event);
-          responseMap.put("seats", sits);
+          responseMap.put("seats", seats);
           return ResponseEntity.ok().body(responseMap);
       } else {
           Map<String, String> responseBody = new HashMap<>();
@@ -96,7 +131,7 @@ public class EventController {
     }
   }
 
-  @PostMapping("/api/submitEditEvent/{eventId}")
+  @PostMapping("/api/manager/submitEditEvent/{eventId}")
   public ResponseEntity<Object> submitEditEvent(@PathVariable("eventId") int eventId, @RequestBody EventViewModel eventViewModel) {
     try {
         Optional<Event> optionalEvent = eventRepository.findById(eventId);
@@ -121,13 +156,12 @@ public class EventController {
         existingEvent.setTicketSaleEndTime(eventViewModel.getSalesEndTime());
         existingEvent.setEventCategory(eventViewModel.getEventCategory());
         existingEvent.setCancellationFee(eventViewModel.getCancellationFee());
-        existingEvent.setImageName(eventViewModel.getImageName());
 
         Event updatedEvent = eventRepository.save(existingEvent);
         boolean seatsAdded = false;
         if (updatedEvent != null) {
-          int event_id = updatedEvent.getId();
-          seatsAdded = sitService.createSitsByEventId(event_id, eventViewModel.getSeatingOptions());
+          long event_id = updatedEvent.getId();
+          seatsAdded = seatService.createSeatsByEvent(updatedEvent, eventViewModel.getSeatingOptions());
         }
         Map<String, String> responseBody = new HashMap<>();
         if (seatsAdded == true) {
@@ -147,7 +181,7 @@ public class EventController {
     }
   }
 
-  @PostMapping("/api/cancelEvent/{eventId}")
+  @PostMapping("/api/manager/cancelEvent/{eventId}")
     public ResponseEntity<Object> cancelEvent(@PathVariable("eventId") int eventId, @RequestBody EventViewModel eventViewModel) {
       try {
         Optional<Event> optionalEvent = eventRepository.findById(eventId);
@@ -187,4 +221,8 @@ public class EventController {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseBody);
     }
     }
+
+
+
+
 }

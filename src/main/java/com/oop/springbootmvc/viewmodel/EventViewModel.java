@@ -27,7 +27,7 @@ public class EventViewModel {
     private Timestamp salesEndTime;
     private Float cancellation_fee;
     private String eventCategory;
-    private List<SitViewModel> seatingOptions;
+    private List<SeatViewModel> seatingOptions;
     private String imageName;
 
     public String getEventName() {
@@ -135,11 +135,11 @@ public class EventViewModel {
         this.salesEndTime = salesEndTime;
     }
 
-    public List<SitViewModel> getSeatingOptions() {
+    public List<SeatViewModel> getSeatingOptions() {
         return seatingOptions;
     }
 
-    public void setSeatingOptions(List<SitViewModel> seatingOptions) {
+    public void setSeatingOptions(List<SeatViewModel> seatingOptions) {
         this.seatingOptions = seatingOptions;
     }
 

@@ -1,8 +1,11 @@
 package com.oop.springbootmvc.model;
 
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+
 import jakarta.persistence.*;
 
 @Entity
+@EnableAutoConfiguration
 @Table(name = "test")
 public class TestObj {
     private @Id

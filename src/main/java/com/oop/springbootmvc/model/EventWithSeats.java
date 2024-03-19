@@ -1,11 +1,11 @@
 package com.oop.springbootmvc.model;
 import java.util.List;
 
-public class EventWithSits {
+public class EventWithSeats {
     private List<Event> events;
-    private List<Sit> seats;
+    private List<Seat> seats;
 
-    public EventWithSits(List<Event> events, List<Sit> seats) {
+    public EventWithSeats(List<Event> events, List<Seat> seats) {
         this.events = events;
         this.seats = seats;
     }
@@ -14,7 +14,7 @@ public class EventWithSits {
         return events;
     }
 
-    public List<Sit> getSeats() {
+    public List<Seat> getSeats() {
         return seats;
     }
 }

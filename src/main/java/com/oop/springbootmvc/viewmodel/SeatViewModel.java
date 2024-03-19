@@ -1,6 +1,6 @@
 package com.oop.springbootmvc.viewmodel;
 
-public class SitViewModel {
+public class SeatViewModel {
     private int event_id;
     private String type;
     private float cost;

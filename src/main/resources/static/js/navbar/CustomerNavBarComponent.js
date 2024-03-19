@@ -1,8 +1,8 @@
 export default {
-    props: {
-        activeLink: String // Prop to specify the active link
-    },
-    template: `
+  props: {
+    activeLink: String, // Prop to specify the active link
+  },
+  template: `
         <nav class="navbar navbar-expand-lg navbar-light bg-light mb-5">
             <div class="container-fluid mt-2">
                 <a class="navbar-brand no-underline" id="navbar-link">
@@ -19,13 +19,13 @@ export default {
                 <div class="collapse navbar-collapse navcontent" id="navbarNav">
                     <ul class="navbar-nav ms-auto navbar-menu">
                         <li class="nav-item">
-                            <a class="nav-link" :class="{ 'active': activeLink === 'viewEvents' }" href="/custViewEvents">View Events</a>
+                            <a class="nav-link" :class="{ 'active': activeLink === 'viewEvents' }" href="/customer/ViewEvents">View Events</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" :class="{ 'active': activeLink === 'viewBookingHistory' }" href="/custViewBookingHistory">View Booking History</a>
+                            <a class="nav-link" :class="{ 'active': activeLink === 'viewBookingHistory' }" href="/customer/ViewBookingHistory">View Booking History</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" :class="{ 'active': activeLink === 'viewProfile' }" href="/custViewProfile">View Profile</a>
+                            <a class="nav-link" :class="{ 'active': activeLink === 'viewProfile' }" href="/customer/ViewProfile">View Profile</a>
                         </li>
                         <li class="nav-item">
                             <button class="btn sign-out-button" @click="signOut">Sign Out</button>
@@ -35,9 +35,9 @@ export default {
             </div>
         </nav>
     `,
-    methods: {
-        signOut() {
-            // Add sign out functionality here
-        }
-    }
+  methods: {
+    signOut() {
+      // Add sign out functionality here
+    },
+  },
 };
