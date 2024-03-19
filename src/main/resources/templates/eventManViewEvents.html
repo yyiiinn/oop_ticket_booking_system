@@ -236,7 +236,7 @@
         confirmCancellation(eventId) {
           // Perform the cancellation action here
           axios
-            .post("/api/cancelEvent/" + BigInt(eventId), {
+            .post("/api/manager/cancelEvent/" + BigInt(eventId), {
               headers: {
                 "Content-Type": "application/json",
               },
