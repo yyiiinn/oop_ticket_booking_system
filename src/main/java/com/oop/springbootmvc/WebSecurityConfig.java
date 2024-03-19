@@ -11,7 +11,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 @EnableWebSecurity
 @Configuration
@@ -46,7 +45,10 @@ public class WebSecurityConfig {
 
         http.authorizeHttpRequests(auth ->
             auth
-            .requestMatchers("/profile").authenticated()
+            .requestMatchers("/customer/**").hasRole("USER")
+            .requestMatchers("/api/manager/**").hasRole("MANAGER")
+            .requestMatchers("/manager/**").hasRole("MANAGER")
+            .requestMatchers("/officer/**").hasRole("OFFICER")
             .requestMatchers("/login").permitAll()
             .anyRequest().permitAll()
         )

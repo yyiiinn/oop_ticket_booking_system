@@ -6,8 +6,6 @@ import com.oop.springbootmvc.model.TestObj;
 import com.oop.springbootmvc.repository.TestObjRepository;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 public class TestObjController {
   private final TestObjRepository testObjRepository;
@@ -21,7 +19,7 @@ public class TestObjController {
   }
 
   @GetMapping("/api/test/{id}")
-  Optional<TestObj> one(@PathVariable("id") Long id) {
+  Optional<TestObj> one(@PathVariable("id") int id) {
     return this.testObjRepository.findById(id);
   }
 

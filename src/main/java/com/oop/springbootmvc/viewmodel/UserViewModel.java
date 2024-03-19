@@ -1,7 +1,5 @@
 package com.oop.springbootmvc.viewmodel;
 
-import jakarta.persistence.Column;
-
 public class UserViewModel {
     private String username;
     private String name;
