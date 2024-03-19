@@ -15,6 +15,7 @@ public interface EventRepository extends CrudRepository<Event, Long> {
     "WHEN e.event_start_date > CURRENT_DATE THEN 2 " +
     "ELSE 3 END, e.event_start_date ASC")
     List<Event> findAllEvents();
+
 }
 
 

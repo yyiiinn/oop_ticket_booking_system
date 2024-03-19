@@ -5,6 +5,9 @@ import com.oop.springbootmvc.model.User;
 import com.oop.springbootmvc.repository.EventRepository;
 import com.oop.springbootmvc.service.EventService;
 import com.oop.springbootmvc.model.Event;
+import com.oop.springbootmvc.model.EventWithSits;
+import com.oop.springbootmvc.model.Sit;
+import com.oop.springbootmvc.repository.SitRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +21,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 
@@ -26,10 +32,12 @@ import java.util.Optional;
 public class MainController {
 
     private final EventRepository eventRepository;
+    private final SitRepository sitRepository;
 
     @Autowired
-    public MainController(EventRepository eventRepository) {
+    public MainController(EventRepository eventRepository, SitRepository sitRepository) {
         this.eventRepository = eventRepository;
+        this.sitRepository = sitRepository;
     }
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
@@ -151,16 +159,34 @@ public class MainController {
     }
 
     @GetMapping("/api/activeEvents")
-    public ResponseEntity<List<Event>> getActiveEvents() {
+    public ResponseEntity<List<EventWithSits>> getActiveEvents() {
         List<Event> activeEvents = eventRepository.findActiveEvents();
-        return ResponseEntity.ok(activeEvents);
+        List<EventWithSits> eventWithSitsList = new ArrayList<>();
+        for (Event event : activeEvents) {
+            List<Sit> seats = sitRepository.findSitByEventId(event.getId());
+            EventWithSits response = new EventWithSits(activeEvents, seats);
+            eventWithSitsList.add(response);
+        }
+        return ResponseEntity.ok(eventWithSitsList);
     }
 
     @GetMapping("/api/allEvents")
-    public ResponseEntity<List<Event>> getAllEvents() {
+    public ResponseEntity<List<EventWithSits>> getAllEvents() {
         List<Event> events = eventRepository.findAllEvents();
-        return ResponseEntity.ok(events);
+        List<EventWithSits> eventWithSitsList = new ArrayList<>();
+        for (Event event : events) {
+            List<Sit> seats = sitRepository.findSitByEventId(event.getId());
+            EventWithSits response = new EventWithSits(events, seats);
+            eventWithSitsList.add(response);
+        }
+        return ResponseEntity.ok(eventWithSitsList);
     }
+
+    // @GetMapping("/api/allEvents")
+    // public ResponseEntity<List<Event>> getAllEvents() {
+    //     List<Event> events = eventRepository.findAllEvents();
+    //     return ResponseEntity.ok(events);
+    // }
 
     
     @RequestMapping(value = "/eventManCreateEvent", method = RequestMethod.GET)

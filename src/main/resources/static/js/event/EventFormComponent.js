@@ -118,7 +118,7 @@ export default {
             let salesEndTimeOld = this.formData.salesEndTime;
             this.formData.salesStartTime = this.convertToTimeStamp(this.formData.salesStartDate, this.formData.salesStartTime);
             this.formData.salesEndTime = this.convertToTimeStamp(this.formData.salesEndDate, this.formData.salesEndTime);
-            console.log(this.formData.eventImageFile)
+            console.log(this.formData.salesStartTime)
             console.log(this.formData)
             if (this.validateForm()) {
                 if (this.mode === 'create') {
@@ -191,6 +191,7 @@ export default {
             const file = event.target.files[0];
             console.log(file)
             if (file) {
+                this.formData.imageName = file.name;
                 const reader = new FileReader();
                 reader.onload = () => {
                     const base64String = reader.result.split(",")[1]; 
@@ -363,7 +364,9 @@ export default {
             console.log("called method")
             const [ticketSaleEndDate, ticketSaleEndTime] = new Date(eventControllerData.eventDetails.ticketSaleEndDateTime).toISOString().split('T');
             const [ticketSaleStartDate, ticketSaleStartTime] = new Date(eventControllerData.eventDetails.ticketSaleStartDateTime).toISOString().split('T');
-           
+            console.log(ticketSaleStartTime.slice(0, 8))
+            console.log(eventControllerData.eventDetails.ticketSaleStartDateTime)
+            console.log(new Date(eventControllerData.eventDetails.ticketSaleStartDateTime).toISOString().split('T'));
             const updatedEventData = {
                 "eventName": eventControllerData.eventDetails.name,
                 "eventDescription": eventControllerData.eventDetails.description,
@@ -379,7 +382,8 @@ export default {
                 "salesStartDate": ticketSaleStartDate,
                 "cancellationFee": eventControllerData.eventDetails.cancellationFee,
                 "salesStartTime": ticketSaleStartTime.slice(0, 8),
-                "seatingOptions": eventControllerData.seats
+                "seatingOptions": eventControllerData.seats,
+                "imageName" : eventControllerData.eventDetails.imageName
             };
             console.log(ticketSaleStartTime.slice(0, 8))
             this.formData = updatedEventData;

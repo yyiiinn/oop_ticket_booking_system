@@ -41,21 +41,6 @@ public class UserController {
     }
   }
 
-  @PostMapping("/api/addTicketingOfficer")
-  public ResponseEntity<Object> addTicketingOfficer(@RequestBody RegisterViewModel registerViewModel) {
-    User user = new User(registerViewModel.getName(), "Ticketing Officer", "tckt_officer_1", "password", true, 1000);
-    try {
-      User registeredUser = this.userRepository.save(user);
-      return new ResponseEntity<>(new UserViewModel(registeredUser.getUsername(), registeredUser.getName()), HttpStatus.OK) ;
-    }catch(Exception e){
-      // TODO Read the exception and throw to user registration fail
-      if (e.getMessage().contains("duplicate key value violates unique constraint \"users_username_key\"")){
-        return new ResponseEntity<>("Username has already been taken", HttpStatus.CONFLICT) ;
-      }
-      return new ResponseEntity<>("Failed to add new ticketing officer", HttpStatus.NOT_ACCEPTABLE) ;
-
-    }
-  }
 //
 //  @PostMapping("/api/register")
 //  public TestObj add(@RequestBody User user) {

@@ -28,6 +28,7 @@ public class EventViewModel {
     private Float cancellation_fee;
     private String eventCategory;
     private List<SitViewModel> seatingOptions;
+    private String imageName;
 
     public String getEventName() {
         return eventName;
@@ -42,8 +43,7 @@ public class EventViewModel {
     }
 
     public void setEventImageFile(String eventImageFile) {
-        System.out.println(eventImageFile);
-        this.eventImageFile = Base64.getDecoder().decode(eventImageFile);;
+        this.eventImageFile = Base64.getDecoder().decode(eventImageFile);
     }
 
     public String getEventDescription() {
@@ -149,6 +149,14 @@ public class EventViewModel {
 
     public void setCancellationFee(Float cancellationFee) {
         this.cancellation_fee = cancellationFee;
+    }
+
+    public String getImageName() {
+        return imageName;
+    }
+
+    public void setImageName(String imageName) {
+        this.imageName = imageName;
     }
 
     public Timestamp getTicketSaleStartDateTime() {

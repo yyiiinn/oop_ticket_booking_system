@@ -40,7 +40,9 @@ public class Event {
     private String category;
     @Column(nullable = false)
     private Float cancellation_fee;
-    public Event(String name, String description, String venue, byte[] image, Date event_start_date, Date event_end_date, Time event_start_time, Time event_end_time, Timestamp timestamp, Timestamp timestamp2, String status, String category, Float cancellationFee) {
+    @Column(nullable = false)
+    private String image_name;
+    public Event(String name, String description, String venue, byte[] image, Date event_start_date, Date event_end_date, Time event_start_time, Time event_end_time, Timestamp timestamp, Timestamp timestamp2, String status, String category, Float cancellationFee, String image_name) {
         this.name = name;
         this.description = description;
         this.venue = venue;
@@ -54,6 +56,7 @@ public class Event {
         this.status = status;
         this.category = category;
         this.cancellation_fee = cancellationFee;
+        this.image_name = image_name;
     }
 
     public Event() {
@@ -97,11 +100,21 @@ public class Event {
     }
     
     public Timestamp getTicketSaleStartDateTime(){
-        return this.ticket_sale_start_date_time;
+        Timestamp originalTimestamp = this.ticket_sale_start_date_time;
+        long originalTimeMillis = originalTimestamp.getTime();
+        long utcPlus8OffsetMillis = 8 * 60 * 60 * 1000;
+        long timeInUtcPlus8Millis = originalTimeMillis + utcPlus8OffsetMillis;
+        Timestamp utcPlus8Timestamp = new Timestamp(timeInUtcPlus8Millis);
+        return utcPlus8Timestamp;
     }
 
     public Timestamp getTicketSaleEndDateTime(){
-        return this.ticket_sale_end_date_time;
+        Timestamp originalTimestamp = this.ticket_sale_end_date_time;
+        long originalTimeMillis = originalTimestamp.getTime();
+        long utcPlus8OffsetMillis = 8 * 60 * 60 * 1000;
+        long timeInUtcPlus8Millis = originalTimeMillis + utcPlus8OffsetMillis;
+        Timestamp utcPlus8Timestamp = new Timestamp(timeInUtcPlus8Millis);
+        return utcPlus8Timestamp;
     }
 
     public String getStatus(){
@@ -181,6 +194,14 @@ public class Event {
         this.category = category;
     }
 
+    public String getImageName() {
+        return this.image_name;
+    }
+
+    public void setImageName(String image_name) {
+        this.image_name = image_name;
+    }
+
 
     @Override
     public String toString() {
@@ -199,6 +220,7 @@ public class Event {
                 ", status='" + status + '\'' +
                 ", category='" + category + '\'' +
                 ", cancellation_fee='" + cancellation_fee + '\'' +
+                ", image_name='" + image_name + '\'' +
                 '}';
     }
    

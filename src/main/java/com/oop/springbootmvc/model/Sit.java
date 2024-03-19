@@ -1,11 +1,9 @@
 package com.oop.springbootmvc.model;
 
-import java.sql.Time;
-
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "sits")
+@Table(name = "seats")
 public class Sit {
     private @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

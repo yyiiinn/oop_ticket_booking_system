@@ -17,6 +17,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,17 +44,23 @@ public class EventController {
           Event event = new Event(eventViewModel.getEventName(), eventViewModel.getEventDescription(), eventViewModel.getEventVenue(), 
           eventViewModel.geEventImageFile(), eventViewModel.getEventStartDate(), eventViewModel.getEventEndDate(), eventViewModel.getEventStartTime(), 
           eventViewModel.getEventEndTime(), eventViewModel.getSalesStartTime(), eventViewModel.getSalesEndTime(), 
-          "Active", eventViewModel.getEventCategory(), eventViewModel.getCancellationFee());
+          "Active", eventViewModel.getEventCategory(), eventViewModel.getCancellationFee(), eventViewModel.getImageName());
           Event createdEvent = eventRepository.save(event);
           List<SitViewModel> sitViewModels = eventViewModel.getSeatingOptions();
+          boolean seatsAdded = false;
           if (createdEvent != null){
             int event_id = createdEvent.getId();
-            boolean seatsAdded = sitService.createSitsByEventId(event_id, sitViewModels);
-            System.out.println(seatsAdded);
+            seatsAdded = sitService.createSitsByEventId(event_id, sitViewModels);
+          }
+          if (seatsAdded == true) {
+            Map<String, String> responseBody = new HashMap<>();
+            responseBody.put("message", "Event created successfully");
+            responseBody.put("status", "200");
+            return ResponseEntity.ok().body(responseBody);
           }
           Map<String, String> responseBody = new HashMap<>();
-          responseBody.put("message", "Event created successfully");
-          responseBody.put("status", "200");
+          responseBody.put("message", "Unable to create event");
+          responseBody.put("status", "400");
           return ResponseEntity.ok().body(responseBody);
       } catch (Exception e) {
           e.printStackTrace();
@@ -110,22 +121,28 @@ public class EventController {
         existingEvent.setTicketSaleEndTime(eventViewModel.getSalesEndTime());
         existingEvent.setEventCategory(eventViewModel.getEventCategory());
         existingEvent.setCancellationFee(eventViewModel.getCancellationFee());
-       
+        existingEvent.setImageName(eventViewModel.getImageName());
+
         Event updatedEvent = eventRepository.save(existingEvent);
+        boolean seatsAdded = false;
         if (updatedEvent != null) {
           int event_id = updatedEvent.getId();
-          boolean seatsAdded = sitService.createSitsByEventId(event_id, eventViewModel.getSeatingOptions());
-          System.out.println(seatsAdded);
+          seatsAdded = sitService.createSitsByEventId(event_id, eventViewModel.getSeatingOptions());
         }
         Map<String, String> responseBody = new HashMap<>();
-        responseBody.put("message", "Event updated successfully");
-        responseBody.put("status", "200");
+        if (seatsAdded == true) {
+          responseBody.put("message", "Event updated successfully");
+          responseBody.put("status", "200");
+          return ResponseEntity.ok().body(responseBody);
+        }
+        responseBody.put("message", "Unable to update Event and Seating Options");
+        responseBody.put("status", "400");
         return ResponseEntity.ok().body(responseBody);
     } catch (Exception e) {
         e.printStackTrace(); 
         Map<String, String> responseBody = new HashMap<>();
         responseBody.put("message", "Failed to update event: " + e.getMessage());
-        responseBody.put("status", "500"); // Use appropriate error status
+        responseBody.put("status", "500");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseBody);
     }
   }
@@ -142,18 +159,26 @@ public class EventController {
         }
         Event existingEvent = optionalEvent.get();
 
-        // TO CHECK IF EVENT CAN BE CANCELLED
-
-        existingEvent.setStatus("Cancelled");
-       
-        Event updatedEvent = eventRepository.save(existingEvent);
-        
-        // TO TRIGGER AUTOMATED REFUND
-
-        Map<String, String> responseBody = new HashMap<>();
-        responseBody.put("message", "Event cancelled successfully");
-        responseBody.put("status", "200");
-        return ResponseEntity.ok().body(responseBody);
+        LocalDateTime now = LocalDateTime.now();
+        LocalDate localDate = existingEvent.getEventStartDate().toLocalDate();
+        LocalTime localTime = existingEvent.getEventStartTime().toLocalTime();
+        LocalDateTime eventStartDateTime = LocalDateTime.of(localDate, localTime);
+        long daysUntilEvent = ChronoUnit.DAYS.between(now, eventStartDateTime);
+        System.out.println(daysUntilEvent + "dayssss");
+        if (daysUntilEvent >= 2) {
+          existingEvent.setStatus("Cancelled");
+          Event updatedEvent = eventRepository.save(existingEvent);
+          // TO TRIGGER AUTOMATED REFUND
+          Map<String, String> responseBody = new HashMap<>();
+          responseBody.put("message", "Event cancelled successfully");
+          responseBody.put("status", "200");
+          return ResponseEntity.ok().body(responseBody);
+        } else {
+          Map<String, String> responseBody = new HashMap<>();
+          responseBody.put("message", "Unable to cancel event as event is starting in less than 2 days");
+          responseBody.put("status", "400");
+          return ResponseEntity.ok().body(responseBody);
+        }
     } catch (Exception e) {
         e.printStackTrace(); 
         Map<String, String> responseBody = new HashMap<>();
