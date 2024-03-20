@@ -3,13 +3,12 @@ package com.oop.springbootmvc.controllers;
 import com.oop.springbootmvc.service.SeatService;
 
 import com.oop.springbootmvc.model.Event;
-import com.oop.springbootmvc.model.EventWithSeats;
-import com.oop.springbootmvc.model.Seat;
 import com.oop.springbootmvc.model.Seat;
 import com.oop.springbootmvc.repository.EventRepository;
 import com.oop.springbootmvc.repository.SeatRepository;
 import com.oop.springbootmvc.viewmodel.EventViewModel;
 import com.oop.springbootmvc.viewmodel.SeatViewModel;
+import com.oop.springbootmvc.viewmodel.EventManSearchViewModel;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -213,6 +212,30 @@ public class EventController {
     }
 
 
+    @PostMapping("/events/search")
+    public ResponseEntity<List<Event>> searchEvents(@RequestBody EventManSearchViewModel eventManSearchViewModel) {
+      Map<String, String> statusMap = new HashMap<>();
+      statusMap.put("Available for Purchase", "Active");
+      statusMap.put("Event Cancelled", "Cancelled");
+      statusMap.put("Upcoming Event", "Active");
 
+      String status = statusMap.getOrDefault(eventManSearchViewModel.getStatus(), "").trim();
+      String name = eventManSearchViewModel.getName();
+      String category = eventManSearchViewModel.getCategory();
 
+      if (name != null) {
+          name = name.trim().toLowerCase();
+      } else {
+          name = "";
+      }
+      if (category != null) {
+          category = category.trim();
+      } else {
+          category = "";
+      }
+
+      List<Event> events = eventRepository.searchEvents(name, status, category);
+      return ResponseEntity.ok(events);
+
+    }
 }

@@ -216,8 +216,39 @@
 
           return url;
         },
-        searchApi(event, category) {
-          console.log(event, category);
+        searchApi(event, category, status) {
+          console.log(event, category, status)
+          const requestBody = {
+            name: event,
+            status: status,
+            category: category
+            };  
+          console.log(requestBody)
+          fetch('/events/search', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+            })
+            .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+            })
+            .then((data) => {
+              console.log(data)
+              this.events = data;
+              this.events.forEach((event) => {
+                if (event.image) {
+                  event.image = this.convertDataToURL(event.image);
+                }
+              });
+            })
+            .catch(error => {
+            console.error('There was a problem with your fetch operation:', error);
+            });
         },
 
         showEventDetails(event) {
