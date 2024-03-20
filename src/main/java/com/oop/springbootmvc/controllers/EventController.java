@@ -43,28 +43,18 @@ public class EventController {
   }
 
   @GetMapping("/api/activeEvents")
-  public ResponseEntity<List<EventWithSeats>> getActiveEvents() {
-    List<Event> activeEvents = eventRepository.findActiveEvents();
-    List<EventWithSeats> eventWithSitsList = new ArrayList<>();
-    for (Event event : activeEvents) {
-        List<Seat> seats = seatRepository.findSeatByEventId(event.getId());
-        EventWithSeats response = new EventWithSeats(activeEvents, seats);
-        eventWithSitsList.add(response);
-    }
-    return ResponseEntity.ok(eventWithSitsList);
-  }
-
-    // @GetMapping("/api/allEvents")
-    // public ResponseEntity<List<EventWithSits>> getAllEvents() {
-    //     List<Event> events = eventRepository.findAllEvents();
-    //     List<EventWithSits> eventWithSitsList = new ArrayList<>();
-    //     for (Event event : events) {
-    //         List<Sit> seats = sitRepository.findSitByEventId(event.getId());
-    //         EventWithSits response = new EventWithSits(events, seats);
-    //         eventWithSitsList.add(response);
-    //     }
-    //     return ResponseEntity.ok(eventWithSitsList);
+  public ResponseEntity<List<Event>> getActiveEvents() {
+    // List<Event> activeEvents = eventRepository.findActiveEvents();
+    // List<EventWithSeats> eventWithSitsList = new ArrayList<>();
+    // for (Event event : activeEvents) {
+    //     List<Seat> seats = seatRepository.findSeatByEventId(event.getId());
+    //     EventWithSeats response = new EventWithSeats(activeEvents, seats);
+    //     eventWithSitsList.add(response);
     // }
+    // return ResponseEntity.ok(eventWithSitsList);
+    List<Event> events = eventRepository.findActiveEvents();
+    return ResponseEntity.ok(events);
+  }
 
   @GetMapping("/api/allEvents")
   public ResponseEntity<List<Event>> getAllEvents() {

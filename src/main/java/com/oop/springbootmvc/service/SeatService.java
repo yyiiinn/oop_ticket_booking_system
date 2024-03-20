@@ -1,6 +1,5 @@
 package com.oop.springbootmvc.service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -18,15 +17,6 @@ public class SeatService {
     public SeatService(SeatRepository seatRepository) {
         this.seatRepository = seatRepository;
     }
-
-    // public List<Seat> getSeatsByEventId(int event_id) {
-    //     try {
-    //         return seatRepository.findSeatByEventId(event_id);
-    //     } catch (Exception e){
-    //         e.printStackTrace();
-    //         return new ArrayList<>();
-    //     }
-    // }
 
     public Boolean createSeatsByEvent(Event event, List<SeatViewModel> seatViewModels) {  
       try {
@@ -51,7 +41,6 @@ public class SeatService {
                     seatRepository.delete(s); 
                 }
             }
-            // int rowsAffected = sitRepository.deleteSitByEventId(eventId);
             return true;
         } catch (Exception e) {
             e.printStackTrace(); 

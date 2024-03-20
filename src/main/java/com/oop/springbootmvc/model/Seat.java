@@ -17,17 +17,17 @@ public class Seat {
     @Column(nullable = false)
     private float cost;
     @Column(nullable = false)
-    private int numberOfSits;
+    private int numberOfSeats;
     // @ManyToOne
     // @Column(nullable = false)
     //Event event;  
     @ManyToOne
     @JoinColumn(name = "event_id")
     private Event event;
-    public Seat( String type, float cost, int numberOfSits, Event event) {
+    public Seat( String type, float cost, int numberOfSeats, Event event) {
         this.type = type;
         this.cost = cost;
-        this.numberOfSits =  numberOfSits;
+        this.numberOfSeats =  numberOfSeats;
         this.event = event;
     }
 
@@ -48,7 +48,7 @@ public class Seat {
     }
 
     public int getNumberOfSeats() {
-        return this.numberOfSits;
+        return this.numberOfSeats;
     }
 
     public void setId(int id) {
@@ -63,8 +63,8 @@ public class Seat {
         this.cost = cost;
     }
 
-    public void setNumberOfSeats(int numberOfSits) {
-        this.numberOfSits = numberOfSits;
+    public void setNumberOfSeats(int numberOfSeats) {
+        this.numberOfSeats = numberOfSeats;
     }
    
 }
