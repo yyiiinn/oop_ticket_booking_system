@@ -12,7 +12,7 @@ public interface CrudRepository<T, ID> extends Repository<T, ID> {
 
     <S extends T> Iterable<S> saveAll(Iterable<S> entities);
 
-    Optional<T> findById(int eventId);
+    Optional<T> findById(long id);
 
     boolean existsById(ID id);
 

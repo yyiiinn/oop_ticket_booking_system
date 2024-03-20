@@ -41,8 +41,8 @@
         <navbar-component active-link="viewBookingHistory"></navbar-component>
 
         <div class="container pt-5">
-            <h2 class="text-center">Booking Details for {{eventName}}</h2>
-            <h4 class="text-center text-secondary mb-4">{{date}} | {{startTime}} - {{endTime}}</h4>
+            <h2 class="text-center">Booking Details for {{data.eventName}}</h2>
+            <h4 class="text-center text-secondary mb-4">{{data.eventStartDate}} | {{data.eventStartTime}} - {{data.eventEndTime}}</h4>
 
             <div class="table-responsive">
                 <table class="table">
@@ -50,16 +50,16 @@
                     <tr>
                       <th scope="col">GUID</th>
                       <th scope="col">Seat Type</th>
-                      <th scope="col">Seating No</th>
+                      <th scope="col">Status</th>
                     </tr>
                   </thead>
 
                   <tbody>
                     <!-- need to update  -->
-                    <tr v-for="ticket in tickets" :key="ticket.guid">
-                      <td>{{ ticket.guid }}</td>
-                      <td>{{ ticket.seatType }}</td>
-                      <td>{{ ticket.seatingNo }}</td>
+                    <tr v-for="ticket in data.tickets" :key="ticket.guid">
+                      <td>{{ ticket.id }}</td>
+                      <td>{{ ticket.type }}</td>
+                      <td>{{ ticket.status }}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -78,19 +78,35 @@
       const app = Vue.createApp({
         data() {
           return {
-            tickets: [
-                {guid: '123456', seatType: 'Cat 1', seatingNo: '12A'},
-                {guid: '789012', seatType: 'Cat 1', seatingNo: '12B'},
-                {guid: '345678', seatType: 'Cat 1', seatingNo: '12C'},
-            ],
-            eventName: "Concert A",
-            date: "2024-07-20",
-            startTime: "18:00",
-            endTime: "21:00",
+            data:{
+              tickets: [
+                  {guid: '123456', seatType: 'Cat 1', seatingNo: '12A'},
+                  {guid: '789012', seatType: 'Cat 1', seatingNo: '12B'},
+                  {guid: '345678', seatType: 'Cat 1', seatingNo: '12C'},
+              ],
+              eventName: "Concert A",
+              date: "2024-07-20",
+              startTime: "18:00",
+              endTime: "21:00",
+            }
           }
         },
+        mounted() {
+          this.fetchBooking();
+        },
         methods: {
-         
+          fetchBooking() {
+            const bookingId = window.location.pathname.split('/').pop();
+
+            fetch("/api/Customer/transaction/"+bookingId)
+              .then((response) => response.json())
+              .then((data) => {
+                this.data = data;
+              })
+              .catch((error) => {
+                console.error("Error fetching transactions:", error);
+              });
+          },
         },
       })
 

@@ -3,6 +3,7 @@ package com.oop.springbootmvc.controllers;
 import com.oop.springbootmvc.model.CustomUserDetails;
 import com.oop.springbootmvc.model.User;
 import com.oop.springbootmvc.repository.EventRepository;
+import com.oop.springbootmvc.repository.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -18,9 +19,12 @@ import java.security.Principal;
 @Controller
 public class MainController {
 
+    private final UserRepository userRepository;
+
 
     @Autowired
-    public MainController(EventRepository eventRepository) {
+    public MainController(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
@@ -43,7 +47,7 @@ public class MainController {
         // this attribute will be available in the view index.html as a thymeleaf variable
         try {
             Authentication authentication = (Authentication) principal;
-            User user = (User) authentication.getPrincipal();
+            CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
             return "index";
         }catch(Exception e){
             return "register";
@@ -55,7 +59,7 @@ public class MainController {
         // this attribute will be available in the view index.html as a thymeleaf variable
         try {
             Authentication authentication = (Authentication) principal;
-            User user = (User) authentication.getPrincipal();
+            CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
             return "index";
         }catch(Exception e){
             return "login";
@@ -63,16 +67,24 @@ public class MainController {
     }
 
     //Protected route
-    @RequestMapping(value = "/customer/ViewProfile", method = RequestMethod.GET)
-    public String custViewProfile(Principal principal) {
-        // this attribute will be available in the view index.html as a thymeleaf variable
-        // Authentication authentication = (Authentication) principal;
-        // CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
+    @RequestMapping(value = "/Customer/ViewProfile", method = RequestMethod.GET)
+    public String custViewProfile(Model model, Principal principal) {
+        try {
+            Authentication authentication = (Authentication) principal;
+            CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
+            User tempUser = user.getUser();
+            User u = userRepository.findById(tempUser.getId()).get();
+            model.addAttribute("username", u.getUsername());
+            model.addAttribute("name", u.getName());
+            model.addAttribute("balance", u.getBalance());
 
-        return "custViewProfile";
+            return "custViewProfile";
+        }catch(Exception e){
+            return "login";
+        }
     }
 
-    @RequestMapping(value = "/customer/ViewEvents", method = RequestMethod.GET)
+    @RequestMapping(value = "/Customer/ViewEvents", method = RequestMethod.GET)
     public String custViewEvents(Principal principal) {
         // this attribute will be available in the view index.html as a thymeleaf variable
         // Authentication authentication = (Authentication) principal;
@@ -81,7 +93,7 @@ public class MainController {
         return "custViewEvents";
     }
 
-    @RequestMapping(value = "/customer/ViewBookingHistory", method = RequestMethod.GET)
+    @RequestMapping(value = "/Customer/ViewBookingHistory", method = RequestMethod.GET)
     public String custViewBookingHistory(Principal principal) {
         // this attribute will be available in the view index.html as a thymeleaf variable
         // Authentication authentication = (Authentication) principal;
@@ -90,8 +102,8 @@ public class MainController {
         return "custViewBookingHistory";
     }
 
-    @RequestMapping(value = "/customer/ViewBookingDetails", method = RequestMethod.GET)
-    public String custViewBookingDetails(Principal principal) {
+    @RequestMapping(value = "/Customer/ViewBookingDetails/{transactionId}", method = RequestMethod.GET)
+    public String custViewBookingDetails(@PathVariable("transactionId") int transactionId, Principal principal) {
         // this attribute will be available in the view index.html as a thymeleaf variable
         // Authentication authentication = (Authentication) principal;
         // CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();

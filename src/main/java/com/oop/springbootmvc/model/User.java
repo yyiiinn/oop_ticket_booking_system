@@ -1,5 +1,9 @@
 package com.oop.springbootmvc.model;
 
+import java.util.Set;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
 import jakarta.persistence.*;
@@ -25,6 +29,14 @@ public class User {
     @ManyToOne
     // @Column(nullable = false)
     Role role;
+    @Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy="user")
+    private Set<Transaction> transactions;
+    
+    public Set<Transaction> getTransactions() {
+        return this.transactions;
+    }
+
 
     public User(String username, String name, String password, Boolean hasPasswordChange, float balance, Role role) {
         this.username = username;

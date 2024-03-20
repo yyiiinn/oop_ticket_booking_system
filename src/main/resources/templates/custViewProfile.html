@@ -59,19 +59,23 @@
               <div class="col-12 col-sm-3">
                 <strong>Username: </strong>
               </div>
-              <div class="col-12 col-sm-9">{{ user.username }}</div>
+              <div class="col-12 col-sm-9"><p th:text="${username}"></p></div>
             </div>
             <div class="row mb-2">
               <div class="col-12 col-sm-3">
-                <strong>Email: </strong>
+                <strong>Name: </strong>
               </div>
-              <div class="col-12 col-sm-9">{{ user.email }}</div>
+              <div class="col-12 col-sm-9"><p th:text="${name}"></p></div>
             </div>
             <div class="row mb-2">
               <div class="col-12 col-sm-3">
                 <strong>Account Balance: </strong>
               </div>
-              <div class="col-12 col-sm-9">${{ user.balance }} SGD</div>
+              <div class="col-12 col-sm-9">
+                $
+                <span th:text="${balance}"></span>
+                SGD
+              </div>
             </div>
 
             <div class="pt-5 pb-3 row justify-content-center">
@@ -104,15 +108,26 @@
                       {{ transaction.eventDate }} | {{
                       transaction.eventStartTime }}
                     </td>
+                    <td>{{ formatDate(transaction.purchasedDateTime) }}</td>
                     <td>
-                      {{ transaction.transactionDate }} | {{
-                      transaction.transactionTime }}
-                    </td>
-                    <td
-                      :class="{ 'text-success': transaction.status === 'Completed (Refunded)', 'text-danger': transaction.status === 'Pending' || transaction.status === 'Completed' }"
-                    >
-                      {{ transaction.status === 'Pending' || transaction.status
-                      === 'Completed' ? '-' : '+' }}{{ transaction.amount }} SGD
+                      <span
+                        :class="{ 'text-success': transaction.status === 'Refunded'  || transaction.status === 'Cancelled', 'text-danger': transaction.status === 'Booked' }"
+                      >
+                        {{ transaction.status === 'Booked' || transaction.status
+                        === 'Completed' ? '-' : '+' }}{{ transaction.status ===
+                        'Cancelled' ?
+                        (transaction.total-(transaction.cancellationFee*transaction.numberOfTickets)):transaction.total
+                        }} SGD
+                      </span>
+                      <br />
+                      <span
+                        class="text-danger"
+                        v-if="transaction.status === 'Cancelled'"
+                      >
+                        - {{
+                        (transaction.cancellationFee*transaction.numberOfTickets)
+                        }} SGD (Fee)
+                      </span>
                     </td>
                     <td>{{ transaction.status }}</td>
                   </tr>
@@ -136,48 +151,42 @@
         data() {
           return {
             user: {
-              username: "JohnDoe",
-              email: "johndoe@gmail.com",
-              balance: 800,
-              transactions: [
-                {
-                  id: "TX123",
-                  eventName: "Concert A",
-                  eventDate: "2024-04-20",
-                  eventStartTime: "18:00",
-                  eventEndTime: "20:00",
-                  transactionDate: "2024-01-20",
-                  transactionTime: "05:00",
-                  amount: 100,
-                  status: "Pending",
-                },
-                {
-                  id: "TX124",
-                  eventName: "Concert B",
-                  eventDate: "2024-08-20",
-                  eventStartTime: "18:00",
-                  eventEndTime: "20:00",
-                  transactionDate: "2024-06-20",
-                  transactionTime: "05:00",
-                  amount: 100,
-                  status: "Completed",
-                },
-                {
-                  id: "TX125",
-                  eventName: "Concert C",
-                  eventDate: "2024-10-20",
-                  eventStartTime: "18:00",
-                  eventEndTime: "20:00",
-                  transactionDate: "2024-07-20",
-                  transactionTime: "05:00",
-                  amount: 100,
-                  status: "Completed (Refunded)",
-                },
-              ],
+              transactions: [],
             },
           };
         },
-        methods: {},
+        mounted() {
+          this.fetchBookings();
+        },
+        methods: {
+          fetchBookings() {
+            fetch("/api/Customer/transactions")
+              .then((response) => response.json())
+              .then((data) => {
+                this.user.transactions = data;
+              })
+              .catch((error) => {
+                console.error("Error fetching transactions:", error);
+              });
+          },
+          formatDate(timestamp) {
+            // Convert timestamp to Date object
+            const date = new Date(timestamp);
+
+            // Get individual date components
+            const year = date.getFullYear();
+            const month = ("0" + (date.getMonth() + 1)).slice(-2); // Months are zero-based
+            const day = ("0" + date.getDate()).slice(-2);
+            const hours = ("0" + date.getHours()).slice(-2);
+            const minutes = ("0" + date.getMinutes()).slice(-2);
+            const seconds = ("0" + date.getSeconds()).slice(-2);
+
+            // Construct date string in desired format
+            const dateString = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+
+            return dateString;
+          },
+        },
       });
 
       app.component("navbar-component", NavBarComponent);
