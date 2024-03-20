@@ -29,6 +29,10 @@ public class User {
     @ManyToOne
     // @Column(nullable = false)
     Role role;
+    public Role getRole() {
+        return role;
+    }
+
     @Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
     @OneToMany(fetch = FetchType.EAGER, mappedBy="user")
     private Set<Transaction> transactions;

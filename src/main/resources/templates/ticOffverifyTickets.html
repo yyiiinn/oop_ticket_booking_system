@@ -65,35 +65,33 @@
 
         <div id="ticOffVerifyTickets">
           <div class="container pt-5">
-            <h2 class="text-center mb-4">Verify Ticket(s)</h2>
-
-            <form
-              method="post"
-              role="form"
-              v-on:submit.prevent="submitForm"
-              class="mt-5"
-            >
-              <div class="form-group mt-4 mb-4">
-                <label for="reference_no" class="mb-2">Ticket GUID</label>
-
-                <textarea
-                  v-model="reference_no"
-                  placeholder="Enter Ticket GUID separated by ';' (e.g., 12345; 67890; 13579)"
-                  id="reference_no"
-                  class="form-control border-0 shadow-sm px-4 textarea mb-3"
-                  rows="5"
-                  required
-                ></textarea>
-              </div>
-
-              <button
-                type="submit"
-                class="btn btn-primary btn-block shadow-sm w-100 mt-5 submitbtn"
-                title="Verify Ticket(s)"
-              >
-                Verify Ticket(s)
-              </button>
-            </form>
+            <h2 class="text-center mb-4">Verify Ticket</h2>
+            <div class="onboard col-12 col-md-6 col-lg-4 mx-auto">
+              <h2 class="text-center mb-3">Change Password</h2>
+              <form @submit.prevent="redeem" class="mt-5">
+                <div class="form-group mb-4">
+                  <label>Ticket GUID</label>
+                  <input
+                    type="text"
+                    v-model="reference_no"
+                    class="form-control border-0 shadow-sm px-4 field mb-3"
+                    id="reference_no"
+                    name="reference_no"
+                    placeholder="Enter Ticket GUID"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <button
+                    @click="redeem"
+                    type="button"
+                    class="btn btn-primary btn-block shadow-sm w-100 submitbtn"
+                  >
+                    Redeem Ticket
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       </div>
@@ -113,7 +111,29 @@
           };
         },
         methods: {
-          submitForm() {},
+          redeem() {
+            let temp = {
+              guid: this.reference_no,
+            };
+            fetch("/api/officer/redeemCode", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(temp),
+            })
+              .then((response) => {
+                if (response.ok) {
+                  console.log("OK");
+                } else {
+                  console.log("Not found!");
+                }
+              })
+              .catch((error) => {
+                // Failed to update show error
+                console.log("Not found!");
+              });
+          },
         },
       });
       app.component("navbar-component", NavBarComponent);

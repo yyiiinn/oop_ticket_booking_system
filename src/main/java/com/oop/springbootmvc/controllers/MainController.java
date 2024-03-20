@@ -1,8 +1,11 @@
 package com.oop.springbootmvc.controllers;
 
+import com.oop.springbootmvc.entities.RoleEnum;
 import com.oop.springbootmvc.model.CustomUserDetails;
+import com.oop.springbootmvc.model.Role;
 import com.oop.springbootmvc.model.User;
 import com.oop.springbootmvc.repository.EventRepository;
+import com.oop.springbootmvc.repository.RoleRepository;
 import com.oop.springbootmvc.repository.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,26 +23,49 @@ import java.security.Principal;
 public class MainController {
 
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
 
 
     @Autowired
-    public MainController(UserRepository userRepository) {
+    public MainController(UserRepository userRepository, RoleRepository roleRepository) {
         this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
     }
 
-    @RequestMapping(value = "/", method = RequestMethod.GET)
+    @RequestMapping(value = "/", method = RequestMethod.GET) 
     public String index(Model model, Principal principal) {
         // this attribute will be available in the view index.html as a thymeleaf variable
         try {
             Authentication authentication = (Authentication) principal;
             CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
-            model.addAttribute("eventName", "LOGGED IN");
+            Role r = roleRepository.findByName(RoleEnum.OFFICER).get();
+            Role rm = roleRepository.findByName(RoleEnum.MANAGER).get();
+            Role ru = roleRepository.findByName(RoleEnum.USER).get();
+
+            if (user.getUser().getRole().getName() ==r.getName()){
+                User u = userRepository.findById(user.getUser().getId()).get();
+                if (!u.getHasPasswordChange()){
+                    //Go to change password page
+                    return "ticOffChangePassword";
+                }else{
+                    return "ticOffViewEvents";
+                }
+            }
+            else if (user.getUser().getRole().getName() ==rm.getName()){
+                return "eventManViewEvents";
+
+            }
+            else if (user.getUser().getRole().getName() ==ru.getName()){
+                return "custViewEvents";
+
+            }
+            // model.addAttribute("eventName", "LOGGED IN");
         }catch(Exception e){
 
-            model.addAttribute("eventName", "NOT LOGGED IN");
+            // model.addAttribute("eventName", "NOT LOGGED IN");
         }
         // this just means render index.html from static/ area
-        return "index";
+        return "login";
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.GET)
@@ -118,7 +144,25 @@ public class MainController {
         
         // Authentication authentication = (Authentication) principal;
         // CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
+        try {
+            Authentication authentication = (Authentication) principal;
+            CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
+            Role r = roleRepository.findByName(RoleEnum.OFFICER).get();
+           
 
+            if (user.getUser().getRole().getName() ==r.getName()){
+                User u = userRepository.findById(user.getUser().getId()).get();
+                if (!u.getHasPasswordChange()){
+                    //Go to change password page
+                    return "ticOffChangePassword";
+                }
+            }
+           
+            // model.addAttribute("eventName", "LOGGED IN");
+        }catch(Exception e){
+
+            // model.addAttribute("eventName", "NOT LOGGED IN");
+        }
         return "ticOffViewEvents";
     }
 
@@ -128,7 +172,26 @@ public class MainController {
 
         // Authentication authentication = (Authentication) principal;
         // CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
+        try {
+            Authentication authentication = (Authentication) principal;
+            CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
+            Role r = roleRepository.findByName(RoleEnum.OFFICER).get();
+           
 
+            if (user.getUser().getRole().getName() ==r.getName()){
+                User u = userRepository.findById(user.getUser().getId()).get();
+                if (!u.getHasPasswordChange()){
+                    //Go to change password page
+                    return "ticOffChangePassword";
+                }
+            }
+           
+            // model.addAttribute("eventName", "LOGGED IN");
+        }catch(Exception e){
+
+            // model.addAttribute("eventName", "NOT LOGGED IN");
+        }
+        // this just means render index.html from static/ area
         return "ticOffVerifyTickets";
     }
 
@@ -138,7 +201,26 @@ public class MainController {
         
         // Authentication authentication = (Authentication) principal;
         // CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
+        try {
+            Authentication authentication = (Authentication) principal;
+            CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
+            Role r = roleRepository.findByName(RoleEnum.OFFICER).get();
+           
 
+            if (user.getUser().getRole().getName() ==r.getName()){
+                User u = userRepository.findById(user.getUser().getId()).get();
+                if (!u.getHasPasswordChange()){
+                    //Go to change password page
+                    return "ticOffChangePassword";
+                }
+            }
+           
+            // model.addAttribute("eventName", "LOGGED IN");
+        }catch(Exception e){
+
+            // model.addAttribute("eventName", "NOT LOGGED IN");
+        }
+        // this just means render index.html from static/ area
         return "ticOffPurchaseTickets";
     }
 
