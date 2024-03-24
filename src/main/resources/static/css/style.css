@@ -171,5 +171,10 @@ label {
 }
 
 .fixed-footer {
-  height: 30%
+  height: 30%;
+}
+
+img {
+  width:300px;
+  height:235px;
 }
