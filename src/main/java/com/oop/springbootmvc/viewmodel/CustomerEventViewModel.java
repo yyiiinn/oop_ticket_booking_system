@@ -26,6 +26,7 @@ public class CustomerEventViewModel {
     private ArrayList<CustomerSeatViewModel> seats;
 
     public CustomerEventViewModel(Event e) {
+        this.name = e.getName();
         this.id = e.getId();
         this.description = e.getDescription();
         this.venue = e.getVenue();

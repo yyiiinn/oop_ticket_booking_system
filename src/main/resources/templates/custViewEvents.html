@@ -133,8 +133,8 @@
                   <div class="card-text">{{ event.venue }}</div>
                   <div class="card-datetime text-secondary mb-2">
                     <small
-                      >{{ event.date }} | {{ event.startTime }} - {{
-                      event.endTime }}</small
+                      >{{ event.eventStartDate }} | {{ event.eventStartTime }} - {{
+                      event.eventEndTime }}</small
                     >
                   </div>
                 </div>
@@ -146,7 +146,7 @@
                     @click="openTicketPurchaseModal(event)"
                     >Buy Ticket(s)</a
                   >
-                  <span v-if="event.status === 'cancelled'"
+                  <span v-if="event.status === 'Cancelled'"
                     >Event Cancelled</span
                   >
                   <!-- <span v-if="event.status === 'active' && !isEventEnded(event) && isSalePeriodOver(event)">Sales Period Ended</span> -->
@@ -186,7 +186,7 @@
                 <button
                   type="button"
                   class="btn-close"
-                  @click="showTicketPurchaseModal = false"
+                  @click="closeTicketModal()"
                 ></button>
               </div>
               <div class="modal-body">
@@ -237,7 +237,7 @@
                     <option value="" disabled selected>
                       Select number of tickets
                     </option>
-                    <option v-for="n in 4" :key="n" :value="n">{{ n }}</option>
+                    <option v-for="n in ticketsMaxAmount()" :key="n" :value="n">{{ n }}</option>
                   </select>
                 </div>
 
@@ -264,11 +264,11 @@
                 <button
                   type="button"
                   class="btn btn-secondary"
-                  @click="showTicketPurchaseModal = false"
+                  @click="closeTicketModal()"
                 >
                   Cancel
                 </button>
-                <button
+                <button v-if="numberOfTickets != 0"
                   type="button"
                   class="btn btn-success"
                   @click="confirmTicketPurchase"
@@ -307,12 +307,36 @@
             isShowModal: false,
             modalTitle: "",
             modalBody: "",
+            selectedAvailableSeats: 0
           };
         },
+        watch: {
+          selectedSeatType(newValue, oldValue) {
+            // Reset numberOfTickets when selectedSeatType changes
+            this.numberOfTickets = 0;
+          }
+        },        
         mounted() {
           this.fetchEvents();
         },
         methods: {
+          closeTicketModal(){
+            this.numberOfTickets = 0;
+                this.selectedEvent = null;
+                this.selectedAvailableSeats = null;
+                this.selectedSeatType = null;
+                this.showTicketPurchaseModal = false;
+
+          },
+          ticketsMaxAmount(){
+                if (this.selectedAvailableSeats > 3){
+                    return 4;
+                }
+                else {
+                    return this.selectedAvailableSeats;
+                }
+            },
+
           fetchEvents() {
             fetch("/api/activeEvents")
               .then((response) => response.json())
@@ -321,6 +345,7 @@
                 this.events.forEach((event) => {
                   if (event.image) {
                     event.image = this.convertDataToURL(event.image);
+                    console.log(event.image);
                   }
                 });
               })
@@ -341,10 +366,40 @@
 
             return url;
           },
-          searchApi(event, category) {
-            console.log(event, category);
-          },
-
+          searchApi(event, category, status) {
+            console.log(event, category, status)
+            const requestBody = {
+              name: event,
+              status: status,
+              category: category
+              };  
+            console.log(requestBody)
+            fetch('/custEvents/search', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(requestBody)
+              })
+              .then(response => {
+              if (!response.ok) {
+                  throw new Error('Network response was not ok');
+              }
+              return response.json();
+              })
+              .then((data) => {
+                console.log(data)
+                this.events = data;
+                this.events.forEach((event) => {
+                  if (event.image) {
+                    event.image = this.convertDataToURL(event.image);
+                  }
+                });
+              })
+              .catch(error => {
+              console.error('There was a problem with your fetch operation:', error);
+              });
+        },
           // Event Details
           showEventDetails(event) {
             this.selectedEvent = event;
@@ -397,7 +452,7 @@
                 } else {
                   this.showModal(
                     "Error",
-                    "Your transaction did not go through. Please try again!"
+                    "Insufficient Balance"
                   );
                 }
               })
@@ -432,6 +487,10 @@
               (option) => option.id === this.selectedSeatType
             );
             console.log(selectedOption);
+            if (selectedOption != undefined){
+              this.selectedAvailableSeats = selectedOption.numberOfSeats;
+
+            }
             return selectedOption ? selectedOption.numberOfSeats : 0;
           },
           calculatedTotalPrice() {

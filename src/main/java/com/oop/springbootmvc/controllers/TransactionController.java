@@ -147,6 +147,9 @@ public class TransactionController {
                 ticketRepository.saveAll(tickets);
                 u.setBalance(u.getBalance() - t.getCost());
                 userRepository.save(u);
+                
+    
+
                 return ResponseEntity.ok().body("");
             }else{
                 return ResponseEntity.notFound().build();
@@ -180,11 +183,16 @@ public class TransactionController {
                     t.setStatus("Cancelled");
                     transactionRepository.save(t);
 
+                    int ticketCount = 0;
                     for(Ticket tic: t.getTickets()){
                         tic.setStatus("Cancelled");
                         ticketRepository.save(tic);
+                        ticketCount++;
                     }
                     
+      
+
+
                     u.setBalance(u.getBalance()+(t.getCost()-fee));
                     userRepository.save(u);
                     return ResponseEntity.ok().body("");

@@ -15,7 +15,9 @@ import com.oop.springbootmvc.viewmodel.CustomerEventViewModel;
 import com.oop.springbootmvc.viewmodel.EventOnlyViewModel;
 import com.oop.springbootmvc.viewmodel.EventViewModel;
 import com.oop.springbootmvc.viewmodel.SeatViewModel;
+import com.oop.springbootmvc.viewmodel.EventManSearchViewModel;
 
+import org.antlr.v4.runtime.misc.ObjectEqualityComparator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -252,7 +254,51 @@ public class EventController {
     }
     }
 
+    @PostMapping("/custEvents/search")
+    public ResponseEntity<Object> searchEvents(@RequestBody EventManSearchViewModel eventManSearchViewModel) {
+      Map<String, String> statusMap = new HashMap<>();
+      statusMap.put("Available for Purchase", "Active");
+      statusMap.put("Event Cancelled", "Cancelled");
+      statusMap.put("Upcoming Event", "Active");
 
+      String status = statusMap.getOrDefault(eventManSearchViewModel.getStatus(), "").trim();
+      String name = eventManSearchViewModel.getName();
+      String category = eventManSearchViewModel.getCategory();
+
+      if (name != null) {
+          name = name.trim().toLowerCase();
+      } else {
+          name = "";
+      }
+      if (category != null) {
+          category = category.trim();
+      } else {
+          category = "";
+      }
+
+      List<Event> events = eventRepository.searchEvents(name, status, category);
+      ArrayList<CustomerEventViewModel> toReturn = new ArrayList<>();
+      for (Event event : events) {
+        // Get All Seats
+        var seats = event.getSeats();
+        for (Seat s :seats){
+          int booked = 0;
+          // Get All Transactions
+          for (Transaction t: s.getTransactions()){
+            if(t.getStatus().equals("Booked")){
+              booked += t.getTickets().size();
+            }
+          };
+          s.setNumberOfSeats(s.getNumberOfSeats() - booked);
+        }
+        event.setSeats(seats);
+        toReturn.add(new CustomerEventViewModel(event));
+      }
+      
+      return ResponseEntity.ok(toReturn);
+  
+
+    }
 
 
 }

@@ -88,7 +88,7 @@
                 <tr class="text-nowrap">
                   <th scope="col">
                     <a href="#" class="text-decoration-none text-dark"
-                      >Transaction ID</a
+                      ></a
                     >
                   </th>
                   <th scope="col">
@@ -113,7 +113,7 @@
               </thead>
               <tbody>
                 <tr v-for="(transaction, key) in transactions" :key="key">
-                  <td class="id">{{ transaction.id }}</td>
+                  <td class="id">{{ key + 1 }}</td>
                   <td class="name">{{ transaction.eventName }}</td>
                   <td class="time">
                     {{ formatDate(transaction.purchasedDateTime) }}
@@ -197,7 +197,7 @@
                 <button
                   type="button"
                   class="btn btn-secondary"
-                  @click="showCancelBookingModal = false"
+                  @click="cancel"
                 >
                   Cancel
                 </button>
@@ -246,6 +246,11 @@
               .catch((error) => {
                 console.error("Error fetching transactions:", error);
               });
+          },
+
+          cancel(){
+            this.showCancelBookingModal = false
+            window.location.reload();
           },
           toggleModal(transaction) {
             this.selectedTransaction = transaction;

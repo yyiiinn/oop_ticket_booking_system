@@ -88,7 +88,7 @@
               <table class="table table-hover">
                 <thead>
                   <tr class="text-center">
-                    <th>Transaction ID</th>
+                    <th></th>
                     <th>Event Name/DateTime</th>
                     <th>Transaction Date/Time</th>
                     <th>Amount</th>
@@ -98,38 +98,22 @@
                 <tbody>
                   <tr
                     class="text-center"
-                    v-for="transaction in user.transactions"
-                    :key="transaction.id"
-                    @click="handleRowClick(transaction)"
+                    v-for="(transaction, index) in user.transactions"
+                    :key="index"
                   >
-                    <td>{{ transaction.id }}</td>
+                    <td>{{index + 1}}</td>
                     <td>
                       {{ transaction.eventName }} <br />
-                      {{ transaction.eventDate }} | {{
+                      {{ transaction.eventStartDate }} | {{
                       transaction.eventStartTime }}
                     </td>
                     <td>{{ formatDate(transaction.purchasedDateTime) }}</td>
                     <td>
-                      <span
-                        :class="{ 'text-success': transaction.status === 'Refunded'  || transaction.status === 'Cancelled', 'text-danger': transaction.status === 'Booked' }"
-                      >
-                        {{ transaction.status === 'Booked' || transaction.status
-                        === 'Completed' ? '-' : '+' }}{{ transaction.status ===
-                        'Cancelled' ?
-                        (transaction.total-(transaction.cancellationFee*transaction.numberOfTickets)):transaction.total
-                        }} SGD
-                      </span>
-                      <br />
-                      <span
-                        class="text-danger"
-                        v-if="transaction.status === 'Cancelled'"
-                      >
-                        - {{
-                        (transaction.cancellationFee*transaction.numberOfTickets)
-                        }} SGD (Fee)
-                      </span>
-                    </td>
-                    <td>{{ transaction.status }}</td>
+                      {{ transaction.total }} SGD
+                      <br v-if="transaction.status === 'Cancelled'"><span v-if="transaction.status === 'Cancelled'">Cancellation Cost: <span class="text-danger">{{ (transaction.cancellationFee*transaction.numberOfTickets) }}</span></span>
+                      </td>
+                      <td :class="{ 'border border-primary bg-primary text-light': transaction.status === 'Booked', 'border border-warning bg-warning text-dark': transaction.status === 'Cancelled' }">
+                        {{ transaction.status }}</td>
                   </tr>
                 </tbody>
               </table>
