@@ -88,7 +88,7 @@
                 <tr class="text-nowrap">
                   <th scope="col">
                     <a href="#" class="text-decoration-none text-dark"
-                      >Transaction ID</a
+                      ></a
                     >
                   </th>
                   <th scope="col">
@@ -113,16 +113,20 @@
               </thead>
               <tbody>
                 <tr v-for="(transaction, key) in transactions" :key="key">
-                  <td class="id">{{ transaction.id }}</td>
-                  <td class="name">{{ transaction.event.name }}</td>
-                  <td class="time">{{ transaction.transaction_time }}</td>
-                  <td class="pl-0 border-top">{{ transaction.no_tickets }}</td>
-                  <td>${{ transaction.total_amount }} SGD</td>
+                  <td class="id">{{ key + 1 }}</td>
+                  <td class="name">{{ transaction.eventName }}</td>
+                  <td class="time">
+                    {{ formatDate(transaction.purchasedDateTime) }}
+                  </td>
+                  <td class="pl-0 border-top">
+                    {{ transaction.numberOfTickets }}
+                  </td>
+                  <td>${{ transaction.total }} SGD</td>
                   <td>{{ transaction.status }}</td>
                   <td>
                     <!-- need to update to pass the data over -->
                     <a
-                      th:href="@{/customer/ViewBookingDetails}"
+                      :href="'/Customer/ViewBookingDetails/' + transaction.id"
                       class="btn btn-primary"
                       >View Ticket(s)</a
                     >
@@ -130,6 +134,7 @@
                   <td>
                     <button
                       class="btn btn-danger"
+                      v-if="checkIfCanCancel(transaction)"
                       @click="toggleModal(transaction)"
                     >
                       Cancel Booking
@@ -153,8 +158,8 @@
             <div class="modal-content">
               <div class="modal-header">
                 <h5 class="modal-title">
-                  Cancel Booking for {{ selectedTransaction.event ?
-                  selectedTransaction.event.name : '' }}
+                  Cancel Booking for {{ selectedTransaction.name ?
+                  selectedTransaction.name : '' }}
                 </h5>
                 <button
                   type="button"
@@ -165,16 +170,16 @@
               <div class="modal-body">
                 <p>
                   By cancelling your booking,
-                  <strong> ${{selectedTransaction.total_amount}} SGD</strong>
+                  <strong> ${{selectedTransaction.total}} SGD</strong>
                   will be refunded back to your account.
                 </p>
 
                 <p>
                   There will be a
                   <strong
-                    >${{ selectedTransaction.event ?
-                    selectedTransaction.event.seating[0].cancellationFee *
-                    selectedTransaction.no_tickets : '' }} SGD
+                    >${{ selectedTransaction.cancellationFee ?
+                    selectedTransaction.cancellationFee *
+                    selectedTransaction.numberOfTickets : '' }} SGD
                     <span class="text-danger font-weight-bold"
                       >Cancellation fee</span
                     ></strong
@@ -192,14 +197,14 @@
                 <button
                   type="button"
                   class="btn btn-secondary"
-                  @click="showCancelBookingModal = false"
+                  @click="cancel"
                 >
                   Cancel
                 </button>
                 <button
                   type="button"
                   class="btn btn-success"
-                  @click="confirmCancellation(transaction)"
+                  @click="confirmCancellation(selectedTransaction)"
                   v-if="!cancellationConfirmed"
                 >
                   Confirm
@@ -222,81 +227,94 @@
       const app = Vue.createApp({
         data() {
           return {
-            transactions: [
-              {
-                id: 1,
-                event: {
-                  id: 1,
-                  name: "Concert A",
-                  desc: "This is a detailed description of Concert A.",
-                  category: "Concert",
-                  date: "2024-07-20",
-                  startTime: "18:00",
-                  endTime: "20:00",
-                  venue: "The Esplanade",
-                  status: "active",
-                  sales_startdate: "2024-03-01",
-                  sales_starttime: "10:00",
-                  sales_enddate: "2024-05-20",
-                  sales_endtime: "23:59",
-                  seating: [
-                    {
-                      type: "Cat 1",
-                      pricePerTicket: 150,
-                      seatingNo: [1, 2, 3, 4],
-                      cancellationFee: 10,
-                    },
-                  ],
-                },
-                transaction_time: "2024-04-20",
-                no_tickets: "4",
-                total_amount: 600,
-                status: "Pending/Completed",
-              },
-              {
-                id: 2,
-                event: {
-                  id: 2,
-                  name: "Concert B",
-                  desc: "This is a detailed description of Concert B.",
-                  category: "Concert",
-                  date: "2024-07-20",
-                  startTime: "15:00",
-                  endTime: "20:00",
-                  venue: "The Esplanade",
-                  status: "active",
-                  sales_startdate: "2024-05-10",
-                  sales_starttime: "10:00",
-                  sales_enddate: "2024-06-20",
-                  sales_endtime: "23:59",
-                  seating: [
-                    {
-                      type: "Cat 1",
-                      pricePerTicket: 150,
-                      seatingNo: [1, 2, 3, 4],
-                      cancellationFee: 10,
-                    },
-                  ],
-                },
-                transaction_time: "2024-05-20",
-                no_tickets: "4",
-                total_amount: 600,
-                status: "Pending/Completed",
-              },
-            ],
+            transactions: [],
             selectedTransaction: {},
             showCancelBookingModal: false,
             cancellationConfirmed: false,
           };
         },
+        mounted() {
+          this.fetchBookings();
+        },
         methods: {
+          fetchBookings() {
+            fetch("/api/Customer/transactions")
+              .then((response) => response.json())
+              .then((data) => {
+                this.transactions = data;
+              })
+              .catch((error) => {
+                console.error("Error fetching transactions:", error);
+              });
+          },
+
+          cancel(){
+            this.showCancelBookingModal = false
+            window.location.reload();
+          },
           toggleModal(transaction) {
             this.selectedTransaction = transaction;
             this.showCancelBookingModal = !this.showCancelBookingModal;
           },
+          formatDate(timestamp) {
+            // Convert timestamp to Date object
+            const date = new Date(timestamp);
+
+            // Get individual date components
+            const year = date.getFullYear();
+            const month = ("0" + (date.getMonth() + 1)).slice(-2); // Months are zero-based
+            const day = ("0" + date.getDate()).slice(-2);
+            const hours = ("0" + date.getHours()).slice(-2);
+            const minutes = ("0" + date.getMinutes()).slice(-2);
+            const seconds = ("0" + date.getSeconds()).slice(-2);
+
+            // Construct date string in desired format
+            const dateString = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+
+            return dateString;
+          },
+          checkIfCanCancel(transaction) {
+            if (transaction.status == "Cancelled") {
+              return false;
+            }
+            if (transaction.status == "Refunded") {
+              return false;
+            }
+            const combinedDateTimeString =
+              transaction.eventStartDate + "T" + transaction.eventStartTime;
+            const referenceTimestamp = Date.parse(combinedDateTimeString);
+            const localTimestamp = Date.now(); // Get the current local time timestamp
+            const twoDaysBeforeReferenceTimestamp =
+              referenceTimestamp - 2 * 24 * 60 * 60 * 1000;
+
+            // Check if the local time timestamp is less than the timestamp of two days before the reference time
+            return localTimestamp < twoDaysBeforeReferenceTimestamp;
+          },
           // to be updated
           confirmCancellation(transaction) {
-            this.cancellationConfirmed = true;
+            console.log(transaction);
+            let temp = {
+              id: transaction.id,
+            };
+            fetch("/api/Customer/cancel", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(temp),
+            })
+              .then((response) => {
+                // this.showCancelBookingModal = false;
+                if (response.ok) {
+                  this.cancellationConfirmed = true;
+                } else {
+                  // Show error
+                }
+              })
+              .catch((error) => {
+                // this.showCancelBookingModal = false;
+                // Show error
+              });
           },
         },
       });

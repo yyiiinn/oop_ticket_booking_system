@@ -15,8 +15,8 @@ import org.springframework.stereotype.Repository;
 // import java.util.List;
 @Repository
 public interface SeatRepository extends CrudRepository<Seat, Long> {
-    @Query("SELECT s FROM Seat s WHERE s.event = :event_id")
-    List<Seat> findSeatByEventId(@Param("event_id") long event_id);
+    // @Query("SELECT s FROM Seat s WHERE s.event = :event_id")
+    // List<Seat> findSeatByEventId(@Param("event_id") long event_id);
 
     // @Modifying
     // @Transactional

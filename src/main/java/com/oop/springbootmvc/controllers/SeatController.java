@@ -36,9 +36,9 @@ public class SeatController {
         responseBody.put("status", "400");
         return ResponseEntity.ok().body(responseBody);
       }else{
-        List<Seat> listSits = new ArrayList<>();
-        listSits.addAll(event.get().getSeats());
-        return ResponseEntity.ok().body(listSits);
+        List<Seat> listSeats = new ArrayList<>();
+        listSeats.addAll(event.get().getSeats());
+        return ResponseEntity.ok().body(listSeats);
       }
     
     } catch (Exception e) {

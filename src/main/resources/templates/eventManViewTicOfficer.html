@@ -135,7 +135,17 @@
                         required
                       />
                     </div>
-
+                    <div class="form-group mb-3">
+                      <label for="officerEmail">Name</label>
+                      <input
+                        type="name"
+                        class="form-control border-0 shadow-sm px-4 field mb-3"
+                        placeholder="Name"
+                        id="officerName"
+                        v-model="officerName"
+                        required
+                      />
+                    </div>
                     <div class="modal-footer">
                       <button
                         type="button"
@@ -144,7 +154,13 @@
                       >
                         Cancel
                       </button>
-                      <button type="submit" class="btn btn-primary">Add</button>
+                      <button
+                        @click="addOfficer"
+                        type="button"
+                        class="btn btn-primary"
+                      >
+                        Add
+                      </button>
                     </div>
                   </form>
                 </div>
@@ -164,24 +180,48 @@
       const app = Vue.createApp({
         data() {
           return {
-            officers: [
-              {
-                name: "aaa",
-                email: "aaa@gmail.com",
-              },
-              {
-                name: "bbb",
-                email: "bbb@gmail.com",
-              },
-            ],
+            officers: [],
             showAddOfficerModal: false,
             officerEmail: "",
+            officerName: "",
           };
         },
+        mounted() {
+          this.fetchOfficers();
+        },
         methods: {
+          fetchOfficers() {
+            fetch("/api/manager/getAllOfficer")
+              .then((response) => response.json())
+              .then((data) => {
+                this.officers = data;
+              })
+              .catch((error) => {
+                console.error("Error fetching officers:", error);
+              });
+          },
           addOfficer() {
-            this.officerEmail = "";
-            this.showAddOfficerModal = false;
+            let temp = {
+              username: this.officerEmail,
+              name: this.officerName,
+            };
+            fetch("/api/manager/register", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(temp),
+            })
+              .then((response) => {
+                this.officerEmail = "";
+                this.officerName = "";
+                this.showAddOfficerModal = false;
+              })
+              .catch((error) => {
+                this.officerEmail = "";
+                this.officerName = "";
+                this.showAddOfficerModal = false;
+              });
           },
           toggleModal() {
             this.showAddOfficerModal = !this.showAddOfficerModal;
