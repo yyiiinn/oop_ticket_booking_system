@@ -19,13 +19,13 @@ export default {
                 <div class="collapse navbar-collapse navcontent" id="navbarNav">
                     <ul class="navbar-nav ms-auto navbar-menu">
                         <li class="nav-item">
-                            <a class="nav-link" :class="{ 'active': activeLink === 'viewEvents' }" href="/customer/ViewEvents">View Events</a>
+                            <a class="nav-link" :class="{ 'active': activeLink === 'viewEvents' }" href="/Customer/ViewEvents">View Events</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" :class="{ 'active': activeLink === 'viewBookingHistory' }" href="/customer/ViewBookingHistory">View Booking History</a>
+                            <a class="nav-link" :class="{ 'active': activeLink === 'viewBookingHistory' }" href="/Customer/ViewBookingHistory">View Booking History</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" :class="{ 'active': activeLink === 'viewProfile' }" href="/customer/ViewProfile">View Profile</a>
+                            <a class="nav-link" :class="{ 'active': activeLink === 'viewProfile' }" href="/Customer/ViewProfile">View Profile</a>
                         </li>
                         <li class="nav-item">
                             <button class="btn sign-out-button" @click="signOut">Sign Out</button>

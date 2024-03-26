@@ -11,11 +11,7 @@ public interface EventRepository extends CrudRepository<Event, Long> {
     @Query("SELECT e FROM Event e WHERE e.status = 'Active'")
     List<Event> findActiveEvents();
 
-    @Query("SELECT e FROM Event e " +
-    "ORDER BY " +
-    "CASE WHEN e.eventStartDate = CURRENT_DATE THEN 1 " +
-    "WHEN e.eventStartDate > CURRENT_DATE THEN 2 " +
-    "ELSE 3 END, e.eventStartDate ASC")
+    @Query("SELECT e FROM Event e ORDER BY CASE WHEN e.eventStartDate = CURRENT_DATE THEN 1 WHEN e.eventStartDate > CURRENT_DATE THEN 2 ELSE 3 END, e.eventStartDate ASC")
     List<Event> findAllEvents();
 
 
@@ -24,7 +20,6 @@ public interface EventRepository extends CrudRepository<Event, Long> {
        " AND (:status = '' OR e.status = :status)" +
        " AND (:category = '' OR e.category = :category)")
     List<Event> searchEvents(@Param("name") String name, @Param("status") String status, @Param("category") String category);
-
 }
 
 

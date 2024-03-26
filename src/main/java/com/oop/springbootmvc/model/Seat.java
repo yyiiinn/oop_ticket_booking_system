@@ -1,5 +1,7 @@
 package com.oop.springbootmvc.model;
 
+import java.util.Set;
+
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
 import jakarta.persistence.*;
@@ -24,6 +26,19 @@ public class Seat {
     @ManyToOne
     @JoinColumn(name = "event_id")
     private Event event;
+
+    public Event getEvent() {
+        return event;
+    }
+
+    @OneToMany(mappedBy="seat")
+    private Set<Transaction> transactions;
+
+    public Set<Transaction> getTransactions() {
+        return this.transactions;
+    }
+
+
     public Seat( String type, float cost, int numberOfSeats, Event event) {
         this.type = type;
         this.cost = cost;

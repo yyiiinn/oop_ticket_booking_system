@@ -42,10 +42,13 @@ public class WebSecurityConfig {
         http
         // CSRF Token
         .csrf(AbstractHttpConfigurer::disable);
+        // http.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()));
 
         http.authorizeHttpRequests(auth ->
             auth
-            .requestMatchers("/customer/**").hasRole("USER")
+            .requestMatchers("/Customer/**").hasRole("USER")
+            .requestMatchers("/api/officer/**").hasRole("OFFICER")
+            .requestMatchers("/api/Customer/**").hasRole("USER")
             .requestMatchers("/api/manager/**").hasRole("MANAGER")
             .requestMatchers("/manager/**").hasRole("MANAGER")
             .requestMatchers("/officer/**").hasRole("OFFICER")

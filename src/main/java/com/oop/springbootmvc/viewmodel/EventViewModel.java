@@ -21,8 +21,6 @@ public class EventViewModel {
     private Date eventEndDate;
     private Time eventStartTime;
     private Time eventEndTime;
-    // private Date salesStartDate;
-    // private Date salesEndDate;
     private Timestamp salesStartTime;
     private Timestamp salesEndTime;
     private Float cancellation_fee;
@@ -157,15 +155,5 @@ public class EventViewModel {
 
     public void setImageName(String imageName) {
         this.imageName = imageName;
-    }
-
-    public Timestamp getTicketSaleStartDateTime() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getTicketSaleStartDateTime'");
-    }
-
-    public String getStatus() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getStatus'");
     }
 }

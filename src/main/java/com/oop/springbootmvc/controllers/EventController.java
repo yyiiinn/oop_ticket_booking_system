@@ -4,12 +4,20 @@ import com.oop.springbootmvc.service.SeatService;
 
 import com.oop.springbootmvc.model.Event;
 import com.oop.springbootmvc.model.Seat;
+import com.oop.springbootmvc.model.Ticket;
+import com.oop.springbootmvc.model.Transaction;
+import com.oop.springbootmvc.model.User;
 import com.oop.springbootmvc.repository.EventRepository;
-import com.oop.springbootmvc.repository.SeatRepository;
+import com.oop.springbootmvc.repository.TicketRepository;
+import com.oop.springbootmvc.repository.TransactionRepository;
+import com.oop.springbootmvc.repository.UserRepository;
+import com.oop.springbootmvc.viewmodel.CustomerEventViewModel;
+import com.oop.springbootmvc.viewmodel.EventOnlyViewModel;
 import com.oop.springbootmvc.viewmodel.EventViewModel;
 import com.oop.springbootmvc.viewmodel.SeatViewModel;
 import com.oop.springbootmvc.viewmodel.EventManSearchViewModel;
 
+import org.antlr.v4.runtime.misc.ObjectEqualityComparator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +28,6 @@ import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,34 +38,53 @@ import java.util.Optional;
 @RestController
 public class EventController {
   private final EventRepository eventRepository;
-  private final SeatRepository seatRepository;
+  private final TicketRepository ticketRepository;
+  private final TransactionRepository transactionRepository;
+  private final UserRepository userRepository;
 
   @Autowired
   private SeatService seatService;
 
-  public EventController(EventRepository eventRepository, SeatRepository seatRepository) {
+  public EventController(EventRepository eventRepository, TicketRepository ticketRepository, TransactionRepository transactionRepository, UserRepository userRepository) {
     this.eventRepository = eventRepository;
-    this.seatRepository = seatRepository;
+    this.ticketRepository = ticketRepository;
+    this.transactionRepository = transactionRepository;
+    this.userRepository = userRepository;
+
   }
 
   @GetMapping("/api/activeEvents")
-  public ResponseEntity<List<Event>> getActiveEvents() {
-    // List<Event> activeEvents = eventRepository.findActiveEvents();
-    // List<EventWithSeats> eventWithSitsList = new ArrayList<>();
-    // for (Event event : activeEvents) {
-    //     List<Seat> seats = seatRepository.findSeatByEventId(event.getId());
-    //     EventWithSeats response = new EventWithSeats(activeEvents, seats);
-    //     eventWithSitsList.add(response);
-    // }
-    // return ResponseEntity.ok(eventWithSitsList);
-    List<Event> events = eventRepository.findActiveEvents();
-    return ResponseEntity.ok(events);
+  public ResponseEntity<Object> getActiveEvents() {
+    List<Event> activeEvents = eventRepository.findActiveEvents();
+    ArrayList<CustomerEventViewModel> toReturn = new ArrayList<>();
+    for (Event event : activeEvents) {
+      // Get All Seats
+      var seats = event.getSeats();
+      for (Seat s :seats){
+        int booked = 0;
+        // Get All Transactions
+        for (Transaction t: s.getTransactions()){
+          if(t.getStatus().equals("Booked")){
+            booked += t.getTickets().size();
+          }
+        };
+        s.setNumberOfSeats(s.getNumberOfSeats() - booked);
+      }
+      event.setSeats(seats);
+      toReturn.add(new CustomerEventViewModel(event));
+    }
+    
+    return ResponseEntity.ok(toReturn);
   }
 
   @GetMapping("/api/allEvents")
-  public ResponseEntity<List<Event>> getAllEvents() {
+  public ResponseEntity<Object> getAllEvents() {
       List<Event> events = eventRepository.findAllEvents();
-      return ResponseEntity.ok(events);
+      ArrayList<EventOnlyViewModel> toReturn = new ArrayList<>();
+      for (Event event : events) {
+        toReturn.add(new EventOnlyViewModel(event));
+      }
+      return ResponseEntity.ok(toReturn);
   }
   
   @PostMapping("/api/manager/createEvent")
@@ -72,7 +98,6 @@ public class EventController {
           List<SeatViewModel> sitViewModels = eventViewModel.getSeatingOptions();
           boolean seatsAdded = false;
           if (createdEvent != null){
-            long event_id = createdEvent.getId();
             seatsAdded = seatService.createSeatsByEvent(createdEvent, sitViewModels);
           }
           if (seatsAdded == true) {
@@ -109,8 +134,10 @@ public class EventController {
       } else {
           Map<String, String> responseBody = new HashMap<>();
           responseBody.put("message", "No event details found");
-          responseBody.put("status", "202");
-          return ResponseEntity.ok().body(responseBody);
+          // Please do not set status like this
+          // responseBody.put("status", "202");
+          // Please set it as such
+          return ResponseEntity.status(202).body(responseBody);
       }
     } catch (Exception e) {
         Map<String, String> responseBody = new HashMap<>();
@@ -187,11 +214,27 @@ public class EventController {
         LocalTime localTime = existingEvent.getEventStartTime().toLocalTime();
         LocalDateTime eventStartDateTime = LocalDateTime.of(localDate, localTime);
         long daysUntilEvent = ChronoUnit.DAYS.between(now, eventStartDateTime);
-        System.out.println(daysUntilEvent + "dayssss");
         if (daysUntilEvent >= 2) {
           existingEvent.setStatus("Cancelled");
           Event updatedEvent = eventRepository.save(existingEvent);
           // TO TRIGGER AUTOMATED REFUND
+          for(Seat s:updatedEvent.getSeats()){
+            for(Transaction t: s.getTransactions()){
+              if(!t.getStatus().equals("Cancelled")){
+                // We shall set refund status
+                t.setStatus("Refunded");
+                for(Ticket tic: t.getTickets()){
+                  tic.setStatus("Cancelled");
+                  ticketRepository.save(tic);
+                }
+                transactionRepository.save(t);
+                User u = t.getUser();
+                u.setBalance(u.getBalance()+t.getCost());
+                userRepository.save(u);
+              }
+            }
+          }
+
           Map<String, String> responseBody = new HashMap<>();
           responseBody.put("message", "Event cancelled successfully");
           responseBody.put("status", "200");
@@ -211,9 +254,8 @@ public class EventController {
     }
     }
 
-
     @PostMapping("/events/search")
-    public ResponseEntity<List<Event>> searchEvents(@RequestBody EventManSearchViewModel eventManSearchViewModel) {
+    public ResponseEntity<List<Event>> managerSearchEvents(@RequestBody EventManSearchViewModel eventManSearchViewModel) {
       Map<String, String> statusMap = new HashMap<>();
       statusMap.put("Available for Purchase", "Active");
       statusMap.put("Event Cancelled", "Cancelled");
@@ -236,6 +278,51 @@ public class EventController {
 
       List<Event> events = eventRepository.searchEvents(name, status, category);
       return ResponseEntity.ok(events);
+    }
+
+    @PostMapping("/custEvents/search")
+    public ResponseEntity<Object> searchEvents(@RequestBody EventManSearchViewModel eventManSearchViewModel) {
+      Map<String, String> statusMap = new HashMap<>();
+      statusMap.put("Available for Purchase", "Active");
+      statusMap.put("Event Cancelled", "Cancelled");
+      statusMap.put("Upcoming Event", "Active");
+
+      String status = statusMap.getOrDefault(eventManSearchViewModel.getStatus(), "").trim();
+      String name = eventManSearchViewModel.getName();
+      String category = eventManSearchViewModel.getCategory();
+
+      if (name != null) {
+          name = name.trim().toLowerCase();
+      } else {
+          name = "";
+      }
+      if (category != null) {
+          category = category.trim();
+      } else {
+          category = "";
+      }
+
+      List<Event> events = eventRepository.searchEvents(name, status, category);
+      ArrayList<CustomerEventViewModel> toReturn = new ArrayList<>();
+      for (Event event : events) {
+        // Get All Seats
+        var seats = event.getSeats();
+        for (Seat s :seats){
+          int booked = 0;
+          // Get All Transactions
+          for (Transaction t: s.getTransactions()){
+            if(t.getStatus().equals("Booked")){
+              booked += t.getTickets().size();
+            }
+          };
+          s.setNumberOfSeats(s.getNumberOfSeats() - booked);
+        }
+        event.setSeats(seats);
+        toReturn.add(new CustomerEventViewModel(event));
+      }
+      
+      return ResponseEntity.ok(toReturn);
+  
 
     }
 }
