@@ -92,24 +92,24 @@
         <!-- Events Cards -->
         <div class="row">
           <div class="col-lg-4 mb-4" v-for="(event, index) in events" :key="index">
-            <div class="card h-100 event-card">
+            <div class="card h-100 event-card"  @click="showEventDetails(event)">
               <img :src="event.image" class="card-img-top image-class" alt="Event Image"
-                onerror="this.onerror=null;" />
+                                onerror="this.onerror=null;" />
 
-              <div class="card-body" @click="showEventDetails(event)">
-                <h5 class="card-title">
+              <div class="card-body">
+                <h5 class="card-title mb-4">
                   {{ event.name }}  
                   <category-component :category="event.category"></category-component>
                 </h5>
 
-                <div class="card-text">{{ event.venue }}</div>
-                <div class="card-datetime text-secondary"><small>{{ event.eventStartDate }} | {{ event.eventStartTime }} - {{
+                <div class="card-text mb-2"><small><strong>Venue:</strong> {{ event.venue }}</small></div>
+                <div class="card-datetime"><small><strong>Event Date & Time:</strong> <br> {{ event.eventStartDate }} | {{ event.eventStartTime }} - {{
                   event.eventEndTime }}</small></div>
               </div>
 
               <div class="card-footer fixed-footer bg-white">
                 <a :href="'/manager/EditEvent/' + event.id"
-                  v-if="event.status === 'Active' && !isSaleOngoing(event) && !isSalePeriodOver(event)"
+                  v-if="event.status === 'Upcoming' && !isSaleOngoing(event) && !isSalePeriodOver(event)"
                   class="btn btn-primary me-2">Edit Event</a>
                 <button
                   v-if="event.status === 'Active' && (isSaleOngoing(event) || (!isEventOngoing(event) && !isEventEnded(event) && !isSalePeriodOver(event)))"
@@ -117,7 +117,7 @@
                   Cancel Event
                 </button>
                 <span v-if="event.status === 'Cancelled'">Event Cancelled</span>
-                <span v-if="event.status === 'Active' && isEventEnded(event)">Event Ended</span>
+                <span v-if="event.status === 'Ended' && isEventEnded(event)">Event Ended</span>
                 <span v-if="isEventOngoing(event)">Event is Ongoing</span>
                 <span v-if="event.status === 'Active' && isSalePeriodOver(event)">Sales Period Over</span>
               </div>

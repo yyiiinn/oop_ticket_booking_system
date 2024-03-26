@@ -17,7 +17,9 @@ export default {
             this.$emit('close'); 
         },
         formatDateTime(datetimeStr) {
-            return datetimeStr.replace('T', ' | ').slice(0, 18);
+            const date = new Date(datetimeStr);
+            date.setHours(date.getHours() + 8); // Add 8 hours
+            return date.toISOString().replace('T', ' | ').slice(0, 18);
         },
         formatTime(timeStr) {
             const [hour, minute] = timeStr.split(':');

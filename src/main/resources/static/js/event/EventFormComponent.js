@@ -44,7 +44,8 @@ export default {
                 salesStartDateTime: '',
                 salesEndDateTime: '',
                 cancellationFee: '',
-                seatingOptionsErrors: [{}]
+                seatingOptionsErrors: [{}],
+                seatingOptionsGeneral: '',
             },
             eventData: {},
             isShowModal: false,
@@ -188,6 +189,10 @@ export default {
                 this.isShowModal = false;
                 window.location.href = '/manager/ViewEvents';
             }
+        },
+        triggerFileInput() {
+            const fileInput = document.getElementById('eventImageFile');
+            fileInput.click();
         },
         handleImageUpload(event) {
             const file = event.target.files[0];
@@ -337,6 +342,13 @@ export default {
             return true;
         },
         validateSeatingOptions() {
+            if (this.formData.seatingOptions.length === 0) {
+                this.formErrors.seatingOptionsGeneral = 'At least one seating option is required.';
+                return false;
+            } else {
+                this.formErrors.seatingOptionsGeneral = '';
+            }
+
             this.formErrors.seatingOptionsErrors = this.formData.seatingOptions.map(option => {
                 const errors = {};
                 if (!option.type) errors.type = 'Seat type is required.';
@@ -345,7 +357,8 @@ export default {
                 return errors;
             });
 
-            return this.formErrors.seatingOptionsErrors.every(errors => Object.keys(errors).length === 0);
+            const allOptionsValid = this.formErrors.seatingOptionsErrors.every(errors => Object.keys(errors).length === 0);
+            return allOptionsValid;
         },
         validateForm() {
             const validations = [
@@ -415,7 +428,22 @@ export default {
         <!--Event Image Upload-->
         <div class="custom-file-container">
             <label for="eventImageFile" class="custom-file-label">Event Image</label>
-            <input type="file" id="eventImageFile" @change="handleImageUpload" class="custom-file-input" />
+            <div class="d-flex align-items-center">
+                <!-- Hidden file input -->
+                <input type="file" id="eventImageFile" @change="handleImageUpload" class="custom-file-input" style="display: none;" /> 
+
+                <!-- Custom button -->
+                <button type="button" @click="triggerFileInput" class="btn btn-primary">Choose File</button>
+
+                <!-- Display file name or 'Upload new file' text -->
+                <div class="current-file-name ms-2" v-if="formData.eventImageFile">
+                    {{ formData.imageName || 'Upload new file' }}
+                </div>
+                <div class="ms-2" v-else>
+                    No file chosen
+                </div>
+            </div>
+
             <div v-if="formErrors.eventImageFile" class="text-danger">{{ formErrors.eventImageFile }}</div>
         </div>
 
@@ -500,6 +528,7 @@ export default {
         <!-- Seating Options Section -->
         <div class="seating-options-section">
             <h3>Seating Options</h3>
+            <span class="text-danger">{{ formErrors.seatingOptionsGeneral  }} </span>
             <div v-for="(option, index) in formData.seatingOptions" :key="index" class="seating-option mb-3">
                 <h5 class="mt-4 mb-4"><u>Option {{ index + 1 }}</u></h5>
 
