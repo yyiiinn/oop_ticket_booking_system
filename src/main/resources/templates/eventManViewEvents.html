@@ -193,6 +193,7 @@
           fetch("/api/allEvents")
             .then((response) => response.json())
             .then((data) => {
+              console.log(data);
               this.events = data;
               this.events.forEach((event) => {
                 if (event.image) {
@@ -218,7 +219,6 @@
           return url;
         },
         searchApi(event, category, status) {
-          console.log(event, category, status)
           const requestBody = {
             name: event,
             status: status,
@@ -262,6 +262,7 @@
 
         toggleModal(event) {
           console.log("cancel");
+          console.log(event);
           this.selectedCancellationEvent = event;
           this.showCancelEventModal = true;
         },

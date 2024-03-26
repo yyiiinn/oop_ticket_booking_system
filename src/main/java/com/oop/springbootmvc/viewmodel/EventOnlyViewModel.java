@@ -23,6 +23,7 @@ public class EventOnlyViewModel {
     private String status;
     private String category;
     private Float cancellationFee;
+    private ArrayList<CustomerSeatViewModel> seats;
 
     public EventOnlyViewModel(Event e) {
         this.id = e.getId();
@@ -37,7 +38,12 @@ public class EventOnlyViewModel {
         this.ticketSaleEndDateTime = e.getTicketSaleEndDateTime();
         this.status = e.getStatus();
         this.category = e.getCategory();
-        this.cancellationFee = e.getCancellationFee();     
+        this.cancellationFee = e.getCancellationFee();    
+        this.name = e.getName(); 
+        this.seats = new ArrayList<>();
+        for(Seat s: e.getSeats()){
+            this.seats.add(new CustomerSeatViewModel(s));
+        }
     }
 
     public long getId() {
@@ -152,4 +158,11 @@ public class EventOnlyViewModel {
         this.cancellationFee = cancellationFee;
     }
     
+    public ArrayList<CustomerSeatViewModel> getSeats() {
+        return seats;
+    }
+
+    public void setSeats(ArrayList<CustomerSeatViewModel> seats) {
+        this.seats = seats;
+    }
 }

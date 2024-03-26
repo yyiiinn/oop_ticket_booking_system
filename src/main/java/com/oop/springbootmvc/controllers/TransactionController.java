@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -168,7 +169,7 @@ public class TransactionController {
             CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
             User tempUser = user.getUser();
             User u = userRepository.findById(tempUser.getId()).get();
-            var transactions = u.getTransactions();
+            Set<Transaction> transactions = u.getTransactions();
             for(Transaction t: transactions){
                 if(t.getId() == customerCancelTransactionViewModel.getId()){
                     if (t.getStatus().equals("Cancelled")){
