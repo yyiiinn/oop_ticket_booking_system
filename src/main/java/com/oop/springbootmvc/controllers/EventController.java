@@ -95,7 +95,7 @@ public class EventController {
           Event event = new Event(eventViewModel.getEventName(), eventViewModel.getEventDescription(), eventViewModel.getEventVenue(), 
           eventViewModel.geEventImageFile(), eventViewModel.getEventStartDate(), eventViewModel.getEventEndDate(), eventViewModel.getEventStartTime(), 
           eventViewModel.getEventEndTime(), eventViewModel.getSalesStartTime(), eventViewModel.getSalesEndTime(), 
-          "Active", eventViewModel.getEventCategory(), eventViewModel.getCancellationFee());
+          "Upcoming", eventViewModel.getEventCategory(), eventViewModel.getCancellationFee());
           Event createdEvent = eventRepository.save(event);
           List<SeatViewModel> sitViewModels = eventViewModel.getSeatingOptions();
           boolean seatsAdded = false;
@@ -246,7 +246,9 @@ public class EventController {
       Map<String, String> statusMap = new HashMap<>();
       statusMap.put("Available for Purchase", "Active");
       statusMap.put("Event Cancelled", "Cancelled");
-      statusMap.put("Upcoming Event", "Active");
+      statusMap.put("Upcoming Event", "Upcoming");
+      statusMap.put("Ongoing Event", "Ongoing");
+      statusMap.put("Past Event", "Ended");
 
       String status = statusMap.getOrDefault(eventManSearchViewModel.getStatus(), "").trim();
       String name = eventManSearchViewModel.getName();
@@ -278,7 +280,9 @@ public class EventController {
       Map<String, String> statusMap = new HashMap<>();
       statusMap.put("Available for Purchase", "Active");
       statusMap.put("Event Cancelled", "Cancelled");
-      statusMap.put("Upcoming Event", "Active");
+      statusMap.put("Upcoming Event", "Upcoming");
+      statusMap.put("Ongoing Event", "Ongoing");
+      statusMap.put("Past Event", "Ended");
 
       String status = statusMap.getOrDefault(eventManSearchViewModel.getStatus(), "").trim();
       String name = eventManSearchViewModel.getName();
