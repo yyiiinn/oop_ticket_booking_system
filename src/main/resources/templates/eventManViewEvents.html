@@ -92,24 +92,24 @@
         <!-- Events Cards -->
         <div class="row">
           <div class="col-lg-4 mb-4" v-for="(event, index) in events" :key="index">
-            <div class="card h-100 event-card">
-              <img :src="event.image" class="card-img-top" alt="Event Image" width="300" height="260"
-                onerror="this.onerror=null;" />
+            <div class="card h-100 event-card"  @click="showEventDetails(event)">
+              <img :src="event.image" class="card-img-top image-class" alt="Event Image"
+                                onerror="this.onerror=null;" />
 
-              <div class="card-body" @click="showEventDetails(event)">
-                <h5 class="card-title">{{ event.name }}</h5>
-                <category-component :category="event.category"></category-component>
+              <div class="card-body">
+                <h5 class="card-title mb-4">
+                  {{ event.name }}  
+                  <category-component :category="event.category"></category-component>
+                </h5>
 
-                <div class="card-text">{{ event.venue }}</div>
-                <div class="card-datetime text-secondary"><small>{{ event.eventStartDate }} -
-                    {{event.eventEndDate}}</small></div>
-                <div class="card-datetime text-secondary mb-2"><small> {{ event.eventStartTime }} - {{
-                    event.eventEndTime }}</small></div>
+                <div class="card-text mb-2"><small><strong>Venue:</strong> {{ event.venue }}</small></div>
+                <div class="card-datetime"><small><strong>Event Date & Time:</strong> <br> {{ event.eventStartDate }} | {{ event.eventStartTime }} - {{
+                  event.eventEndTime }}</small></div>
               </div>
 
               <div class="card-footer fixed-footer bg-white">
                 <a :href="'/manager/EditEvent/' + event.id"
-                  v-if="event.status === 'Active' && !isSaleOngoing(event) && !isSalePeriodOver(event)"
+                  v-if="event.status === 'Upcoming' && !isSaleOngoing(event) && !isSalePeriodOver(event)"
                   class="btn btn-primary me-2">Edit Event</a>
                 <button
                   v-if="event.status === 'Active' && (isSaleOngoing(event) || (!isEventOngoing(event) && !isEventEnded(event) && !isSalePeriodOver(event)))"
@@ -117,8 +117,9 @@
                   Cancel Event
                 </button>
                 <span v-if="event.status === 'Cancelled'">Event Cancelled</span>
-                <span v-if="event.status === 'Active' && isEventEnded(event)">Event Ended</span>
+                <span v-if="event.status === 'Ended' && isEventEnded(event)">Event Ended</span>
                 <span v-if="isEventOngoing(event)">Event is Ongoing</span>
+                <span v-if="event.status === 'Active' && isSalePeriodOver(event)">Sales Period Over</span>
               </div>
             </div>
           </div>
@@ -172,11 +173,7 @@
       data() {
         return {
           // For search
-          statuses: [
-            "Available for Purchase",
-            "Event Cancelled",
-            "Upcoming Event",
-          ],
+          statuses: ["Available for Purchase", "Upcoming Event", "Ongoing Event", "Past Event"],
           events: [],
           showCancelEventModal: false,
           selectedCancellationEvent: null,
@@ -192,6 +189,7 @@
           fetch("/api/allEvents")
             .then((response) => response.json())
             .then((data) => {
+              console.log(data);
               this.events = data;
               this.events.forEach((event) => {
                 if (event.image) {
@@ -216,8 +214,38 @@
 
           return url;
         },
-        searchApi(event, category) {
-          console.log(event, category);
+        searchApi(event, category, status) {
+          const requestBody = {
+            name: event,
+            status: status,
+            category: category
+            };  
+          console.log(requestBody)
+          fetch('/events/search', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+            })
+            .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+            })
+            .then((data) => {
+              console.log(data)
+              this.events = data;
+              this.events.forEach((event) => {
+                if (event.image) {
+                  event.image = this.convertDataToURL(event.image);
+                }
+              });
+            })
+            .catch(error => {
+            console.error('There was a problem with your fetch operation:', error);
+            });
         },
 
         showEventDetails(event) {
@@ -230,6 +258,7 @@
 
         toggleModal(event) {
           console.log("cancel");
+          console.log(event);
           this.selectedCancellationEvent = event;
           this.showCancelEventModal = true;
         },
@@ -264,7 +293,7 @@
           return now >= saleStartDate && now <= saleEndDate;
         },
         isEventEnded(event) {
-          const eventEndDateTimeStr = `${event.eventEndDate}T${event.eventEndTime}`;
+          const eventEndDateTimeStr = `${event.eventStartDate}T${event.eventEndTime}`;
           const eventEndDateTime = new Date(eventEndDateTimeStr);
 
           const now = new Date();
@@ -276,7 +305,7 @@
           const eventStartDateTimeStr = `${event.eventStartDate}T${event.eventStartTime}`;
           const eventStartDateTime = new Date(eventStartDateTimeStr);
 
-          const eventEndDateTimeStr = `${event.eventEndDate}T${event.eventEndTime}`;
+          const eventEndDateTimeStr = `${event.eventStartDate}T${event.eventEndTime}`;
           const eventEndDateTime = new Date(eventEndDateTimeStr);
 
           return now >= eventStartDateTime && now <= eventEndDateTime;

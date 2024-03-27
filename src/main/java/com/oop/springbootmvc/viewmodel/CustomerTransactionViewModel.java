@@ -4,6 +4,7 @@ import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
 
+import com.oop.springbootmvc.model.Event;
 import com.oop.springbootmvc.model.Transaction;
 
 public class CustomerTransactionViewModel {
@@ -20,7 +21,7 @@ public class CustomerTransactionViewModel {
     }
 
     public CustomerTransactionViewModel(Transaction t) {
-        var e = t.getSeat().getEvent();
+        Event e = t.getSeat().getEvent();
         this.id = t.getId();
         this.eventName = e.getName();
         this.eventStartDate = e.getEventStartDate();

@@ -30,7 +30,7 @@ public class SeatController {
     try {
 
       Optional<Event> event = eventRepository.findById(eventId);
-      if (event.isEmpty()){
+      if (event.isPresent()){
         Map<String, String> responseBody = new HashMap<>();
         responseBody.put("message", "Unable to retrieve event seat details");
         responseBody.put("status", "400");

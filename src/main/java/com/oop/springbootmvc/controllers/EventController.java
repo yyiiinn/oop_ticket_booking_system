@@ -17,7 +17,6 @@ import com.oop.springbootmvc.viewmodel.EventViewModel;
 import com.oop.springbootmvc.viewmodel.SeatViewModel;
 import com.oop.springbootmvc.viewmodel.EventManSearchViewModel;
 
-import org.antlr.v4.runtime.misc.ObjectEqualityComparator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @RestController
 public class EventController {
@@ -59,7 +59,7 @@ public class EventController {
     ArrayList<CustomerEventViewModel> toReturn = new ArrayList<>();
     for (Event event : activeEvents) {
       // Get All Seats
-      var seats = event.getSeats();
+      Set<Seat> seats = event.getSeats();
       for (Seat s :seats){
         int booked = 0;
         // Get All Transactions
@@ -82,6 +82,8 @@ public class EventController {
       List<Event> events = eventRepository.findAllEvents();
       ArrayList<EventOnlyViewModel> toReturn = new ArrayList<>();
       for (Event event : events) {
+        Set<Seat> seats = event.getSeats();
+        event.setSeats(seats);
         toReturn.add(new EventOnlyViewModel(event));
       }
       return ResponseEntity.ok(toReturn);
@@ -93,7 +95,7 @@ public class EventController {
           Event event = new Event(eventViewModel.getEventName(), eventViewModel.getEventDescription(), eventViewModel.getEventVenue(), 
           eventViewModel.geEventImageFile(), eventViewModel.getEventStartDate(), eventViewModel.getEventEndDate(), eventViewModel.getEventStartTime(), 
           eventViewModel.getEventEndTime(), eventViewModel.getSalesStartTime(), eventViewModel.getSalesEndTime(), 
-          "Active", eventViewModel.getEventCategory(), eventViewModel.getCancellationFee());
+          "Upcoming", eventViewModel.getEventCategory(), eventViewModel.getCancellationFee());
           Event createdEvent = eventRepository.save(event);
           List<SeatViewModel> sitViewModels = eventViewModel.getSeatingOptions();
           boolean seatsAdded = false;
@@ -103,19 +105,16 @@ public class EventController {
           if (seatsAdded == true) {
             Map<String, String> responseBody = new HashMap<>();
             responseBody.put("message", "Event created successfully");
-            responseBody.put("status", "200");
-            return ResponseEntity.ok().body(responseBody);
+            return ResponseEntity.status(200).body(responseBody);
           }
           Map<String, String> responseBody = new HashMap<>();
           responseBody.put("message", "Unable to create event");
-          responseBody.put("status", "400");
-          return ResponseEntity.ok().body(responseBody);
+          return ResponseEntity.status(400).body(responseBody);
       } catch (Exception e) {
           e.printStackTrace();
           Map<String, String> responseBody = new HashMap<>();
           responseBody.put("message", "Failed to Create Event: " + e.getMessage());
-          responseBody.put("status", "400");
-          return ResponseEntity.ok().body(responseBody);
+          return ResponseEntity.status(400).body(responseBody);
       }
   }
 
@@ -134,16 +133,12 @@ public class EventController {
       } else {
           Map<String, String> responseBody = new HashMap<>();
           responseBody.put("message", "No event details found");
-          // Please do not set status like this
-          // responseBody.put("status", "202");
-          // Please set it as such
           return ResponseEntity.status(202).body(responseBody);
       }
     } catch (Exception e) {
         Map<String, String> responseBody = new HashMap<>();
         responseBody.put("message", "Unable to retrieve event details");
-        responseBody.put("status", "400");
-        return ResponseEntity.ok().body(responseBody);
+        return ResponseEntity.status(400).body(responseBody);
     }
   }
 
@@ -154,7 +149,6 @@ public class EventController {
         if (!optionalEvent.isPresent()) {
             Map<String, String> responseBody = new HashMap<>();
             responseBody.put("message", "Event with ID " + eventId + " not found");
-            responseBody.put("status", "404");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseBody);
         }
 
@@ -182,17 +176,14 @@ public class EventController {
         Map<String, String> responseBody = new HashMap<>();
         if (seatsAdded == true) {
           responseBody.put("message", "Event updated successfully");
-          responseBody.put("status", "200");
-          return ResponseEntity.ok().body(responseBody);
+          return ResponseEntity.status(200).body(responseBody);
         }
         responseBody.put("message", "Unable to update Event and Seating Options");
-        responseBody.put("status", "400");
-        return ResponseEntity.ok().body(responseBody);
+        return ResponseEntity.status(400).body(responseBody);
     } catch (Exception e) {
         e.printStackTrace(); 
         Map<String, String> responseBody = new HashMap<>();
         responseBody.put("message", "Failed to update event: " + e.getMessage());
-        responseBody.put("status", "500");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseBody);
     }
   }
@@ -204,7 +195,6 @@ public class EventController {
         if (!optionalEvent.isPresent()) {
             Map<String, String> responseBody = new HashMap<>();
             responseBody.put("message", "Event with ID " + eventId + " not found");
-            responseBody.put("status", "404");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseBody);
         }
         Event existingEvent = optionalEvent.get();
@@ -237,21 +227,52 @@ public class EventController {
 
           Map<String, String> responseBody = new HashMap<>();
           responseBody.put("message", "Event cancelled successfully");
-          responseBody.put("status", "200");
-          return ResponseEntity.ok().body(responseBody);
+          return ResponseEntity.status(200).body(responseBody);
         } else {
           Map<String, String> responseBody = new HashMap<>();
           responseBody.put("message", "Unable to cancel event as event is starting in less than 2 days");
-          responseBody.put("status", "400");
-          return ResponseEntity.ok().body(responseBody);
+          return ResponseEntity.status(400).body(responseBody);
         }
     } catch (Exception e) {
         e.printStackTrace(); 
         Map<String, String> responseBody = new HashMap<>();
         responseBody.put("message", "Failed to cancel event: " + e.getMessage());
-        responseBody.put("status", "500"); // Use appropriate error status
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseBody);
     }
+    }
+
+    @PostMapping("/events/search")
+    public ResponseEntity<ArrayList<EventOnlyViewModel>> managerSearchEvents(@RequestBody EventManSearchViewModel eventManSearchViewModel) {
+      Map<String, String> statusMap = new HashMap<>();
+      statusMap.put("Available for Purchase", "Active");
+      statusMap.put("Event Cancelled", "Cancelled");
+      statusMap.put("Upcoming Event", "Upcoming");
+      statusMap.put("Ongoing Event", "Ongoing");
+      statusMap.put("Past Event", "Ended");
+
+      String status = statusMap.getOrDefault(eventManSearchViewModel.getStatus(), "").trim();
+      String name = eventManSearchViewModel.getName();
+      String category = eventManSearchViewModel.getCategory();
+
+      if (name != null) {
+          name = name.trim().toLowerCase();
+      } else {
+          name = "";
+      }
+      if (category != null) {
+          category = category.trim();
+      } else {
+          category = "";
+      }
+
+      List<Event> events = eventRepository.searchEvents(name, status, category);
+      ArrayList<EventOnlyViewModel> toReturn = new ArrayList<>();
+      for (Event event : events) {
+        Set<Seat> seats = event.getSeats();
+        event.setSeats(seats);
+        toReturn.add(new EventOnlyViewModel(event));
+      }
+      return ResponseEntity.ok(toReturn);
     }
 
     @PostMapping("/custEvents/search")
@@ -259,7 +280,9 @@ public class EventController {
       Map<String, String> statusMap = new HashMap<>();
       statusMap.put("Available for Purchase", "Active");
       statusMap.put("Event Cancelled", "Cancelled");
-      statusMap.put("Upcoming Event", "Active");
+      statusMap.put("Upcoming Event", "Upcoming");
+      statusMap.put("Ongoing Event", "Ongoing");
+      statusMap.put("Past Event", "Ended");
 
       String status = statusMap.getOrDefault(eventManSearchViewModel.getStatus(), "").trim();
       String name = eventManSearchViewModel.getName();
@@ -280,7 +303,7 @@ public class EventController {
       ArrayList<CustomerEventViewModel> toReturn = new ArrayList<>();
       for (Event event : events) {
         // Get All Seats
-        var seats = event.getSeats();
+        Set<Seat> seats = event.getSeats();
         for (Seat s :seats){
           int booked = 0;
           // Get All Transactions
@@ -299,6 +322,4 @@ public class EventController {
   
 
     }
-
-
 }

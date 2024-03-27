@@ -33,11 +33,13 @@ export default {
             try {
                 const eventName = this.eventName;
                 const category = this.category; 
+                const status = this.status; 
 
                 let searchResults;
                 
                 // Use the searchApi function from the parent component
-                searchResults = await this.searchApi(eventName, category);
+                //searchResults = await this.searchApi(eventName, category);
+                searchResults = await this.searchApi(eventName, category, status);
                 
                 this.$emit("search-complete", searchResults);
             } catch (error) {

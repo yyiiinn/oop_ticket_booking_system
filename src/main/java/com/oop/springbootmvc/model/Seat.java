@@ -4,6 +4,8 @@ import java.util.Set;
 
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -25,6 +27,7 @@ public class Seat {
     //Event event;  
     @ManyToOne
     @JoinColumn(name = "event_id")
+    @JsonBackReference
     private Event event;
 
     public Event getEvent() {
