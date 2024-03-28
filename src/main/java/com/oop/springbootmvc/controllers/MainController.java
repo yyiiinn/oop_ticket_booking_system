@@ -8,6 +8,8 @@ import com.oop.springbootmvc.repository.EventRepository;
 import com.oop.springbootmvc.repository.RoleRepository;
 import com.oop.springbootmvc.repository.UserRepository;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -81,16 +83,25 @@ public class MainController {
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.GET)
-    public String login(Principal principal) {
-        // this attribute will be available in the view index.html as a thymeleaf variable
-        try {
-            Authentication authentication = (Authentication) principal;
-            CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
-            return "index";
-        }catch(Exception e){
-            return "login";
+    public String login(Principal principal, Model model, HttpServletRequest request) {
+    // Check if the user is already authenticated
+    try {
+        Authentication authentication = (Authentication) principal;
+        if (authentication != null && authentication.isAuthenticated()) {
+            // If authenticated, redirect to index or another relevant page
+            return "redirect:/"; // Or another relevant page
         }
+    } catch (Exception e) {
+        // If there's an exception, meaning the user is not authenticated, proceed to check for login errors.
     }
+
+    // Check if there's a login error. You can also use @RequestParam here, but HttpServletRequest gives more flexibility.
+    if (request.getParameter("error") != null) {
+        model.addAttribute("loginError", "Invalid username or password. Please try again.");
+    }
+
+    return "login";
+}
 
     //Protected route
     @RequestMapping(value = "/Customer/ViewProfile", method = RequestMethod.GET)

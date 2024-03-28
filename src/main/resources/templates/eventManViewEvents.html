@@ -92,7 +92,7 @@
         <!-- Events Cards -->
         <div class="row">
           <div class="col-lg-4 mb-4" v-for="(event, index) in events" :key="index">
-            <div class="card h-100 event-card"  @click="showEventDetails(event)">
+            <div class="card h-100 event-card" @click="showEventDetails(event)">
               <img :src="event.image" class="card-img-top image-class" alt="Event Image"
                                 onerror="this.onerror=null;" />
 
@@ -104,7 +104,8 @@
 
                 <div class="card-text mb-2"><small><strong>Venue:</strong> {{ event.venue }}</small></div>
                 <div class="card-datetime"><small><strong>Event Date & Time:</strong> <br> {{ event.eventStartDate }} | {{ event.eventStartTime }} - {{
-                  event.eventEndTime }}</small></div>
+                  event.eventEndTime }}</small>
+                </div>
               </div>
 
               <div class="card-footer fixed-footer bg-white">

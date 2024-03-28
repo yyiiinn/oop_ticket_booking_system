@@ -40,14 +40,18 @@
     <div class="full-screen-container">
         <div class="register-container col-12 col-md-6 col-lg-4 mx-auto">
             <h2 class="text-center mb-3">Register</h2>
+            <ul v-if="errorMessages.length" class="text-danger" v-cloak>
+                <li v-for="(message, index) in errorMessages" :key="index">{{ message }}</li>
+            </ul>
+
             <form method="post" role="form" v-on:submit.prevent="submitForm">
                 <div class="form-group mb-4">
-                    <label>Name</label>
-                    <input type="text" v-model="form.name" class="form-control border-0 shadow-sm px-4 field mb-3" placeholder="Enter Name" required />
+                    <label>Username</label>
+                    <input type="text" v-model="form.name" class="form-control border-0 shadow-sm px-4 field mb-3" placeholder="Enter Username/Email" required />
                 </div>
                 <div class="form-group mb-4">
-                    <label>Username</label>
-                    <input type="text" v-model="form.username" class="form-control border-0 shadow-sm px-4 field mb-3" placeholder="Enter Username" required />
+                    <label>Name</label>
+                    <input type="text" v-model="form.username" class="form-control border-0 shadow-sm px-4 field mb-3" placeholder="Enter Name" required />
                 </div>
                 <div class="form-group mb-4">
                     <label>Password</label>
@@ -81,36 +85,50 @@
                     username: '',
                     password: '',
                     confirmPassword: '',
-                }
+                },
+                errorMessages: []
             }
         },
         methods: {
             submitForm() {
-                if (this.form.password !== this.form.confirmPassword) {
-                    alert("Passwords do not match.");
-                } else {
-                    // Prepare form data for submission
-                    const formData = {
-                        name: this.form.name,
-                        username: this.form.username,
-                        password: this.form.password,
-                    };
-                    axios.post('/api/register', formData)
-                        .then(response => {
-                            // Reset form
-                            this.form.name = '';
-                            this.form.username = '';
-                            this.form.password = '';
-                            this.form.confirmPassword = '';
-                            alert("Registered successfully.");
+                //Password must be at least 8 characters long, include uppercase and lowercase letters, a number, and a special character.
+                const passwordComplexityRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-                            // redirect to login after successfully registered
-                            window.location.href = '/login';
-                        })
-                        .catch(error => {
-                            alert(error.response.data);
-                        });
+                this.errorMessages = []; 
+
+                if (!passwordComplexityRegex.test(this.form.password)) {
+                    this.errorMessages.push("Password must be at least 8 characters long, include uppercase and lowercase letters, a number, and a special character.");
                 }
+
+                if (this.form.password !== this.form.confirmPassword) {
+                    this.errorMessages.push("Passwords do not match.");
+                }
+
+                if (this.errorMessages.length > 0) {
+                    return; // Stop the form submission if there are any errors
+                }
+                
+                // Prepare form data for submission
+                const formData = {
+                    name: this.form.name,
+                    username: this.form.username,
+                    password: this.form.password,
+                };
+                axios.post('/api/register', formData)
+                    .then(response => {
+                        // Reset form
+                        this.form.name = '';
+                        this.form.username = '';
+                        this.form.password = '';
+                        this.form.confirmPassword = '';
+
+                        // redirect to login after successfully registered
+                        window.location.href = '/login';
+                    })
+                    .catch(error => {
+                        alert(error.response.data);
+                        this.errorMessages.push("Failed to register. Please try again!")
+                    });
             }
         }
     });

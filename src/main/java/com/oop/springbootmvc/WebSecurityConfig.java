@@ -63,7 +63,13 @@ public class WebSecurityConfig {
             .defaultSuccessUrl("/")
             .permitAll()
         )
-        .logout(logout -> logout.logoutSuccessUrl("/").permitAll()
+        .logout(logout -> logout
+            .logoutUrl("/perform_logout")
+            .logoutSuccessUrl("/login?logout")
+            .deleteCookies("JSESSIONID")
+            .invalidateHttpSession(true)
+            .clearAuthentication(true)
+            .permitAll()
         );
 
         return http.build();
