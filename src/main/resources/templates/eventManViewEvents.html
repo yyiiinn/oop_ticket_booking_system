@@ -71,7 +71,6 @@
     [v-cloak] {
       display: none;
     }
-    
   </style>
 </head>
 
@@ -93,25 +92,32 @@
         <div class="row">
           <div class="col-lg-4 mb-4" v-for="(event, index) in events" :key="index">
             <div class="card h-100 event-card">
-              <img :src="event.image" class="card-img-top image-class" alt="Event Image"
-                                onerror="this.onerror=null;" />
+              <img :src="event.image" class="card-img-top image-class" alt="Event Image" onerror="this.onerror=null;" />
 
               <div class="card-body" @click="showEventDetails(event)">
                 <h5 class="card-title mb-4">
-                  {{ event.name }}  
+                  {{ event.name }}
                   <category-component :category="event.category"></category-component>
                 </h5>
 
                 <div class="card-text mb-2"><small><strong>Venue:</strong> {{ event.venue }}</small></div>
-                <div class="card-datetime"><small><strong>Event Date & Time:</strong> <br> {{ event.eventStartDate }} | {{ event.eventStartTime }} - {{
-                  event.eventEndTime }}</small>
+                <div class="card-datetime"><small><strong>Event Date & Time:</strong> <br> {{ event.eventStartDate }} |
+                    {{ event.eventStartTime }} - {{
+                    event.eventEndTime }}</small>
                 </div>
               </div>
 
               <div class="card-footer fixed-footer bg-white">
-                <a :href="'/manager/EditEvent/' + event.id"
-                  v-if="event.status === 'Upcoming' && !isSaleOngoing(event) && !isSalePeriodOver(event)"
-                  class="btn btn-primary me-2">Edit Event</a>
+                <div class="button-group event-action-buttons" v-if="event.status === 'Upcoming'">
+                  <span v-if="!isSalePeriodOver(event) && !isSaleOngoing(event) && !isSalePeriodOver(event)" class="mb-2">Waiting for Sales Period</span>
+                  <span v-else class="mb-2">Waiting for Event to Start</span>
+                  <div class="">
+                    <a :href="'/manager/EditEvent/' + event.id" class="btn btn-primary me-2">Edit Event</a>
+                    <button class="btn btn-outline-primary" @click="showCancellationFeeModal(event)">Update Cancellation Fee</button>
+                  </div>
+                </div>
+                
+
                 <button
                   v-if="event.status === 'Active' && (isSaleOngoing(event) || (!isEventOngoing(event) && !isEventEnded(event) && !isSalePeriodOver(event)))"
                   type="button" class="btn btn-outline-danger" @click="toggleModal(event)">
@@ -133,7 +139,7 @@
         <details-component :event-data="selectedEvent" @close="closeModal"></details-component>
       </div>
     </div>
-  
+
     <div class="modal" tabindex="-1" role="dialog" v-if="showCancelEventModal" v-cloak>
       <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -151,6 +157,53 @@
             </button>
             <button type="button" class="btn btn-danger" @click="confirmCancellation(selectedCancellationEvent.id)">
               Confirm
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Update Cancellation Fee Modal -->
+    <div class="modal" id="updateCancellationFeeModal" tabindex="-1" role="dialog" v-if="showUpdateCancellationFeeModal"
+      v-cloak>
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="updateCancellationFeeModalLabel">Update Cancellation Fee for
+              {{selectedUpdateFee.name}}</h5>
+            <button type="button" class="btn-close" @click="showUpdateCancellationFeeModal = false"></button>
+          </div>
+          <div class="modal-body">
+            <form>
+              <div class="mb-3">
+                <label for="cancellationFeeInput" class="form-label">New Cancellation Fee ($)</label>
+                <input type="number" class="form-control border-0 shadow-sm px-4 field" id="cancellationFeeInput"
+                  v-model="newCancellationFee">
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary"
+              @click="showUpdateCancellationFeeModal = false">Close</button>
+            <button type="button" class="btn btn-primary" @click="updateCancellationFee">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="isShowModal" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">{{ modalTitle }}</h5>
+            <button type="button" class="btn-close" @click="hideModal"></button>
+          </div>
+          <div class="modal-body">
+            <p>{{ modalBody }}</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" @click="hideModal">
+              Close
             </button>
           </div>
         </div>
@@ -180,6 +233,12 @@
           selectedCancellationEvent: null,
           showDetailsModal: false,
           selectedEvent: null,
+          selectedUpdateFee: null,
+          showUpdateCancellationFeeModal: false,
+          newCancellationFee: 0,
+          isShowModal: false,
+          modalTitle: "",
+          modalBody: "",
         };
       },
       mounted() {
@@ -220,20 +279,20 @@
             name: event,
             status: status,
             category: category
-            };  
+          };
           console.log(requestBody)
           fetch('/events/search', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+              'Content-Type': 'application/json'
             },
             body: JSON.stringify(requestBody)
-            })
+          })
             .then(response => {
-            if (!response.ok) {
+              if (!response.ok) {
                 throw new Error('Network response was not ok');
-            }
-            return response.json();
+              }
+              return response.json();
             })
             .then((data) => {
               console.log(data)
@@ -245,12 +304,13 @@
               });
             })
             .catch(error => {
-            console.error('There was a problem with your fetch operation:', error);
+              console.error('There was a problem with your fetch operation:', error);
             });
         },
 
         showEventDetails(event) {
           this.selectedEvent = event;
+          this.newCancellationFee = event.cancellationFee;
           this.showDetailsModal = true;
         },
         closeModal() {
@@ -280,6 +340,33 @@
           console.log("Event canceled!");
           this.showCancelEventModal = false;
           window.location.href = "/manager/ViewEvents";
+        },
+        showCancellationFeeModal(event) {
+          this.selectedUpdateFee = event;
+          this.newCancellationFee = event.cancellationFee;
+          this.showUpdateCancellationFeeModal = true;
+        },
+        updateCancellationFee() {
+
+          console.log("New Cancellation Fee: ", this.newCancellationFee);
+
+          // success message
+          this.showModal("Cancellation Fee", "Update Cancellation Fee Successfully!");
+
+          // error message
+          this.showModal("Cancellation Fee", "There is an error updating the cancellation fee!");
+
+        },
+        showModal(messageTitle, messageBody) {
+          this.showUpdateCancellationFeeModal = false;
+          this.modalTitle = messageTitle;
+          this.modalBody = messageBody;
+          this.isShowModal = true;
+        },
+        hideModal() {
+          this.modalTitle = "";
+          this.modalBody = "";
+          this.isShowModal = false;
         },
         isSalePeriodOver(event) {
           // Determine if the sale period is over
