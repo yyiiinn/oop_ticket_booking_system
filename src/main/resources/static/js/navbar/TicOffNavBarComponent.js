@@ -34,7 +34,17 @@ export default {
     `,
   methods: {
     signOut() {
-      // Add sign out functionality here
+        fetch('/perform_logout', {
+            method: 'POST', 
+            credentials: 'include',
+        })
+        .then(response => {
+            
+            window.location.href = '/login?logout';
+        })
+        .catch(error => {
+            console.error('Logout failed', error);
+        });
     },
   },
 };
