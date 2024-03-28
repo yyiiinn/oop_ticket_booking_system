@@ -82,27 +82,25 @@
                   onerror="this.onerror=null;" />
   
                 <div class="card-body" @click="showEventDetails(event)">
-                  <h5 class="card-title">
-                    {{ event.name }}  
-                    <category-component :category="event.category"></category-component>
-                  </h5>
-  
-                  <div class="card-text">{{ event.venue }}</div>
-                  <div class="card-datetime text-secondary"><small>{{ event.eventStartDate }} | {{ event.eventStartTime }} - {{
-                    event.eventEndTime }}</small></div>
+                    <h5 class="card-title mb-4">
+                        {{ event.name }}  
+                        <category-component :category="event.category"></category-component>
+                      </h5>
+      
+                      <div class="card-text mb-2"><small><strong>Venue:</strong> {{ event.venue }}</small></div>
+      
+                      <div class="card-datetime"><small><strong>Event Date & Time:</strong> <br> {{ event.eventStartDate }} |
+                          {{ event.eventStartTime }} - {{
+                          event.eventEndTime }}</small>
+                      </div>
                 </div>
                 
                 <div class="card-footer fixed-footer bg-white">
-                  <!-- to change to v-if="event.status === 'Active' && (isSaleOngoing(event))"  -->
-                  <button
-                    v-if="event.status === 'Active' && (!isSaleOngoing(event))"
-                    type="button" class="btn btn-primary" @click="toggleModal(event)">
-                    Purchase Tickets
-                  </button>
-                  <span v-if="event.status === 'Cancelled'">Event Cancelled</span>
-                  <span v-if="event.status === 'Active' && isEventEnded(event)">Event Ended</span>
-                  <span v-if="isEventOngoing(event)">Event is Ongoing</span>
-                  <span v-if="event.status === 'Active' && isSalePeriodOver(event)">Sales Period Over</span>
+                    <a th:href="@{/officer/PurchaseTickets}" v-if="event.status === 'Active' && !isEventEnded(event) && isSalePeriodStarted(event) && !isSalePeriodOver(event)" class="btn btn-primary me-2">Buy Ticket(s)</a>
+                    <span v-if="event.status === 'Cancelled'">Event Cancelled</span>
+                    <span v-if="event.status === 'Ended'">Event Ended</span>
+                    <span v-if="event.status === 'Ongoing' && isEventOngoing(event)">Ongoing Event</span>
+                    <span v-if="event.status === 'Upcoming' && !isEventEnded(event)">Upcoming Event</span>
                 </div>
               </div>
             </div>
@@ -218,22 +216,19 @@
 
             isSalePeriodStarted(event) {
                 const now = new Date();
-                const salesStartDateString = `${event.sales_startdate} ${event.sales_starttime}`;
-                const salesStartDate = new Date(salesStartDateString);
-
+                const salesStartDate = new Date(event.ticketSaleStartDateTime);
                 return now >= salesStartDate;
             },
-
             isSalePeriodOver(event) {
                 // Determine if the sale period is over
                 const now = new Date();
-                const saleEndDate = new Date(event.sales_enddate);
-                return now > saleEndDate;
+                const salesEndDate = new Date(event.ticketSaleEndDateTime);
+                return now > salesEndDate;
             },
             isEventEnded(event) {
                 // Determine if the event has ended
                 const now = new Date();
-                const eventDate = new Date(event.date);
+                const eventDate = new Date(event.eventEndDate);
                 return now > eventDate;
             },
             isEventOngoing(event) {
