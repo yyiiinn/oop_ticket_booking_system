@@ -46,21 +46,26 @@ public class RoleSeeder implements ApplicationListener<ContextRefreshedEvent> {
         });
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-        String encodedPassword = passwordEncoder.encode("manager");
-        Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.MANAGER);
-        User user = new User("manager", "manager", encodedPassword, false, 0, optionalRole.get());
-        userRepository.save(user);
-
-        encodedPassword = passwordEncoder.encode("officer");
-        optionalRole = roleRepository.findByName(RoleEnum.OFFICER);
-        user = new User("officer", "officer", encodedPassword, false, 0, optionalRole.get());
-        userRepository.save(user);
-
-        encodedPassword = passwordEncoder.encode("user");
-        optionalRole = roleRepository.findByName(RoleEnum.USER);
-        user = new User("user", "user", encodedPassword, false, 1000, optionalRole.get());
-        userRepository.save(user);
-
-        
+        Optional<User> user = userRepository.findByUsername("manager");
+        user.ifPresentOrElse(System.out::println, () -> {
+            Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.MANAGER);
+            String encodedPassword = passwordEncoder.encode("manager");
+            User newUser = new User("manager", "manager", encodedPassword, false, 0, optionalRole.get());
+            userRepository.save(newUser);
+        });
+        user = userRepository.findByUsername("officer");
+        user.ifPresentOrElse(System.out::println, () -> {
+            Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.OFFICER);
+            String encodedPassword = passwordEncoder.encode("officer");
+            User newUser = new User("officer", "officer", encodedPassword, false, 0, optionalRole.get());
+            userRepository.save(newUser);
+        });
+        user = userRepository.findByUsername("user");
+        user.ifPresentOrElse(System.out::println, () -> {
+            Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.USER);
+            String encodedPassword = passwordEncoder.encode("user");
+            User newUser = new User("user", "user", encodedPassword, false, 0, optionalRole.get());
+            userRepository.save(newUser);
+        });
     }
 }
