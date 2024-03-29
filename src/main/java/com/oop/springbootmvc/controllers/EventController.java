@@ -53,9 +53,9 @@ public class EventController {
 
   }
 
-  @GetMapping("/api/activeEvents")
-  public ResponseEntity<Object> getActiveEvents() {
-    List<Event> activeEvents = eventRepository.findActiveEvents();
+  @GetMapping("/api/custViewEvents")
+  public ResponseEntity<Object> getCustViewEvents() {
+    List<Event> activeEvents = eventRepository.findAllEventsDesc();
     ArrayList<CustomerEventViewModel> toReturn = new ArrayList<>();
     for (Event event : activeEvents) {
       // Get All Seats
