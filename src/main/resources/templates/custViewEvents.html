@@ -126,13 +126,21 @@
 
                 <div class="card-body" @click="showEventDetails(event)">
                   <h5 class="card-title mb-4">
-                    {{ event.name }}  
-                    <category-component :category="event.category"></category-component>
+                    {{ event.name }}
+                    <category-component
+                      :category="event.category"
+                    ></category-component>
                   </h5>
-  
-                  <div class="card-text mb-2"><small><strong>Venue:</strong> {{ event.venue }}</small></div>
-                  <div class="card-datetime"><small><strong>Event Date & Time:</strong> <br> {{ event.eventStartDate }} | {{ event.eventStartTime }} - {{
-                    event.eventEndTime }}</small>
+
+                  <div class="card-text mb-2">
+                    <small><strong>Venue:</strong> {{ event.venue }}</small>
+                  </div>
+                  <div class="card-datetime">
+                    <small
+                      ><strong>Event Date & Time:</strong> <br />
+                      {{ event.eventStartDate }} | {{ event.eventStartTime }} -
+                      {{ event.eventEndTime }}</small
+                    >
                   </div>
                 </div>
 
@@ -234,7 +242,9 @@
                     <option value="" disabled selected>
                       Select number of tickets
                     </option>
-                    <option v-for="n in ticketsMaxAmount()" :key="n" :value="n">{{ n }}</option>
+                    <option v-for="n in ticketsMaxAmount()" :key="n" :value="n">
+                      {{ n }}
+                    </option>
                   </select>
                 </div>
 
@@ -265,7 +275,8 @@
                 >
                   Cancel
                 </button>
-                <button v-if="numberOfTickets != 0"
+                <button
+                  v-if="numberOfTickets != 0"
                   type="button"
                   class="btn btn-success"
                   @click="confirmTicketPurchase"
@@ -294,7 +305,12 @@
         data() {
           return {
             // For search
-            statuses: ["Available for Purchase", "Upcoming Event", "Ongoing Event", "Past Event"],
+            statuses: [
+              "Available for Purchase",
+              "Upcoming Event",
+              "Ongoing Event",
+              "Past Event",
+            ],
             events: [],
             showDetailsModal: false,
             selectedEvent: null,
@@ -304,35 +320,33 @@
             isShowModal: false,
             modalTitle: "",
             modalBody: "",
-            selectedAvailableSeats: 0
+            selectedAvailableSeats: 0,
           };
         },
         watch: {
           selectedSeatType(newValue, oldValue) {
             // Reset numberOfTickets when selectedSeatType changes
             this.numberOfTickets = 0;
-          }
-        },        
+          },
+        },
         mounted() {
           this.fetchEvents();
         },
         methods: {
-          closeTicketModal(){
+          closeTicketModal() {
             this.numberOfTickets = 0;
-                this.selectedEvent = null;
-                this.selectedAvailableSeats = null;
-                this.selectedSeatType = null;
-                this.showTicketPurchaseModal = false;
-
+            this.selectedEvent = null;
+            this.selectedAvailableSeats = null;
+            this.selectedSeatType = null;
+            this.showTicketPurchaseModal = false;
           },
-          ticketsMaxAmount(){
-                if (this.selectedAvailableSeats > 3){
-                    return 4;
-                }
-                else {
-                    return this.selectedAvailableSeats;
-                }
-            },
+          ticketsMaxAmount() {
+            if (this.selectedAvailableSeats > 3) {
+              return 4;
+            } else {
+              return this.selectedAvailableSeats;
+            }
+          },
 
           fetchEvents() {
             fetch("/api/activeEvents")
@@ -364,28 +378,28 @@
             return url;
           },
           searchApi(event, category, status) {
-            console.log(event, category, status)
+            console.log(event, category, status);
             const requestBody = {
               name: event,
               status: status,
-              category: category
-              };  
-            console.log(requestBody)
-            fetch('/custEvents/search', {
-              method: 'POST',
+              category: category,
+            };
+            console.log(requestBody);
+            fetch("/custEvents/search", {
+              method: "POST",
               headers: {
-                  'Content-Type': 'application/json'
+                "Content-Type": "application/json",
               },
-              body: JSON.stringify(requestBody)
-              })
-              .then(response => {
-              if (!response.ok) {
-                  throw new Error('Network response was not ok');
-              }
-              return response.json();
+              body: JSON.stringify(requestBody),
+            })
+              .then((response) => {
+                if (!response.ok) {
+                  throw new Error("Network response was not ok");
+                }
+                return response.json();
               })
               .then((data) => {
-                console.log(data)
+                console.log(data);
                 this.events = data;
                 this.events.forEach((event) => {
                   if (event.image) {
@@ -393,10 +407,13 @@
                   }
                 });
               })
-              .catch(error => {
-              console.error('There was a problem with your fetch operation:', error);
+              .catch((error) => {
+                console.error(
+                  "There was a problem with your fetch operation:",
+                  error
+                );
               });
-        },
+          },
           // Event Details
           showEventDetails(event) {
             this.selectedEvent = event;
@@ -424,8 +441,9 @@
           isEventEnded(event) {
             // Determine if the event has ended
             const now = new Date();
-            const eventDate = new Date(event.eventEndDate);
-            return now > eventDate;
+            const eventEndDateTimeStr = `${event.eventStartDate}T${event.eventEndTime}`;
+            const eventEndDateTime = new Date(eventEndDateTimeStr);
+            return now > eventEndDateTime;
           },
           confirmTicketPurchase() {
             let temp = {
@@ -447,10 +465,7 @@
                 if (response.ok) {
                   this.showModal("Success", "You have purchased successfully!");
                 } else {
-                  this.showModal(
-                    "Error",
-                    "Insufficient Balance"
-                  );
+                  this.showModal("Error", "Insufficient Balance");
                 }
               })
               .catch((error) => {
@@ -484,9 +499,8 @@
               (option) => option.id === this.selectedSeatType
             );
             console.log(selectedOption);
-            if (selectedOption != undefined){
+            if (selectedOption != undefined) {
               this.selectedAvailableSeats = selectedOption.numberOfSeats;
-
             }
             return selectedOption ? selectedOption.numberOfSeats : 0;
           },

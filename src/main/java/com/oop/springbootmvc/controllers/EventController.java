@@ -93,7 +93,7 @@ public class EventController {
   public ResponseEntity<Object> createEvent(@RequestBody EventViewModel eventViewModel) {  
       try {
           Event event = new Event(eventViewModel.getEventName(), eventViewModel.getEventDescription(), eventViewModel.getEventVenue(), 
-          eventViewModel.geEventImageFile(), eventViewModel.getEventStartDate(), eventViewModel.getEventEndDate(), eventViewModel.getEventStartTime(), 
+          eventViewModel.geEventImageFile(), eventViewModel.getEventStartDate(), eventViewModel.getEventStartTime(), 
           eventViewModel.getEventEndTime(), eventViewModel.getSalesStartTime(), eventViewModel.getSalesEndTime(), 
           "Upcoming", eventViewModel.getEventCategory(), eventViewModel.getCancellationFee());
           Event createdEvent = eventRepository.save(event);
@@ -159,7 +159,6 @@ public class EventController {
         existingEvent.setVenue(eventViewModel.getEventVenue());
         existingEvent.setImage(eventViewModel.geEventImageFile());
         existingEvent.setEventStartDate(eventViewModel.getEventStartDate());
-        existingEvent.setEventEndDate(eventViewModel.getEventStartDate());
         existingEvent.setEventStartTime(eventViewModel.getEventStartTime());
         existingEvent.setEventEndTime(eventViewModel.getEventEndTime());
         existingEvent.setTicketSaleStartTime(eventViewModel.getSalesStartTime());

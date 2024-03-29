@@ -18,7 +18,6 @@ public class EventViewModel {
     private String eventVenue;
     private byte[] eventImageFile;
     private Date eventStartDate;
-    private Date eventEndDate;
     private Time eventStartTime;
     private Time eventEndTime;
     private Timestamp salesStartTime;
@@ -75,15 +74,6 @@ public class EventViewModel {
     public void setEventStartDate(Date eventStartDate) {
         this.eventStartDate = eventStartDate;
     }
-
-    public Date getEventEndDate() {
-        return eventEndDate;
-    }
-
-    public void setEventEndDate(Date eventEndDate) {
-        this.eventEndDate = eventEndDate;
-    }
-
 
     public Time getEventStartTime() {
         return this.eventStartTime;

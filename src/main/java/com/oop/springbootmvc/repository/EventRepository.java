@@ -40,14 +40,14 @@ public interface EventRepository extends CrudRepository<Event, Long> {
     );
 
     // event ongoing
-    @Query("SELECT e FROM Event e WHERE e.eventEndDate <= :currentDateTime AND e.eventStartDate >= :currentDateTime AND e.eventStartTime <= :currentTime AND e.eventEndTime >= :currentTime")
+    @Query("SELECT e FROM Event e WHERE e.eventStartDate >= :currentDateTime AND e.eventStartTime <= :currentTime AND e.eventEndTime >= :currentTime")
     List<Event> findDuringEventPeriod(
         @Param("currentDateTime") LocalDate currentDateTime, 
         @Param("currentTime") LocalTime currentTime
     );
 
     // event ended
-    @Query("SELECT e FROM Event e WHERE e.eventEndDate <= :currentDateTime AND e.eventEndTime >= :currentTime")
+    @Query("SELECT e FROM Event e WHERE :currentDateTime >= e.eventStartDate AND e.eventEndTime >= :currentTime")
     List<Event> findEventEnded(
         @Param("currentDateTime") LocalDate currentDateTime, 
         @Param("currentTime") LocalTime currentTime
