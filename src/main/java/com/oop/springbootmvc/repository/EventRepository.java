@@ -17,6 +17,9 @@ public interface EventRepository extends CrudRepository<Event, Long> {
     @Query("SELECT e FROM Event e ORDER BY CASE WHEN e.eventStartDate = CURRENT_DATE THEN 1 WHEN e.eventStartDate > CURRENT_DATE THEN 2 ELSE 3 END, e.eventStartDate ASC")
     List<Event> findAllEvents();
 
+    @Query("SELECT e FROM Event e ORDER BY e.eventStartDate DESC, CASE WHEN e.eventStartDate = CURRENT_DATE THEN 1 WHEN e.eventStartDate > CURRENT_DATE THEN 2 ELSE 3 END, e.eventStartDate ASC")
+    List<Event> findAllEventsDesc();
+
 
     @Query("SELECT e FROM Event e WHERE" +
        " (:name = '' OR LOWER(e.name) LIKE CONCAT('%', :name, '%'))" +

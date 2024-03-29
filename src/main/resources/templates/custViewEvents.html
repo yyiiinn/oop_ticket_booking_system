@@ -90,7 +90,7 @@
               <button
                 type="button"
                 class="btn btn-secondary"
-                @click="hideModal"
+                @click="modalCloseButton"
               >
                 Close
               </button>
@@ -151,13 +151,24 @@
                     @click="openTicketPurchaseModal(event)"
                     >Buy Ticket(s)</a
                   >
-                  <span v-if="event.status === 'Cancelled'"
+                  <span
+                    style="font-weight: bold"
+                    v-if="event.status === 'Cancelled'"
                     >Event Cancelled</span
                   >
                   <!-- <span v-if="event.status === 'active' && !isEventEnded(event) && isSalePeriodOver(event)">Sales Period Ended</span> -->
                   <span
-                    v-if="event.status === 'Active' && !isEventEnded(event) && !isSalePeriodStarted(event) && !isSalePeriodOver(event)"
+                    style="font-weight: bold"
+                    v-if="!isEventEnded(event) && !isSalePeriodStarted(event) && !isSalePeriodOver(event)"
                     >Upcoming Event</span
+                  >
+                  <span style="font-weight: bold" v-if="isEventEnded(event)"
+                    >Event Ended</span
+                  >
+                  <span
+                    style="font-weight: bold"
+                    v-if="!isEventEnded(event) && !isSalePeriodStarted(event) && isSalePeriodOver(event)"
+                    >Ongoing Event</span
                   >
                 </div>
               </div>
@@ -333,6 +344,9 @@
           this.fetchEvents();
         },
         methods: {
+          modalCloseButton() {
+            window.location.reload();
+          },
           closeTicketModal() {
             this.numberOfTickets = 0;
             this.selectedEvent = null;
@@ -349,7 +363,7 @@
           },
 
           fetchEvents() {
-            fetch("/api/activeEvents")
+            fetch("/api/custViewEvents")
               .then((response) => response.json())
               .then((data) => {
                 this.events = data;
