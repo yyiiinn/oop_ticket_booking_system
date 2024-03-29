@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.oop.springbootmvc.model.CustomUserDetails;
@@ -101,6 +102,71 @@ public class TransactionController {
             CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
             User tempUser = user.getUser();
             User u = userRepository.findById(tempUser.getId()).get();
+            Transaction t = new Transaction();
+            t.setStatus("Booked");
+            t.setPurchasedDateTime(Timestamp.from(Instant.now()));
+
+            Optional<Seat> s = seatRepository.findById(purchaseViewModel.getSitId());
+            if(s.isPresent()){
+                Seat seat = s.get();
+                t.setCost(seat.getCost() * purchaseViewModel.getQuantity());
+
+                // User does not have enough balance
+                if (u.getBalance() < t.getCost()){
+                    return ResponseEntity.badRequest().build();
+                }
+                
+                // Event does not have enough seats
+                Event e = seat.getEvent();
+                int booked = 0;
+                for (Seat se :e.getSeats()){
+                    // Get All Transactions
+                    if (se.getId() == seat.getId()){
+                        for (Transaction tr: se.getTransactions()){
+                            if(tr.getStatus().equals("Paid")){
+                                booked += tr.getTickets().size();
+                            }
+                        };
+                        break;
+                    }
+                }
+                if ((seat.getNumberOfSeats()- booked)<purchaseViewModel.getQuantity()){
+                    return ResponseEntity.badRequest().build();
+                }
+
+                t.setCancellationCost(0);
+                t.setUser(u);
+                t.setSeat(seat);
+                Transaction confirmed = transactionRepository.save(t);
+                ArrayList<Ticket> tickets = new ArrayList<>();
+                for (int i = 0; i < purchaseViewModel.getQuantity(); i++) {
+                    Ticket ticket = new Ticket();
+                    ticket.setStatus("Usable");
+                    ticket.setGuid(java.util.UUID.randomUUID().toString());
+                    ticket.setTransaction(confirmed);
+                    tickets.add(ticket);
+                } 
+                ticketRepository.saveAll(tickets);
+                u.setBalance(u.getBalance() - t.getCost());
+                userRepository.save(u);
+                
+    
+
+                return ResponseEntity.ok().body("");
+            }else{
+                return ResponseEntity.notFound().build();
+
+            }
+        }catch(Exception e){
+            return ResponseEntity.status(403).body("");
+
+        }
+    }
+
+    @PostMapping("/api/Officer/purchase")
+    public ResponseEntity<Object> createTransaction(@RequestParam("username") String username, @RequestBody PurchaseViewModel purchaseViewModel) {
+        try{
+            User u = userRepository.findByUsername(username).get();
             Transaction t = new Transaction();
             t.setStatus("Booked");
             t.setPurchasedDateTime(Timestamp.from(Instant.now()));

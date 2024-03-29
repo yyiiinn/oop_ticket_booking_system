@@ -38,7 +38,7 @@
         .modal-dialog {
             width: 100%;
             max-width: 700px;
-            
+            margin-top: 100px; 
         }
 
         .modal-content {
@@ -65,6 +65,32 @@
 </head>
 <body>
 <div id="app" v-cloak>
+    <div v-if="isShowModal" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">{{ modalTitle }}</h5>
+            <button
+              type="button"
+              class="btn-close"
+              @click="hideModal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p>{{ modalBody }}</p>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              @click="modalCloseButton"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="full-screen-container">
 
         <navbar-component active-link="viewEvents"></navbar-component>
@@ -96,7 +122,7 @@
                 </div>
                 
                 <div class="card-footer fixed-footer bg-white">
-                    <a th:href="@{/officer/PurchaseTickets}" v-if="event.status === 'Active' && !isEventEnded(event) && isSalePeriodStarted(event) && !isSalePeriodOver(event)" class="btn btn-primary me-2">Buy Ticket(s)</a>
+                    <a @click="openTicketPurchaseModal(event)" v-if="event.status === 'Active' && !isEventEnded(event) && isSalePeriodStarted(event) && !isSalePeriodOver(event)" class="btn btn-primary me-2">Buy Ticket(s)</a>
                     <span v-if="event.status === 'Cancelled'">Event Cancelled</span>
                     <span v-if="event.status === 'Ended'">Event Ended</span>
                     <span v-if="event.status === 'Ongoing' && isEventOngoing(event)">Ongoing Event</span>
@@ -114,6 +140,129 @@
             </div>
         </div>
 
+        <!-- Ticket Purchase Modal -->
+        <div
+          class="modal"
+          tabindex="-1"
+          role="dialog"
+          v-if="showTicketPurchaseModal"
+          v-cloak
+        >
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">
+                  Ticket(s) Purchase for {{ selectedEvent.name }}
+                </h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  @click="closeTicketModal()"
+                ></button>
+              </div>
+              <div class="modal-body">
+                <p>
+                  You have selected
+                  <input
+                    type="number"
+                    v-model="numberOfTickets"
+                    min="1"
+                    max="4"
+                    class="text-center"
+                    disabled
+                  />
+                  ticket(s). Please confirm your preferred quantity and click
+                  Confirm Purchase to continue.
+                </p>
+
+                <div class="form-group mb-3">
+                  <label for="username">Customer username:</label>
+                  <input
+                    type="text"
+                    id="username"
+                    class="form-control border-0 shadow-sm px-4 field"
+                    v-model="username"
+                  />
+                </div>
+
+                <!-- Seat Type Selection -->
+                <div class="mb-3">
+                  <label for="seatType">Seat Type:</label>
+                  <select
+                    id="seatType"
+                    v-model="selectedSeatType"
+                    class="form-select border-0 shadow-sm px-4 field"
+                  >
+                    <option value="" disabled selected>Select seat type</option>
+                    <option
+                      v-for="option in selectedEvent.seats"
+                      :value="option.id"
+                      :key="option.id"
+                    >
+                      {{ option.type }}
+                    </option>
+                  </select>
+                </div>
+
+                <!-- Number of Tickets Selection -->
+                <div class="mb-3">
+                  <label for="numberOfTickets"
+                    >Number of Tickets (Limit of 4 Tickets):
+                  </label>
+                  <select
+                    id="modalNumberOfTickets"
+                    class="form-select border-0 shadow-sm px-4 field"
+                    v-model="numberOfTickets"
+                    required
+                  >
+                    <option value="" disabled selected>
+                      Select number of tickets
+                    </option>
+                    <option v-for="n in ticketsMaxAmount()" :key="n" :value="n">
+                      {{ n }}
+                    </option>
+                  </select>
+                </div>
+
+                <!-- Display Number of Available Tickets -->
+                <div class="mb-3 d-flex justify-content-end">
+                  <span
+                    >{{ availableTicketsForSelectedType }} Tickets
+                    Available</span
+                  >
+                </div>
+
+                <div class="form-group mb-3">
+                  <label for="totalPrice">Total Price:</label>
+                  <input
+                    type="text"
+                    id="totalPrice"
+                    class="form-control border-0 shadow-sm px-4 field"
+                    :value="calculatedTotalPrice + ' SGD'"
+                    disabled
+                  />
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  @click="closeTicketModal()"
+                >
+                  Cancel
+                </button>
+                <button
+                  v-if="numberOfTickets != 0"
+                  type="button"
+                  class="btn btn-success"
+                  @click="confirmTicketPurchase"
+                >
+                  Confirm Purchase
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
     </div>
 </div>
 
@@ -137,13 +286,39 @@
                 events: [],
                 showDetailsModal: false,
                 selectedEvent: null,
+                showTicketPurchaseModal: false,
                 showDetailsModal: false,
+                numberOfTickets: 0,
+                selectedSeatType: null,
+                isShowModal: false,
+                modalTitle: "",
+                modalBody: "",
+                selectedAvailableSeats: 0,
+                username: "",
             }
         },
         mounted() {
             this.fetchEvents();
         },
         methods: {
+            modalCloseButton() {
+              window.location.reload();
+            },
+            closeTicketModal() {
+                this.numberOfTickets = 0;
+                this.selectedEvent = null;
+                this.selectedAvailableSeats = null;
+                this.selectedSeatType = null;
+                this.showTicketPurchaseModal = false;
+                this.username = "";
+              },
+            ticketsMaxAmount() {
+                if (this.selectedAvailableSeats > 3) {
+                  return 4;
+                } else {
+                  return this.selectedAvailableSeats;
+                }
+              },
             fetchEvents() {
                 fetch("/api/allEvents")
                     .then((response) => response.json())
@@ -213,7 +388,10 @@
             closeModal() {
                 this.showDetailsModal = false;
             },
-
+            openTicketPurchaseModal(event) {
+                this.selectedEvent = event;
+                this.showTicketPurchaseModal = true;
+            },
             isSalePeriodStarted(event) {
                 const now = new Date();
                 const salesStartDate = new Date(event.ticketSaleStartDateTime);
@@ -244,6 +422,82 @@
                 const saleStartDate = new Date(event.ticketSaleStartDateTime);
                 const saleEndDate = new Date(event.ticketSaleEndDateTime);
                 return now >= saleStartDate && now <= saleEndDate;
+            },
+            confirmTicketPurchase() {
+              let temp = {
+                sitId: this.selectedSeatType,
+                quantity: this.numberOfTickets,
+              };
+              fetch(`/api/Officer/purchase?username=${this.username}`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(temp),
+              })
+                .then((response) => {
+                  this.showTicketPurchaseModal = false;
+                  this.selectedEvent = null;
+                  this.selectedSeatType = null;
+                  this.numberOfTickets = 0;
+                  this.username = "";
+                  if (response.ok) {
+                    this.showModal("Success", "You have purchased successfully!");
+                  } else {
+                    this.showModal("Error", "Insufficient Balance");
+                  }
+                })
+                .catch((error) => {
+                  this.showTicketPurchaseModal = false;
+                  this.selectedEvent = null;
+                  this.selectedSeatType = null;
+                  this.numberOfTickets = 0;
+                  this.username = "";
+                  this.showModal(
+                    "Error",
+                    "Your transaction did not go through. Please try again!"
+                  );
+                });
+            },
+            showModal(messageTitle, messageBody) {
+              this.modalTitle = messageTitle;
+              this.modalBody = messageBody;
+              this.isShowModal = true;
+            },
+            hideModal() {
+              this.modalTitle = "";
+              this.modalBody = "";
+              this.isShowModal = false;
+            },
+        },
+        computed: {
+            availableTicketsForSelectedType() {
+                if (!this.selectedEvent || !this.selectedEvent.seats) {
+                  return 0; // Return 0 if no event or seat type is selected
+                }
+                const selectedOption = this.selectedEvent.seats.find(
+                  (option) => option.id === this.selectedSeatType
+                );
+                console.log(selectedOption);
+                if (selectedOption != undefined) {
+                  this.selectedAvailableSeats = selectedOption.numberOfSeats;
+                }
+                return selectedOption ? selectedOption.numberOfSeats : 0;
+            },
+            calculatedTotalPrice() {
+                if (
+                  !this.selectedEvent ||
+                  !this.selectedEvent.seats ||
+                  this.numberOfTickets <= 0
+                ) {
+                  return 0;
+                }
+                const seatOption = this.selectedEvent.seats.find(
+                  (option) => option.id === this.selectedSeatType
+                );
+                return seatOption
+                  ? `${(this.numberOfTickets * seatOption.cost).toFixed(2)}`
+                  : "0 SGD";
             },
         }
     })
