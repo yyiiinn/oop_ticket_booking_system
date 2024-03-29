@@ -53,9 +53,9 @@ public class EventController {
 
   }
 
-  @GetMapping("/api/activeEvents")
-  public ResponseEntity<Object> getActiveEvents() {
-    List<Event> activeEvents = eventRepository.findActiveEvents();
+  @GetMapping("/api/custViewEvents")
+  public ResponseEntity<Object> getCustViewEvents() {
+    List<Event> activeEvents = eventRepository.findAllEventsDesc();
     ArrayList<CustomerEventViewModel> toReturn = new ArrayList<>();
     for (Event event : activeEvents) {
       // Get All Seats
@@ -93,7 +93,7 @@ public class EventController {
   public ResponseEntity<Object> createEvent(@RequestBody EventViewModel eventViewModel) {  
       try {
           Event event = new Event(eventViewModel.getEventName(), eventViewModel.getEventDescription(), eventViewModel.getEventVenue(), 
-          eventViewModel.geEventImageFile(), eventViewModel.getEventStartDate(), eventViewModel.getEventEndDate(), eventViewModel.getEventStartTime(), 
+          eventViewModel.geEventImageFile(), eventViewModel.getEventStartDate(), eventViewModel.getEventStartTime(), 
           eventViewModel.getEventEndTime(), eventViewModel.getSalesStartTime(), eventViewModel.getSalesEndTime(), 
           "Upcoming", eventViewModel.getEventCategory(), eventViewModel.getCancellationFee());
           Event createdEvent = eventRepository.save(event);
@@ -159,7 +159,6 @@ public class EventController {
         existingEvent.setVenue(eventViewModel.getEventVenue());
         existingEvent.setImage(eventViewModel.geEventImageFile());
         existingEvent.setEventStartDate(eventViewModel.getEventStartDate());
-        existingEvent.setEventEndDate(eventViewModel.getEventStartDate());
         existingEvent.setEventStartTime(eventViewModel.getEventStartTime());
         existingEvent.setEventEndTime(eventViewModel.getEventEndTime());
         existingEvent.setTicketSaleStartTime(eventViewModel.getSalesStartTime());
