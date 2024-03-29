@@ -206,33 +206,32 @@ public class MainController {
         return "ticOffVerifyTickets";
     }
 
+    
     @RequestMapping(value = "/officer/PurchaseTickets", method = RequestMethod.GET)
-    public String ticOffPurchaseTickets(Principal principal) {
-        // this attribute will be available in the view index.html as a thymeleaf variable
-        
-        // Authentication authentication = (Authentication) principal;
-        // CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
+    public String ticOffPurchaseTickets(Principal principal, Model model) {
         try {
             Authentication authentication = (Authentication) principal;
             CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
-            Role r = roleRepository.findByName(RoleEnum.OFFICER).get();
-           
-
-            if (user.getUser().getRole().getName() ==r.getName()){
-                User u = userRepository.findById(user.getUser().getId()).get();
-                if (!u.getHasPasswordChange()){
-                    //Go to change password page
-                    return "ticOffChangePassword";
+            Role r = roleRepository.findByName(RoleEnum.OFFICER).orElse(null);
+        
+            if (user != null && r != null && user.getUser().getRole().getName().equals(r.getName())) {
+                User u = userRepository.findById(user.getUser().getId()).orElse(null);
+                if (u != null && !u.getHasPasswordChange()) {
+                    // Redirect to change password page
+                    return "redirect:/officer/changePassword";
                 }
             }
-           
-            // model.addAttribute("eventName", "LOGGED IN");
-        }catch(Exception e){
-
-            // model.addAttribute("eventName", "NOT LOGGED IN");
+        } catch (Exception e) {
+            // Handle exceptions
         }
-        // this just means render index.html from static/ area
+        
+        // Render the purchase tickets page
         return "ticOffPurchaseTickets";
+    }
+
+    @RequestMapping(value = "/officer/changePassword", method = RequestMethod.GET)
+    public String ticOffChangePassword() {
+        return "ticOffChangePassword";
     }
 
     // ==================================================== Event Manager ====================================================

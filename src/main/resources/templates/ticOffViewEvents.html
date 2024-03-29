@@ -74,32 +74,39 @@
         <div class="container pt-5">
             <h2 class="text-center mb-4">All Events</h2>
             
-            <!-- Events Cards -->
-            <div class="row">
-                <div class="col-lg-4 mb-4" v-for="(event, index) in events" :key="index">
-                    <div class="card h-100 event-card">
-                        <img :src="event.imageUrl" class="card-img-top" alt="Event Image" onerror="this.onerror=null; this.src='default-image-path.jpg'">
-
-                        <div class="card-body" @click="showEventDetails(event)">
-                            <h5 class="card-title">{{ event.name }}</h5> 
-                            <category-component :category="event.category"></category-component>
-                            <!-- <p class="card-text description">{{ event.desc }}</p> -->
-                            <div class="card-text">{{ event.venue }}</div> 
-                            <div class="card-datetime text-secondary mb-2"><small>{{ event.date }} | {{ event.startTime }} - {{ event.endTime }}</small></div>
-                        </div>
-                        
-                        <div class="card-footer fixed-footer bg-white">
-                            <!-- need to change to pass the event content over to the purchase ticket page -->
-                            <a th:href="@{/ticOffPurchaseTickets}" v-if="event.status === 'active' && !isEventEnded(event) && isSalePeriodStarted(event) && !isSalePeriodOver(event)" class="btn btn-primary me-2">Buy Ticket(s)</a> 
-                            <span v-if="event.status === 'cancelled'">Event Cancelled</span>
-                            <span v-if="event.status === 'active' && !isEventEnded(event) && isSalePeriodOver(event)">Sales Period Ended</span>
-                            <span v-if="event.status === 'active' && !isEventEnded(event) && !isSalePeriodStarted(event) && !isSalePeriodOver(event)">Upcoming Event</span>
-                        </div>
-                    </div>
+                    <!-- Events Cards -->
+        <div class="row">
+            <div class="col-lg-4 mb-4" v-for="(event, index) in events" :key="index">
+              <div class="card h-100 event-card">
+                <img :src="event.image" class="card-img-top image-class" alt="Event Image"
+                  onerror="this.onerror=null;" />
+  
+                <div class="card-body" @click="showEventDetails(event)">
+                    <h5 class="card-title mb-4">
+                        {{ event.name }}  
+                        <category-component :category="event.category"></category-component>
+                      </h5>
+      
+                      <div class="card-text mb-2"><small><strong>Venue:</strong> {{ event.venue }}</small></div>
+      
+                      <div class="card-datetime"><small><strong>Event Date & Time:</strong> <br> {{ event.eventStartDate }} |
+                          {{ event.eventStartTime }} - {{
+                          event.eventEndTime }}</small>
+                      </div>
                 </div>
                 
+                <div class="card-footer fixed-footer bg-white">
+                    <a th:href="@{/officer/PurchaseTickets}" v-if="event.status === 'Active' && !isEventEnded(event) && isSalePeriodStarted(event) && !isSalePeriodOver(event)" class="btn btn-primary me-2">Buy Ticket(s)</a>
+                    <span v-if="event.status === 'Cancelled'">Event Cancelled</span>
+                    <span v-if="event.status === 'Ended'">Event Ended</span>
+                    <span v-if="event.status === 'Ongoing' && isEventOngoing(event)">Ongoing Event</span>
+                    <span v-if="event.status === 'Upcoming' && !isEventEnded(event)">Upcoming Event</span>
+                </div>
+              </div>
             </div>
+          </div>
         </div>
+      </div>
 
         <div class="modal" tabindex="-1" role="dialog" v-if="showDetailsModal">
             <div class="modal-dialog" role="document">
@@ -117,160 +124,88 @@
 
 
 <script type="module">
-    import NavBarComponent from './js/navbar/TicOffNavBarComponent.js';
-    import CategoryComponent from './js/event/EventCategoryBadgeComponent.js';
-    import DetailsModal from './js/event/EventDetailsModalComponent.js';
-    import SearchFilterComponent from './js/search/SearchFilterComponent.js';
+    import NavBarComponent from '/js/navbar/TicOffNavBarComponent.js';
+    import CategoryComponent from '/js/event/EventCategoryBadgeComponent.js';
+    import DetailsModal from '/js/event/EventDetailsModalComponent.js';
+    import SearchFilterComponent from '/js/search/SearchFilterComponent.js';
 
     const app = Vue.createApp({
         data() {
             return {
                 // For search
-                statuses: ["Available for Purchase", "Upcoming Event"],
-
-                events: [
-                    {
-                        "id": 1,
-                        "name": "Concert A",
-                        "desc": "This is a detailed description of Concert A.",
-                        "category": "Concert",
-                        "date": "2024-07-20",
-                        "startTime": "18:00",
-                        "endTime": "20:00",
-                        "venue": "The Esplanade",
-                        "availableTickets": 100,
-                        "imageUrl": "path/to/concert-a-image.jpg",
-                        "status": "active",
-                        "sales_startdate": "2024-03-01",
-                        "sales_starttime": "10:00",
-                        "sales_enddate": "2024-05-20",
-                        "sales_endtime": "23:59",
-                        "seatingOptions": [
-                            {
-                                "type": "VIP",
-                                "cost": 150,
-                                "numberOfSeats": 50,
-                                "remainingSeats": 50,
-                                "cancellationFee": 10
-                            },
-                            {
-                                "type": "General Admission",
-                                "cost": 100,
-                                "numberOfSeats": 150,
-                                "remainingSeats": 100,
-                                "cancellationFee": 5
-                            }
-                        ]
-                    },
-                    {
-                        "id": 2,
-                        "name": "Concert B",
-                        "desc": "This is a detailed description of Concert B.",
-                        "category": "Theatre Shows",
-                        "date": "2024-08-15",
-                        "startTime": "12:00",
-                        "endTime": "14:30",
-                        "venue": "Marina Bay Sands",
-                        "availableTickets": 50,
-                        "imageUrl": "path/to/concert-b-image.jpg",
-                        "status": "cancelled",
-                        "sales_startdate": "2024-05-01",
-                        "sales_starttime": "08:00",
-                        "sales_enddate": "2024-06-01",
-                        "sales_endtime": "23:59",
-                        "seatingOptions": [
-                            {
-                                "type": "Premium",
-                                "cost": 200,
-                                "numberOfSeats": 25,
-                                "remainingSeats": 20,
-                                "cancellationFee": 20
-                            },
-                            {
-                                "type": "Standard",
-                                "cost": 120,
-                                "numberOfSeats": 100,
-                                "remainingSeats": 30,
-                                "cancellationFee": 10
-                            }
-                        ]
-                    },
-                    {
-                        "id": 3,
-                        "name": "Concert C",
-                        "desc": "This is a detailed description of Concert C.",
-                        "category": "Seminars",
-                        "date": "2024-09-05",
-                        "startTime": "17:00",
-                        "endTime": "20:00",
-                        "venue": "National Stadium",
-                        "availableTickets": 0,
-                        "imageUrl": "path/to/concert-c-image.jpg",
-                        "status": "active",
-                        "sales_startdate": "2024-06-10",
-                        "sales_starttime": "09:00",
-                        "sales_enddate": "2024-07-10",
-                        "sales_endtime": "23:59",
-                        "seatingOptions": [
-                            {
-                                "type": "Premium",
-                                "cost": 200,
-                                "numberOfSeats": 25,
-                                "remainingSeats": 20,
-                                "cancellationFee": 20
-                            },
-                            {
-                                "type": "Standard",
-                                "cost": 120,
-                                "numberOfSeats": 100,
-                                "remainingSeats": 30,
-                                "cancellationFee": 10
-                            }
-                        ]
-                    },
-                    {
-                        "id": 4,
-                        "name": "Concert D",
-                        "desc": "This is a detailed description of Concert D.",
-                        "category": "Seminars",
-                        "date": "2024-09-05",
-                        "startTime": "17:00",
-                        "endTime": "20:00",
-                        "venue": "National Stadium",
-                        "availableTickets": 0,
-                        "imageUrl": "path/to/concert-c-image.jpg",
-                        "status": "active",
-                        "sales_startdate": "2024-01-01",
-                        "sales_starttime": "09:00",
-                        "sales_enddate": "2024-03-05",
-                        "sales_endtime": "23:59",
-                        "seatingOptions": [
-                            {
-                                "type": "Premium",
-                                "cost": 200,
-                                "numberOfSeats": 25,
-                                "remainingSeats": 20,
-                                "cancellationFee": 20
-                            },
-                            {
-                                "type": "Standard",
-                                "cost": 120,
-                                "numberOfSeats": 100,
-                                "remainingSeats": 30,
-                                "cancellationFee": 10
-                            }
-                        ]
-                    }
-                ],
+                statuses: ["Available for Purchase", "Upcoming Event", "Ongoing Event", "Past Event"],
+                events: [],
                 showDetailsModal: false,
                 selectedEvent: null,
+                showDetailsModal: false,
             }
         },
+        mounted() {
+            this.fetchEvents();
+        },
         methods: {
-            searchApi(event, category) {
-              console.log(event, category)  
+            fetchEvents() {
+                fetch("/api/allEvents")
+                    .then((response) => response.json())
+                    .then((data) => {
+                    console.log(data);
+                    this.events = data;
+                    this.events.forEach((event) => {
+                        if (event.image) {
+                        event.image = this.convertDataToURL(event.image);
+                        }
+                    });
+                    })
+                    .catch((error) => {
+                    console.error("Error fetching events:", error);
+                    });
             },
-            
+          searchApi(event, category, status) {
+            const requestBody = {
+                name: event,
+                status: status,
+                category: category
+                };  
+            console.log(requestBody)
+            fetch('/events/search', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestBody)
+                })
+                .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+                })
+                .then((data) => {
+                console.log(data)
+                this.events = data;
+                this.events.forEach((event) => {
+                    if (event.image) {
+                    event.image = this.convertDataToURL(event.image);
+                    }
+                });
+                })
+                .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+                });
+            },
+            convertDataToURL(data) {
+                const base64Response = data.split(";base64,").pop();
+                const byteCharacters = atob(base64Response);
+                const byteNumbers = new Array(byteCharacters.length);
+                for (let i = 0; i < byteCharacters.length; i++) {
+                    byteNumbers[i] = byteCharacters.charCodeAt(i);
+                }
+                const byteArray = new Uint8Array(byteNumbers);
+                const blob = new Blob([byteArray], { type: "image/jpeg" });
+                const url = URL.createObjectURL(blob);
+
+                return url;
+            },
             showEventDetails(event) {
                 this.selectedEvent = event;
                 this.showDetailsModal = true;
@@ -281,24 +216,35 @@
 
             isSalePeriodStarted(event) {
                 const now = new Date();
-                const salesStartDateString = `${event.sales_startdate} ${event.sales_starttime}`;
-                const salesStartDate = new Date(salesStartDateString);
-
+                const salesStartDate = new Date(event.ticketSaleStartDateTime);
                 return now >= salesStartDate;
             },
-
             isSalePeriodOver(event) {
                 // Determine if the sale period is over
                 const now = new Date();
-                const saleEndDate = new Date(event.sales_enddate);
-                return now > saleEndDate;
+                const salesEndDate = new Date(event.ticketSaleEndDateTime);
+                return now > salesEndDate;
             },
             isEventEnded(event) {
                 // Determine if the event has ended
                 const now = new Date();
-                const eventDate = new Date(event.date);
+                const eventDate = new Date(event.eventEndDate);
                 return now > eventDate;
-            }
+            },
+            isEventOngoing(event) {
+                const now = new Date();
+                const eventStartDateTimeStr = `${event.eventStartDate}T${event.eventStartTime}`;
+                const eventStartDateTime = new Date(eventStartDateTimeStr);
+                const eventEndDateTimeStr = `${event.eventStartDate}T${event.eventEndTime}`;
+                const eventEndDateTime = new Date(eventEndDateTimeStr);
+                return now >= eventStartDateTime && now <= eventEndDateTime;
+            },
+            isSaleOngoing(event) {
+                const now = new Date();
+                const saleStartDate = new Date(event.ticketSaleStartDateTime);
+                const saleEndDate = new Date(event.ticketSaleEndDateTime);
+                return now >= saleStartDate && now <= saleEndDate;
+            },
         }
     })
     
