@@ -54,7 +54,7 @@ public class EventController {
   }
 
   @GetMapping("/api/custViewEvents")
-  public ResponseEntity<Object> getCustViewEvents() {
+  public ResponseEntity<Object> getCustViewEvents(Principal principal) {
     List<Event> activeEvents = eventRepository.findAllEventsDesc();
     ArrayList<CustomerEventViewModel> toReturn = new ArrayList<>();
     for (Event event : activeEvents) {

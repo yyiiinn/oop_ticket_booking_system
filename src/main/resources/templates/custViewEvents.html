@@ -286,14 +286,18 @@
                 >
                   Cancel
                 </button>
-                <button
-                  v-if="numberOfTickets != 0"
+                <span v-if="numberOfTickets != 0">
+                  <button
+                  v-if="checkBalance()"
                   type="button"
                   class="btn btn-success"
                   @click="confirmTicketPurchase"
                 >
                   Confirm Purchase
                 </button>
+                <div class="text-danger" v-else>Insufficient Balance!</div>
+                </span>
+
               </div>
             </div>
           </div>
@@ -322,6 +326,7 @@
               "Ongoing Event",
               "Past Event",
             ],
+            balance: 0,
             events: [],
             showDetailsModal: false,
             selectedEvent: null,
@@ -344,6 +349,12 @@
           this.fetchEvents();
         },
         methods: {
+          checkBalance(){
+            if (this.balance < this.calculatedTotalPrice){
+              return false;
+            }
+            return true;
+          },
           modalCloseButton() {
             window.location.reload();
           },
@@ -376,6 +387,14 @@
               })
               .catch((error) => {
                 console.error("Error fetching events:", error);
+              });
+              fetch("/api/customer/balance")
+              .then((response) => response.json())
+              .then((data) => {
+                this.balance = data;
+              })
+              .catch((error) => {
+                console.error("Error fetching balance:", error);
               });
           },
           convertDataToURL(data) {
@@ -479,7 +498,7 @@
                 if (response.ok) {
                   this.showModal("Success", "You have purchased successfully!");
                 } else {
-                  this.showModal("Error", "Insufficient Balance");
+                  this.showModal("Error", "Your transaction did not go through. Please try again!");
                 }
               })
               .catch((error) => {
