@@ -1,149 +1,143 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<head>
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ticketing Officer | Verify Tickets</title>
 
-  <title>Ticketing Officer | Verify Tickets</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}" />
 
-  <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}" />
+    <!-- Include Bootstrap -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+    <!-- Optional theme -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
+      integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+      crossorigin="anonymous"
+    ></script>
 
-  <!-- Include Bootstrap -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-    integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
-  <!-- Optional theme -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
-    integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
-    crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-    crossorigin="anonymous"></script>
+    <style>
+      .submitbtn {
+        padding: 10px 18px;
+        border-radius: 10px;
+        transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+      }
 
-  <style>
-    .submitbtn {
-      padding: 10px 18px;
-      border-radius: 10px;
-      transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
-    }
+      .submitbtn,
+      .submitbtn:hover,
+      .submitbtn:active {
+        background-color: #151c55;
+        border: #151c55;
+      }
 
-    .submitbtn,
-    .submitbtn:hover,
-    .submitbtn:active {
-      background-color: #151c55;
-      border: #151c55;
-    }
+      .sign-out-button {
+        color: #141b4d; /* Text color */
+        border: 3px solid #141b4d; /* Add border here */
+        padding: 5px 20px;
+        margin-left: 20px; /* Spacing from the navbar links */
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s, border-color 0.3s;
+      }
 
-    .sign-out-button {
-      color: #141b4d;
-      /* Text color */
-      border: 3px solid #141b4d;
-      /* Add border here */
-      padding: 5px 20px;
-      margin-left: 20px;
-      /* Spacing from the navbar links */
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.3s, border-color 0.3s;
-    }
+      .sign-out-button:hover {
+        color: #141b4d;
+        border: 3px solid #141b4d;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div class="full-screen-container">
+        <navbar-component active-link="verifyTickets"></navbar-component>
 
-    .sign-out-button:hover {
-      color: #141b4d;
-      border: 3px solid #141b4d;
-    }
-  </style>
-</head>
-
-<body>
-  <div id="app">
-    <div class="full-screen-container">
-      <navbar-component active-link="verifyTickets"></navbar-component>
-
-      <div id="ticOffVerifyTickets">
-        <div class="container pt-5">
-          <h2 class="text-center mb-4">Verify Ticket</h2>
-          <div class="onboard col-12 col-md-6 col-lg-4 mx-auto">
-            
-            <form @submit.prevent="redeem" class="mt-5">
-              <div class="form-group mb-4">
-                <label>Ticket GUID</label>
-                <input type="text" v-model="reference_no" class="form-control border-0 shadow-sm px-4 field mb-3"
-                  id="reference_no" name="reference_no" placeholder="Enter Ticket GUID" required />
-              </div>
-              <div class="form-group">
-                <button @click="redeem" type="button" class="btn btn-primary btn-block shadow-sm w-100 submitbtn">
-                  Redeem Ticket
-                </button>
-              </div>
-              <div v-if="message" :class="messageClass" class="alert mt-3" v-cloak>{{ message }}</div>
-            </form>
+        <div id="ticOffVerifyTickets">
+          <div class="container pt-5">
+            <h2 class="text-center mb-4">Verify Ticket</h2>
+            <div class="onboard col-12 col-md-6 col-lg-4 mx-auto">
+              <h2 class="text-center mb-3">Change Password</h2>
+              <form @submit.prevent="redeem" class="mt-5">
+                <div class="form-group mb-4">
+                  <label>Ticket GUID</label>
+                  <input
+                    type="text"
+                    v-model="reference_no"
+                    class="form-control border-0 shadow-sm px-4 field mb-3"
+                    id="reference_no"
+                    name="reference_no"
+                    placeholder="Enter Ticket GUID"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <button
+                    @click="redeem"
+                    type="button"
+                    class="btn btn-primary btn-block shadow-sm w-100 submitbtn"
+                  >
+                    Redeem Ticket
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- include axios.js -->
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-  <!-- include Vue.js -->
-  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-  <script type="module">
-    import NavBarComponent from "/js/navbar/TicOffNavBarComponent.js";
+    <!-- include axios.js -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <!-- include Vue.js -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script type="module">
+      import NavBarComponent from "/js/navbar/TicOffNavBarComponent.js";
 
-    const app = Vue.createApp({
-      data() {
-        return {
-          reference_no: "",
-          message: "",
-          messageType: "",
-        };
-      },
-      computed: {
-        // Dynamically compute the class based on messageType
-        messageClass() {
+      const app = Vue.createApp({
+        data() {
           return {
-            'alert-success': this.messageType === 'success',
-            'alert-danger': this.messageType === 'error',
-            // Add more classes for different message types if needed
+            reference_no: "",
           };
-        }
-      },
-      methods: {
-        redeem() {
-          let temp = {
-            guid: this.reference_no,
-          };
-          fetch("/api/officer/redeemCode", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(temp),
-          })
-            .then((response) => {
-              if (response.ok) {
-                console.log("OK");
-                this.messageType = "success";
-                this.message = "Ticket redeemed successfully!";
-              } else {
-                console.log("Not found!");
-                this.messageType="error"
-                this.message = "Please enter the correct GUID!";
-              }
-            })
-            .catch((error) => {
-              // Failed to update show error
-              console.log("Not found!");
-              this.messageType="error"
-              this.message = "Please enter the correct GUID!";
-            });
         },
-      },
-    });
-    app.component("navbar-component", NavBarComponent);
-    app.mount("#app");
-  </script>
-</body>
-
+        methods: {
+          redeem() {
+            let temp = {
+              guid: this.reference_no,
+            };
+            fetch("/api/officer/redeemCode", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(temp),
+            })
+              .then((response) => {
+                if (response.ok) {
+                  console.log("OK");
+                } else {
+                  console.log("Not found!");
+                }
+              })
+              .catch((error) => {
+                // Failed to update show error
+                console.log("Not found!");
+              });
+          },
+        },
+      });
+      app.component("navbar-component", NavBarComponent);
+      app.mount("#app");
+    </script>
+  </body>
 </html>
