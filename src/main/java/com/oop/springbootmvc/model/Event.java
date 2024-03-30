@@ -28,8 +28,6 @@ public class Event {
     @Column(nullable = false)
     private Date eventStartDate;
     @Column(nullable = false)
-    private Date eventEndDate;
-    @Column(nullable = false)
     private Time eventStartTime;
     @Column(nullable = false)
     private Time eventEndTime;
@@ -54,13 +52,12 @@ public class Event {
         this.seats = seats;
     }
 
-    public Event(String name, String description, String venue, byte[] image, Date eventStartDate, Date eventEndDate, Time eventStartTime, Time eventEndTime, Timestamp timestamp, Timestamp timestamp2, String status, String category, Float cancellationFee) {
+    public Event(String name, String description, String venue, byte[] image, Date eventStartDate, Time eventStartTime, Time eventEndTime, Timestamp timestamp, Timestamp timestamp2, String status, String category, Float cancellationFee) {
         this.name = name;
         this.description = description;
         this.venue = venue;
         this.image = image;
         this.eventStartDate = eventStartDate;
-        this.eventEndDate = eventEndDate;
         this.eventStartTime = eventStartTime;
         this.eventEndTime = eventEndTime;
         this.ticketSaleStartDateTime = timestamp;
@@ -96,10 +93,6 @@ public class Event {
 
     public Date getEventStartDate() {
         return this.eventStartDate;
-    }
-
-    public Date getEventEndDate() {
-        return this.eventEndDate;
     }
 
     public Time getEventStartTime() {
@@ -144,10 +137,6 @@ public class Event {
 
     public void setEventStartDate(Date eventStartDate) {
         this.eventStartDate = eventStartDate;
-    }
-
-    public void setEventEndDate(Date eventEndDate) {
-        this.eventEndDate = eventEndDate;
     }
 
     public void setEventStartTime(Time eventStartTime) {
@@ -205,7 +194,6 @@ public class Event {
                 ", venue='" + venue + '\'' +
                 ", image='" + image + '\'' +
                 ", eventStartDate=" + eventStartDate +
-                ", eventEndDate=" + eventEndDate +
                 ", eventStartTime=" + eventStartTime +
                 ", eventEndTime=" + eventEndTime +
                 ", ticketSaleStartDateTime=" + ticketSaleStartDateTime +

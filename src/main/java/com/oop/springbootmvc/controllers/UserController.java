@@ -73,6 +73,23 @@ public class UserController {
     }
   }
 
+  @GetMapping("/api/customer/balance")
+  public ResponseEntity<Object> getCustBalance(Principal principal) {
+    try{
+      Authentication authentication = (Authentication) principal;
+      CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
+      User tempUser = user.getUser();
+      User u = userRepository.findById(tempUser.getId()).get();
+      float userBalance = u.getBalance();
+
+      return ResponseEntity.ok().body(userBalance);
+  }catch(Exception e){
+      System.out.println(e);
+      return ResponseEntity.status(403).body("");
+
+  }
+}
+
   @GetMapping("/api/manager/getAllOfficer")
   public ResponseEntity<Object> getAllEvents() {
     Role r = roleRepository.findByName(RoleEnum.OFFICER).get();

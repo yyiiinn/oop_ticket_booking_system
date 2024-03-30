@@ -15,7 +15,6 @@ public class CustomerEventViewModel {
     private String venue;
     private byte[] image;
     private Date eventStartDate;
-    private Date eventEndDate;
     private Time eventStartTime;
     private Time eventEndTime;
     private Timestamp ticketSaleStartDateTime;
@@ -32,7 +31,6 @@ public class CustomerEventViewModel {
         this.venue = e.getVenue();
         this.image = e.getImage();
         this.eventStartDate = e.getEventStartDate();
-        this.eventEndDate = e.getEventEndDate();
         this.eventStartTime = e.getEventStartTime();
         this.eventEndTime = e.getEventEndTime();
         this.ticketSaleStartDateTime = e.getTicketSaleStartDateTime();
@@ -92,14 +90,6 @@ public class CustomerEventViewModel {
 
     public void setEventStartDate(Date eventStartDate) {
         this.eventStartDate = eventStartDate;
-    }
-
-    public Date getEventEndDate() {
-        return eventEndDate;
-    }
-
-    public void setEventEndDate(Date eventEndDate) {
-        this.eventEndDate = eventEndDate;
     }
 
     public Time getEventStartTime() {
