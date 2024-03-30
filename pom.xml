@@ -41,6 +41,11 @@
             <version>3.2.2</version> 
             <optional>true</optional> 
         </dependency>
+        <dependency>
+            <groupId>com.stripe</groupId>
+            <artifactId>stripe-java</artifactId>
+            <version>24.22.0</version>
+        </dependency>
     </dependencies>
 
     <build>
