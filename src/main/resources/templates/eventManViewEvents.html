@@ -127,6 +127,7 @@
                 <span v-if="event.status === 'Ended' && isEventEnded(event)">Event Ended</span>
                 <span v-if="isEventOngoing(event)">Event is Ongoing</span>
                 <span v-if="event.status === 'Active' && isSalePeriodOver(event)">Sales Period Over</span>
+                <span style="font-weight: bold" v-if="event.status === 'Active' && isSalePeriodStarted(event) && !isSalePeriodOver(event)">Within Sales Period</span>
               </div>
             </div>
           </div>
