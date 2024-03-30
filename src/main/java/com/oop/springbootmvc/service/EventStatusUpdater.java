@@ -25,14 +25,14 @@ public class EventStatusUpdater {
         LocalDateTime currentDateTime = LocalDateTime.now();
 
         // find events that are within sales period and update status to Active
-        List<Event> eventsToUpdate = eventRepository.findBySalesStartDateTimeBeforeAndStatusNot(currentDateTime, "Upcoming");
+        List<Event> eventsToUpdate = eventRepository.findBySalesStartDateTimeBeforeAndStatusNot(currentDateTime);
         for (Event event : eventsToUpdate) {
             event.setStatus("Active");
             eventRepository.save(event);
         }
 
         // find events where sales period are over and update to Upcoming
-        List<Event> eventsToUpdateToUpcoming = eventRepository.findAfterSalesPeriodEvent(currentDateTime, "Active");
+        List<Event> eventsToUpdateToUpcoming = eventRepository.findAfterSalesPeriodEvent(currentDateTime);
         for (Event event : eventsToUpdateToUpcoming) {
             event.setStatus("Upcoming");
             eventRepository.save(event);
