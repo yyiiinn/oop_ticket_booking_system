@@ -126,7 +126,8 @@
                     <span v-if="event.status === 'Cancelled'">Event Cancelled</span>
                     <span v-if="event.status === 'Ended'">Event Ended</span>
                     <span v-if="event.status === 'Ongoing' && isEventOngoing(event)">Ongoing Event</span>
-                    <span v-if="event.status === 'Upcoming' && !isEventEnded(event)">Upcoming Event</span>
+                    <span style="font-weight: bold" v-if="event.status === 'Upcoming' && !isSalePeriodStarted(event) && !isSalePeriodOver(event)">Waiting for Sales Period</span>
+                    <span style="font-weight: bold" v-if="event.status === 'Upcoming' && isSalePeriodOver(event) && isEventEnded(event)">Waiting for Event to Start</span>
                 </div>
               </div>
             </div>
