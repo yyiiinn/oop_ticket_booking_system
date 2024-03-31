@@ -22,7 +22,7 @@
     crossorigin="anonymous"></script>
 
   <style>
-    .fixed-footer {
+    .event-fixed-footer  {
       height: 30%;
     }
 
@@ -94,7 +94,7 @@
             <div class="card h-100 event-card">
               <img :src="event.image" class="card-img-top image-class" alt="Event Image" onerror="this.onerror=null;" />
 
-              <div class="card-body" @click="showEventDetails(event)">
+              <div class="card-body event-card-body" @click="showEventDetails(event)">
                 <h5 class="card-title mb-4">
                   {{ event.name }}
                   <category-component :category="event.category"></category-component>
@@ -107,26 +107,31 @@
                 </div>
               </div>
 
-              <div class="card-footer fixed-footer bg-white">
+              <div class="card-footer event-fixed-footer bg-white">
                 <div class="button-group event-action-buttons" v-if="event.status === 'Upcoming'">
-                  <span v-if="!isSalePeriodOver(event) && !isSaleOngoing(event) && !isSalePeriodOver(event)" class="mb-2">Waiting for Sales Period</span>
-                  <span v-else class="mb-2">Waiting for Event to Start</span>
+                  <span style="font-weight: bold" v-if="!isSalePeriodOver(event)" class="mb-2">Waiting for Sales Period</span>
+                  <span style="font-weight: bold" v-else class="mb-2">Waiting for Event to Start</span>
                   <div class="">
-                    <a :href="'/manager/EditEvent/' + event.id" class="btn btn-primary me-2">Edit Event</a>
-                    <button class="btn btn-outline-primary" @click="showCancellationFeeModal(event)">Update Cancellation Fee</button>
+                    <a :href="'/manager/EditEvent/' + event.id" v-if="!isSalePeriodOver(event)" class="btn btn-primary me-2">Edit Event</a>
+                    <button class="btn btn-outline-primary fee-btn" v-if="!isSalePeriodOver(event)" @click="showCancellationFeeModal(event)">Update Cancellation Fee</button>
+                    <button v-if="isMoreThanTwoDaysAway(event)" type="button" class="btn btn-outline-danger cancel-btn" @click="toggleModal(event)">Cancel Event</button>
                   </div>
                 </div>
                 
-
-                <button
-                  v-if="event.status === 'Active' && (isSaleOngoing(event) || (!isEventOngoing(event) && !isEventEnded(event) && !isSalePeriodOver(event)))"
-                  type="button" class="btn btn-outline-danger" @click="toggleModal(event)">
-                  Cancel Event
-                </button>
-                <span v-if="event.status === 'Cancelled'">Event Cancelled</span>
-                <span v-if="event.status === 'Ended' && isEventEnded(event)">Event Ended</span>
-                <span v-if="isEventOngoing(event)">Event is Ongoing</span>
-                <span v-if="event.status === 'Active' && isSalePeriodOver(event)">Sales Period Over</span>
+                <div class="button-group event-action-buttons" v-if="event.status === 'Active'">
+                  <span style="font-weight: bold" v-if="isSaleOngoing(event)" class="mb-2">Ongoing Sales</span>
+                  <div class="">
+                    <button
+                      v-if="isMoreThanTwoDaysAway(event)"
+                      type="button" class="btn btn-outline-danger" @click="toggleModal(event)">
+                      Cancel Event
+                    </button>
+                  </div>
+                </div>
+                
+                <span style="font-weight: bold" v-if="event.status === 'Cancelled'">Event Cancelled</span>
+                <span style="font-weight: bold" v-if="event.status === 'Ended' && isEventEnded(event)">Event Ended</span>
+                <span style="font-weight: bold" v-if="isEventOngoing(event)">Event is Ongoing</span>
               </div>
             </div>
           </div>
@@ -397,6 +402,13 @@
           const eventEndDateTime = new Date(eventEndDateTimeStr);
 
           return now >= eventStartDateTime && now <= eventEndDateTime;
+        },
+        isMoreThanTwoDaysAway(event) {
+          const now = new Date();
+          const eventStartDateTimeStr = `${event.eventStartDate}T${event.eventStartTime}`;
+          const eventStartDateTime = new Date(eventStartDateTimeStr);
+          const twoDaysInMilliseconds = 2 * 24 * 60 * 60 * 1000; // 2 days in milliseconds
+          return eventStartDateTime - now >= twoDaysInMilliseconds;
         },
       },
     });
