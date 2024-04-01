@@ -27,6 +27,7 @@ import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,7 +55,7 @@ public class EventController {
   }
 
   @GetMapping("/api/custViewEvents")
-  public ResponseEntity<Object> getCustViewEvents() {
+  public ResponseEntity<Object> getCustViewEvents(Principal principal) {
     List<Event> activeEvents = eventRepository.findAllEventsDesc();
     ArrayList<CustomerEventViewModel> toReturn = new ArrayList<>();
     for (Event event : activeEvents) {
@@ -92,10 +93,17 @@ public class EventController {
   @PostMapping("/api/manager/createEvent")
   public ResponseEntity<Object> createEvent(@RequestBody EventViewModel eventViewModel) {  
       try {
+          String status = "Upcoming";
+          LocalDateTime currentDateTime = LocalDateTime.now();
+          LocalDateTime startDateTime = LocalDateTime.ofInstant(eventViewModel.getSalesStartTime().toInstant(), ZoneId.systemDefault());
+          LocalDateTime endDateTime = LocalDateTime.ofInstant(eventViewModel.getSalesEndTime().toInstant(), ZoneId.systemDefault());
+          if (!currentDateTime.isBefore(startDateTime) && !currentDateTime.isAfter(endDateTime)) {
+            status = "Active";
+          } 
           Event event = new Event(eventViewModel.getEventName(), eventViewModel.getEventDescription(), eventViewModel.getEventVenue(), 
           eventViewModel.geEventImageFile(), eventViewModel.getEventStartDate(), eventViewModel.getEventStartTime(), 
           eventViewModel.getEventEndTime(), eventViewModel.getSalesStartTime(), eventViewModel.getSalesEndTime(), 
-          "Upcoming", eventViewModel.getEventCategory(), eventViewModel.getCancellationFee());
+          status, eventViewModel.getEventCategory(), eventViewModel.getCancellationFee());
           Event createdEvent = eventRepository.save(event);
           List<SeatViewModel> sitViewModels = eventViewModel.getSeatingOptions();
           boolean seatsAdded = false;

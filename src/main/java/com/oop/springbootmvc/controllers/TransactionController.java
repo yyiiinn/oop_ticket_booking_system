@@ -34,6 +34,8 @@ import com.oop.springbootmvc.viewmodel.CustomerTicketViewModel;
 import com.oop.springbootmvc.viewmodel.CustomerTransactionViewModel;
 import com.oop.springbootmvc.viewmodel.PurchaseViewModel;
 
+import com.oop.springbootmvc.service.EmailService;
+
 @RestController
 public class TransactionController {
     private final TicketRepository ticketRepository;
@@ -41,14 +43,16 @@ public class TransactionController {
     private final TransactionRepository transactionRepository;
     private final SeatRepository seatRepository;
     private final UserRepository userRepository;
+    private final EmailService emailService;
 
 
-    public TransactionController(TicketRepository ticketRepository, EventRepository eventRepository, TransactionRepository transactionRepository, SeatRepository seatRepository, UserRepository userRepository) {
+    public TransactionController(TicketRepository ticketRepository, EventRepository eventRepository, TransactionRepository transactionRepository, SeatRepository seatRepository, UserRepository userRepository, EmailService emailService) {
         this.ticketRepository = ticketRepository;
         this.eventRepository = eventRepository;
         this.transactionRepository = transactionRepository;
         this.seatRepository = seatRepository;
         this.userRepository = userRepository;
+        this.emailService = emailService;
 
     }
     @GetMapping("/api/Customer/transactions")
@@ -104,7 +108,8 @@ public class TransactionController {
             User u = userRepository.findById(tempUser.getId()).get();
             Transaction t = new Transaction();
             t.setStatus("Booked");
-            t.setPurchasedDateTime(Timestamp.from(Instant.now()));
+            Timestamp purchasedDateTime = Timestamp.from(Instant.now());
+            t.setPurchasedDateTime(purchasedDateTime);
 
             Optional<Seat> s = seatRepository.findById(purchaseViewModel.getSitId());
             if(s.isPresent()){
@@ -149,7 +154,17 @@ public class TransactionController {
                 ticketRepository.saveAll(tickets);
                 u.setBalance(u.getBalance() - t.getCost());
                 userRepository.save(u);
-                
+                purchasedDateTime.setNanos(0);
+                String toSend = "Hi " + u.getName() + ". \n\nThank you for the purchase! These are your purchase details made on " + purchasedDateTime + ". \n\n";
+                int count = 1;
+                for (Ticket tic : tickets){
+                    toSend += "Ticket " + count + ": \n";
+                    toSend += "Seat Type: " + seat.getType() + "\n";
+                    toSend += "Guid: " + tic.getGuid() + "\n\n";
+                    count++;
+                }
+                toSend += "Regards, \nTicketing Team";
+                this.emailService.sendMessage(u.getUsername(),"Ticket Purchase Details",toSend);
     
 
                 return ResponseEntity.ok().body("");
