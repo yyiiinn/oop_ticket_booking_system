@@ -40,7 +40,7 @@ public interface EventRepository extends CrudRepository<Event, Long> {
     );
 
     // event ongoing
-    @Query("SELECT e FROM Event e WHERE e.eventStartDate >= :currentDate AND e.eventStartTime <= :currentTime AND e.eventEndTime >= :currentTime")
+    @Query("SELECT e FROM Event e WHERE e.eventStartDate == :currentDate AND e.eventStartTime <= :currentTime AND e.eventEndTime >= :currentTime")
     List<Event> findDuringEventPeriod(
         @Param("currentDate") LocalDate currentDate, 
         @Param("currentTime") LocalTime currentTime
