@@ -36,17 +36,9 @@ public class User {
     @Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
     @OneToMany(fetch = FetchType.EAGER, mappedBy="user")
     private Set<Transaction> transactions;
-
-    @Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-    @OneToMany(fetch = FetchType.EAGER, mappedBy="user")
-    private Set<Payment> payments;
     
     public Set<Transaction> getTransactions() {
         return this.transactions;
-    }
-
-    public Set<Payment> getPayments() {
-        return this.payments;
     }
 
 

@@ -8,15 +8,6 @@
     <title>Customer | View Profile</title>
 
     <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}" />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css"
-    />
-    <script
-      type="text/javascript"
-      src="https://cdn.jsdelivr.net/npm/toastify-js"
-    ></script>
 
     <!-- Include Bootstrap -->
     <link
@@ -37,33 +28,8 @@
       integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
       crossorigin="anonymous"
     ></script>
-    <script src="https://js.stripe.com/v3/"></script>
 
     <style>
-      /* Modal */
-      .modal {
-        display: flex;
-        position: fixed;
-        z-index: 1000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-
-        justify-content: center;
-        align-items: center;
-      }
-
-      .modal-dialog {
-        width: 100%;
-        max-width: 700px;
-      }
-
-      .modal-content {
-        padding: 20px;
-      }
-
       .sign-out-button {
         color: #141b4d; /* Text color */
         border: 3px solid #141b4d; /* Add border here */
@@ -111,16 +77,6 @@
                 SGD
               </div>
             </div>
-            <div class="row mb-2">
-              <div class="col-12 col-sm-9">
-                <button
-                  @click="openTopUpModal()"
-                  class="btn btn-primary btn-block shadow-sm w-50 submitbtn"
-                >
-                  Top Up
-                </button>
-              </div>
-            </div>
 
             <div class="pt-5 pb-3 row justify-content-center">
               <div class="col-auto">
@@ -154,110 +110,13 @@
                     <td>{{ formatDate(transaction.purchasedDateTime) }}</td>
                     <td>
                       {{ transaction.total }} SGD
-                      <br v-if="transaction.status === 'Cancelled'" /><span
-                        v-if="transaction.status === 'Cancelled'"
-                        >Cancellation Cost:
-                        <span class="text-danger"
-                          >{{
-                          (transaction.cancellationFee*transaction.numberOfTickets)
-                          }}</span
-                        ></span
-                      >
-                    </td>
-                    <td
-                      :class="{ 'border border-primary bg-primary text-light': transaction.status === 'Booked', 'border border-warning bg-warning text-dark': transaction.status === 'Cancelled' }"
-                    >
-                      {{ transaction.status }}
-                    </td>
+                      <br v-if="transaction.status === 'Cancelled'"><span v-if="transaction.status === 'Cancelled'">Cancellation Cost: <span class="text-danger">{{ (transaction.cancellationFee*transaction.numberOfTickets) }}</span></span>
+                      </td>
+                      <td :class="{ 'border border-primary bg-primary text-light': transaction.status === 'Booked', 'border border-warning bg-warning text-dark': transaction.status === 'Cancelled' }">
+                        {{ transaction.status }}</td>
                   </tr>
                 </tbody>
               </table>
-            </div>
-          </div>
-        </div>
-        <div
-          class="modal"
-          tabindex="-1"
-          role="dialog"
-          v-if="showTopUpModal"
-          v-cloak
-        >
-          <div class="modal-dialog" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title">Top Up</h5>
-                <button
-                  type="button"
-                  class="btn-close"
-                  @click="closeTopUpModal()"
-                ></button>
-              </div>
-              <div class="modal-body">
-                <div class="d-flex justify-content-center">
-                  <div
-                    v-if="isLoadingPayments"
-                    class="spinner-border text-primary"
-                    role="status"
-                  >
-                    <span class="visually-hidden">Loading...</span>
-                  </div>
-                </div>
-                <form id="payment-form" @submit.prevent="handleSubmit">
-                  <div id="link-authentication-element"></div>
-                  <div id="payment-element"></div>
-                  <br />
-                  <span v-if="errorMessage" class="text-danger"
-                    >{{errorMessage}}</span
-                  >
-                  <br />
-                  <button
-                    v-if="clientSecret && !isLoadingPayments"
-                    id="submit"
-                    type="submit"
-                    class="btn btn-primary w-100"
-                  >
-                    Top Up
-                  </button>
-                </form>
-                <div
-                  v-if="!clientSecret && !isLoadingPayments"
-                  class="form-group mb-2"
-                >
-                  <label>Top Up Value</label>
-                  <input
-                    v-model="topUpValue"
-                    type="number"
-                    min="20"
-                    placeholder="Top Up Value"
-                    class="form-control border-0 shadow-sm px-4 field"
-                  />
-                  <span v-if="topUpValue < 20" class="text-danger"
-                    >Minimum Top Up Value is $20</span
-                  >
-                </div>
-              </div>
-              <div
-                v-if="!clientSecret && !isLoadingPayments"
-                class="modal-footer"
-              >
-                <button
-                  type="button"
-                  class="btn btn-secondary"
-                  @click="closeTopUpModal()"
-                >
-                  Cancel
-                </button>
-                <span v-if="topUpValue >= 20">
-                  <button
-                    v-if="topUpValue >= 20"
-                    type="button"
-                    class="btn btn-primary"
-                    @click="confirmTopUp"
-                  >
-                    Top Up
-                  </button>
-                </span>
-              </div>
             </div>
           </div>
         </div>
@@ -271,143 +130,19 @@
 
     <script type="module">
       import NavBarComponent from "/js/navbar/CustomerNavBarComponent.js";
-      let elements;
-      const stripe = Stripe(
-        "pk_test_51OyoY0Il7ocdHMiCSt7SZjASaFuqKDE2xVvnra4nZAfC3tuwOGiy2GEhAPLFqCBH5vU6UfJpSuKj85hCRcmsX5vl00w6CmTWZC"
-      );
+
       const app = Vue.createApp({
         data() {
           return {
-            showTopUpModal: false,
             user: {
               transactions: [],
             },
-            topUpValue: 20,
-            clientSecret: "",
-            isLoadingPayments: false,
-            errorMessage: "",
           };
         },
         mounted() {
           this.fetchBookings();
         },
         methods: {
-          handleSubmit() {
-            this.errorMessage = "";
-            if (this.isLoadingPayments) {
-              return;
-            }
-
-            this.isLoadingPayments = true;
-
-            stripe
-              .confirmPayment({
-                elements,
-                confirmParams: {
-                  return_url: `${window.location.origin}/Customer/ViewProfile`,
-                },
-                redirect: "if_required",
-              })
-              .then((res) => {
-                console.log(res);
-                this.isLoadingPayments = false;
-                if (res.hasOwnProperty("error")) {
-                  const error = res.error;
-                  if (
-                    error.type === "card_error" ||
-                    error.type === "validation_error"
-                  ) {
-                    this.errorMessage = error.message;
-                  } else {
-                    this.errorMessage = "An unexpected error occured.";
-                  }
-                } else {
-                  this.isLoadingPayments = true;
-                  console.log;
-                  fetch("/api/Customer/confirmTopUp", {
-                    method: "POST",
-                    headers: {
-                      "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                      paymentIntent: res.paymentIntent.id,
-                    }),
-                  })
-                    .then((response) => {
-                      Toastify({
-                        text: "Top Up Successfully ",
-                        duration: 1000,
-                      }).showToast();
-                      this.isLoadingPayments = false;
-                      this.closeTopUpModal();
-                      window.location.reload();
-                    })
-
-                    .catch((error) => {
-                      Toastify({
-                        text: "Failed to Top Up",
-                        duration: 1000,
-                      }).showToast();
-                      this.isLoadingPayments = false;
-                      this.closeTopUpModal();
-                    });
-                }
-              })
-              .catch((error) => {
-                console.log(error);
-                this.isLoadingPayments = false;
-                if (
-                  error.type === "card_error" ||
-                  error.type === "validation_error"
-                ) {
-                  this.errorMessage = error.message;
-                } else {
-                  this.errorMessage = "An unexpected error occured.";
-                }
-                this.isLoadingPayments = false;
-              });
-          },
-          confirmTopUp() {
-            let temp = {
-              topUpValue: this.topUpValue,
-            };
-            this.isLoadingPayments = true;
-            fetch("/api/Customer/topup", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(temp),
-            })
-              .then((response) => response.json())
-              .then((res) => {
-                this.clientSecret = res.clientSecret;
-
-                elements = stripe.elements({
-                  clientSecret: this.clientSecret,
-                });
-                const paymentElement = elements.create("payment");
-                paymentElement.mount("#payment-element");
-                const linkAuthenticationElement =
-                  elements.create("linkAuthentication");
-                linkAuthenticationElement.mount("#link-authentication-element");
-                this.isLoadingPayments = false;
-              })
-
-              .catch((error) => {
-                // Failed to update show error
-                console.log(error);
-              });
-          },
-          openTopUpModal() {
-            this.showTopUpModal = true;
-            this.topUpValue = 20;
-          },
-          closeTopUpModal() {
-            this.clientSecret = "";
-            this.errorMessage = "";
-            this.showTopUpModal = false;
-          },
           fetchBookings() {
             fetch("/api/Customer/transactions")
               .then((response) => response.json())
