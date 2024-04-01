@@ -40,7 +40,7 @@
     <div class="full-screen-container">
         <div class="register-container col-12 col-md-6 col-lg-4 mx-auto">
             <h2 class="text-center mb-3">Register</h2>
-            <ul v-if="errorMessages.length" class="alert alert-danger" v-cloak style="word-wrap: break-word; padding-left: 30px;">
+            <ul v-if="errorMessages.length" class="text-danger" v-cloak>
                 <li v-for="(message, index) in errorMessages" :key="index">{{ message }}</li>
             </ul>
 
