@@ -131,7 +131,7 @@
                 
                 <span style="font-weight: bold" v-if="event.status === 'Cancelled'">Event Cancelled</span>
                 <span style="font-weight: bold" v-if="event.status === 'Ended' && isEventEnded(event)">Event Ended</span>
-                <span style="font-weight: bold" v-if="isEventOngoing(event)">Event is Ongoing</span>
+                <span style="font-weight: bold" v-if="event.status === 'Ongoing'">Event Ongoing</span>
               </div>
             </div>
           </div>
