@@ -118,13 +118,30 @@
           totalTicketsSold: 50,
           totalRevenue: 100,
           selectedEventName: "",
-          eventNames: [],
-          defaultDropdownText: "Event Name"
+          eventNames: ["Event A", "Event B", "Event C"], // Example event names
+          defaultDropdownText: "Event Name",
         };
       },
-      methods: {
-        submitForm() { },
+      watch: {
+        selectedEventName(newValue, oldValue) {
+          this.fetchEventData(newValue);
+        }
       },
+      methods: {
+        fetchEventData(eventName) {
+          // Example Axios call to fetch event data based on `eventName`
+          axios.get(`/api/events/data?eventName=${eventName}`)
+            .then(response => {
+              // Assuming the API returns an object with `ticketsSold` and `revenue` properties
+              this.totalTicketsSold = response.data.ticketsSold;
+              this.totalRevenue = response.data.revenue;
+            })
+            .catch(error => {
+              console.error("Error fetching event data:", error);
+              // Handle error (e.g., reset to default values or display an error message)
+            });
+        },
+      }
     });
     app.component("navbar-component", NavBarComponent);
     app.mount("#app");
@@ -132,3 +149,4 @@
 </body>
 
 </html>
+
