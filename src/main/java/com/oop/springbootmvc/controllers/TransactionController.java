@@ -184,7 +184,8 @@ public class TransactionController {
             User u = userRepository.findByUsername(username).get();
             Transaction t = new Transaction();
             t.setStatus("Booked");
-            t.setPurchasedDateTime(Timestamp.from(Instant.now()));
+            Timestamp purchasedDateTime = Timestamp.from(Instant.now());
+            t.setPurchasedDateTime(purchasedDateTime);
 
             Optional<Seat> s = seatRepository.findById(purchaseViewModel.getSitId());
             if(s.isPresent()){
@@ -229,7 +230,17 @@ public class TransactionController {
                 ticketRepository.saveAll(tickets);
                 u.setBalance(u.getBalance() - t.getCost());
                 userRepository.save(u);
-                
+                purchasedDateTime.setNanos(0);
+                String toSend = "Hi " + u.getName() + ". \n\nThank you for the purchase! These are your purchase details made on " + purchasedDateTime + ". \n\n";
+                int count = 1;
+                for (Ticket tic : tickets){
+                    toSend += "Ticket " + count + ": \n";
+                    toSend += "Seat Type: " + seat.getType() + "\n";
+                    toSend += "Guid: " + tic.getGuid() + "\n\n";
+                    count++;
+                }
+                toSend += "Regards, \nTicketing Team";
+                this.emailService.sendMessage(u.getUsername(),"Ticket Purchase Details",toSend);
     
 
                 return ResponseEntity.ok().body("");
