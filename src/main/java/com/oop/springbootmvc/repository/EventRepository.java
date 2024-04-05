@@ -46,13 +46,12 @@ public interface EventRepository extends CrudRepository<Event, Long> {
         @Param("currentTime") LocalTime currentTime
     );
 
-    // event ended
-    @Query("SELECT e FROM Event e WHERE :currentDate >= e.eventStartDate AND e.eventEndTime >= :currentTime")
+    // event ended 
+    @Query("SELECT e FROM Event e WHERE (e.eventStartDate >= :currentDate AND :currentTime > e.eventEndTime) OR (e.eventStartDate < :currentDate)")
     List<Event> findEventEnded(
         @Param("currentDate") LocalDate currentDate, 
         @Param("currentTime") LocalTime currentTime
     );
-
 }
 
 

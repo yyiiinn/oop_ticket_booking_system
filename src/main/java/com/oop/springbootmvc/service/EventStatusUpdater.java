@@ -44,7 +44,6 @@ public class EventStatusUpdater {
 
         // find events where event is ongoing and update to Ongoing
         List<Event> eventsToUpdateToOngoing = eventRepository.findDuringEventPeriod(currentDate, currentTime);
-        System.out.println(eventsToUpdateToOngoing);
         for (Event event : eventsToUpdateToOngoing) {
             event.setStatus("Ongoing");
             eventRepository.save(event);
