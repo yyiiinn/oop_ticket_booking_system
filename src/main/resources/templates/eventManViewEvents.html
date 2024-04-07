@@ -350,16 +350,33 @@
           this.selectedUpdateFee = event;
           this.newCancellationFee = event.cancellationFee;
           this.showUpdateCancellationFeeModal = true;
+          this.selectedEvent = event;
         },
         updateCancellationFee() {
-
+          let data = {
+            cancellationFee: this.newCancellationFee
+          };
           console.log("New Cancellation Fee: ", this.newCancellationFee);
-
-          // success message
-          this.showModal("Cancellation Fee", "Update Cancellation Fee Successfully!");
-
-          // error message
-          this.showModal("Cancellation Fee", "There is an error updating the cancellation fee!");
+          console.log("New Cancellation Fee: ", this.selectedEvent);
+          fetch(`/api/manager/updateCancellationFee/${this.selectedEvent.id}`,{
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              console.log(data);
+              // success message
+              this.showModal("Cancellation Fee", "Update Cancellation Fee Successfully!");
+              window.location.reload(true);
+            })
+            .catch((error) => {
+              console.error("Error updating fee:", error);
+              // error message
+              this.showModal("Cancellation Fee", "There is an error updating the cancellation fee!");
+            });
 
         },
         showModal(messageTitle, messageBody) {

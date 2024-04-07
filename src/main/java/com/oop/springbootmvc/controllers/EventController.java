@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -191,6 +192,41 @@ public class EventController {
         e.printStackTrace(); 
         Map<String, String> responseBody = new HashMap<>();
         responseBody.put("message", "Failed to update event: " + e.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseBody);
+    }
+  }
+
+  @PostMapping("/api/manager/updateCancellationFee/{eventId}")
+  public ResponseEntity<Object> updateCancellationFee(@PathVariable("eventId") int eventId, @RequestBody Map<String, Float> payload) {
+    try {
+        Float cancellationFee = payload.get("cancellationFee");
+        Optional<Event> optionalEvent = eventRepository.findById(eventId);
+        if (!optionalEvent.isPresent()) {
+            Map<String, String> responseBody = new HashMap<>();
+            responseBody.put("message", "Event with ID " + eventId + " not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseBody);
+        }
+        boolean feeUpdated = false;
+        Event existingEvent = optionalEvent.get();
+        existingEvent.setCancellationFee(cancellationFee);
+        eventRepository.save(existingEvent);
+        Float retrievedCancellationFee = existingEvent.getCancellationFee();
+
+        if (retrievedCancellationFee.equals(cancellationFee)) {
+            feeUpdated = true;
+        }
+            
+        Map<String, String> responseBody = new HashMap<>();
+        if (feeUpdated == true) {
+          responseBody.put("message", "Cancellation fee updated successfully");
+          return ResponseEntity.status(200).body(responseBody);
+        }
+        responseBody.put("message", "Unable to update Cancellation fee");
+        return ResponseEntity.status(400).body(responseBody);
+    } catch (Exception e) {
+        e.printStackTrace(); 
+        Map<String, String> responseBody = new HashMap<>();
+        responseBody.put("message", "Failed to update cancellation fee: " + e.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseBody);
     }
   }
