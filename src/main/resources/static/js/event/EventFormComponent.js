@@ -13,6 +13,16 @@ export default {
       default: null,
     },
   },
+  watch: {
+  // Watch for changes in event start date
+  'formData.eventStartDate': function(newVal) {
+    this.setSalesDates();
+  },
+  // Watch for changes in event start time
+  'formData.eventStartTime': function(newVal) {
+    this.setSalesDates();
+  },
+},
   data() {
     return {
       formData: {
@@ -259,6 +269,24 @@ export default {
     },
     combineDateTime(date, time) {
       return new Date(`${date}T${time}`);
+    },
+    setSalesDates() {
+      if (!this.formData.eventStartDate || !this.formData.eventStartTime) {
+        // Ensure both event start date and time are set
+        return;
+      }
+  
+      // Calculate 6 months before the event start date for sales start date
+      const eventStartDate = new Date(this.formData.eventStartDate);
+      const salesStartDate = new Date(eventStartDate.setMonth(eventStartDate.getMonth() - 6));
+      this.formData.salesStartDate = salesStartDate.toISOString().split('T')[0];
+      this.formData.salesStartTime = "00:00";
+  
+      // Calculate 24 hours before the event start time for sales end date and time
+      const eventDateTime = new Date(`${this.formData.eventStartDate}T${this.formData.eventStartTime}`);
+      const salesEndDate = new Date(eventDateTime.getTime() - (24 * 60 * 60 * 1000)); // Subtract 24 hours
+      this.formData.salesEndDate = salesEndDate.toISOString().split('T')[0];
+      this.formData.salesEndTime = salesEndDate.toTimeString().split(' ')[0].substring(0, 5); // Format to HH:MM
     },
     validateEventName() {
       if (this.formData.eventName.length <= 5) {
@@ -574,11 +602,11 @@ export default {
         <div class="row mb-4">
             <div class="col-md-6 form-group">
                 <label for="salesStartDate" class="mb-2">Sales Start Date</label>
-                <input v-model="formData.salesStartDate" type="date" id="salesStartDate" required class="form-control border-0 shadow-sm px-4 field" />
+                <input v-model="formData.salesStartDate" type="date" id="salesStartDate" readonly class="form-control border-0 shadow-sm px-4 field" />
             </div>
             <div class="col-md-6 form-group starttime-field">
                 <label for="salesStartTime" class="mb-2">Sales Start Time</label>
-                <input v-model="formData.salesStartTime" type="time" id="salesStartTime" required class="form-control border-0 shadow-sm px-4 field" />
+                <input v-model="formData.salesStartTime" type="time" id="salesStartTime" readonly class="form-control border-0 shadow-sm px-4 field" />
             </div>
             <div v-if="formErrors.salesStartDateTime" class="col-md-12 text-danger">{{ formErrors.salesStartDateTime }}</div>
         </div>
@@ -586,11 +614,11 @@ export default {
         <div class="row mb-4">
             <div class="col-md-6 form-group">
                 <label for="salesEndDate" class="mb-2">Sales End Date</label>
-                <input v-model="formData.salesEndDate" type="date" id="salesEndDate" required class="form-control border-0 shadow-sm px-4 field" />
+                <input v-model="formData.salesEndDate" type="date" id="salesEndDate" readonly class="form-control border-0 shadow-sm px-4 field" />
             </div>
             <div class="col-md-6 form-group starttime-field">
                 <label for="salesEndTime" class="mb-2">Sales End Time</label>
-                <input v-model="formData.salesEndTime" type="time" id="salesEndTime" required class="form-control border-0 shadow-sm px-4 field" />
+                <input v-model="formData.salesEndTime" type="time" id="salesEndTime" readonly class="form-control border-0 shadow-sm px-4 field" />
             </div>
             <div v-if="formErrors.salesEndDateTime" class="col-md-12 text-danger">{{ formErrors.salesEndDateTime }}</div>
         </div>
