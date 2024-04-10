@@ -115,8 +115,8 @@ public class Event {
         return this.status;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setId(long result) {
+        this.id = result;
     }
 
     public void setName(String name) {

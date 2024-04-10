@@ -52,6 +52,10 @@ public interface EventRepository extends CrudRepository<Event, Long> {
         @Param("currentDate") LocalDate currentDate, 
         @Param("currentTime") LocalTime currentTime
     );
+
+    //get all event for dropdownlist in dashboard
+    @Query("SELECT e.id,e.name FROM Event e ORDER BY e.name ASC")
+    List<Object[]> getAllEventsForDashboard();
 }
 
 

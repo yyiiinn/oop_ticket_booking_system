@@ -8,6 +8,7 @@ import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,6 +36,7 @@ import com.oop.springbootmvc.viewmodel.CustomerTransactionViewModel;
 import com.oop.springbootmvc.viewmodel.PurchaseViewModel;
 
 import com.oop.springbootmvc.service.EmailService;
+import com.oop.springbootmvc.service.TransactionService;
 
 @RestController
 public class TransactionController {
@@ -297,5 +299,14 @@ public class TransactionController {
             return ResponseEntity.status(403).body("");
 
         }
+    }
+
+    @Autowired
+    private TransactionService transactionService;
+
+    @GetMapping("/api/manager/ViewDashboard/revenueGenerated/{status}/{eventId}")
+    public ResponseEntity<Integer> revenueGeneratedByEventID(@PathVariable String status, @PathVariable int eventId) {
+        int count = transactionService.revenueGeneratedByEventID(status, eventId);
+        return ResponseEntity.ok(count);
     }
 }

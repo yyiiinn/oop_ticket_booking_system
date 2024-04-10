@@ -363,6 +363,19 @@ public class EventController {
       
       return ResponseEntity.ok(toReturn);
   
+    }
 
+    //get all event for dropdownlist in dashboard
+    @GetMapping("/api/allEventsForDashboard")
+    public List<Event> getAllEventsForDashboard() {
+      List<Object[]> results = eventRepository.getAllEventsForDashboard();
+      List<Event> events = new ArrayList<>();
+      for (Object[] result : results) {
+          Event event = new Event();
+          event.setId((long) result[0]); // Assuming id is in the first position
+          event.setName((String) result[1]); // Assuming name is in the second position
+          events.add(event);
+      }
+      return events;
     }
 }
