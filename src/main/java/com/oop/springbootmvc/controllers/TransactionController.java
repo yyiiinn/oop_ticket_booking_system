@@ -305,8 +305,17 @@ public class TransactionController {
     private TransactionService transactionService;
 
     @GetMapping("/api/manager/ViewDashboard/revenueGenerated/{status}/{eventId}")
-    public ResponseEntity<Integer> revenueGeneratedByEventID(@PathVariable String status, @PathVariable int eventId) {
-        int count = transactionService.revenueGeneratedByEventID(status, eventId);
-        return ResponseEntity.ok(count);
+    public ResponseEntity<Object> revenueGeneratedByEventID(@PathVariable String status, @PathVariable int eventId) {
+        try {
+            int revenueGenerated = transactionService.revenueGeneratedByEventID(status, eventId);
+            if (revenueGenerated != 0){
+                return ResponseEntity.ok(revenueGenerated);
+            }
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            // TODO: handle exception
+            return ResponseEntity.status(403).body("");
+        }
     }
+    
 }

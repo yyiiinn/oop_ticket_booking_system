@@ -56,15 +56,31 @@ public class TicketController {
     private TicketService ticketService;
 
     @GetMapping("/api/manager/ViewDashboard/ticketSold/{eventId}")
-    public ResponseEntity<Integer> countTicketsByEventId(@PathVariable int eventId) {
-        int count = ticketService.countTicketsByEventId(eventId);
-        return ResponseEntity.ok(count);
+    public ResponseEntity<Object> countTicketsByEventId(@PathVariable int eventId) {
+        try {
+            int countTickets = ticketService.countTicketsByEventId(eventId);
+            if(countTickets != 0){
+                return ResponseEntity.ok(countTickets);
+            }
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            // TODO: handle exception
+            return ResponseEntity.status(403).body("");
+        }
     }
 
     @GetMapping("/api/manager/ViewDashboard/customerAttendance/{status}/{eventId}")
-    public ResponseEntity<Integer> customerAttendanceByEventID(@PathVariable String status, @PathVariable int eventId) {
-        int count = ticketService.customerAttendanceByEventID(status, eventId);
-        return ResponseEntity.ok(count);
+    public ResponseEntity<Object> customerAttendanceByEventID(@PathVariable String status, @PathVariable int eventId) {
+        try {
+            int customerAttendance = ticketService.customerAttendanceByEventID(status, eventId);
+            if(customerAttendance != 0){
+                return ResponseEntity.ok(customerAttendance);
+            }
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            // TODO: handle exception
+            return ResponseEntity.status(403).body("");
+        }
     }
 
 }
