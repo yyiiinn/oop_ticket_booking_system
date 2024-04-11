@@ -64,7 +64,7 @@ public class RoleSeeder implements ApplicationListener<ContextRefreshedEvent> {
         user.ifPresentOrElse(System.out::println, () -> {
             Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.USER);
             String encodedPassword = passwordEncoder.encode("user");
-            User newUser = new User("user@dispostable.com", "user", encodedPassword, false, 0, optionalRole.get());
+            User newUser = new User("user@dispostable.com", "user", encodedPassword, false, 1000, optionalRole.get());
             userRepository.save(newUser);
         });
     }
