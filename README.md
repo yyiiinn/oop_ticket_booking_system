@@ -1,7 +1,5 @@
 # oop_ticket_booking_system
 
-[TOCM]
-
 ## Project Prerequisite
 
 ### MAVEN
