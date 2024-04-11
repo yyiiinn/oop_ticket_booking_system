@@ -18,6 +18,12 @@ If you have Docker installed in your computer you may run a local instance of it
 
 ### Email Client
 
+To use the email client, you have to configure Spring Mail in application.properties. 
+Add the hostname of your mail server (e.g., smtp.gmail.com for Gmail) in `spring.mail.host`
+Add the port for your chosen mail server (e.g., 587 for Gmail's SMTP) in `spring.mail.port`
+Add the email address for your email in `spring.mail.username` and password in `spring.mail.password` (recommended to not include actual password but use other forms such as an app password)
+Rest of the configurations are stated in application properties
+
 ### application.properties
 
 Create a file called `application.properties` in `src/main/resources` and copy below into your new created file.
