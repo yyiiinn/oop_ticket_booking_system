@@ -157,7 +157,7 @@ public class TransactionController {
                 u.setBalance(u.getBalance() - t.getCost());
                 userRepository.save(u);
                 purchasedDateTime.setNanos(0);
-                String toSend = "Hi " + u.getName() + ". \n\nThank you for the purchase! These are your purchase details made on " + purchasedDateTime + ". \n\n";
+                String toSend = "Hi " + u.getName() + ". \n\nThank you for the purchase! These are your purchase details for event " +  e.getName() + " made on " + purchasedDateTime + ". \n\n";
                 int count = 1;
                 for (Ticket tic : tickets){
                     toSend += "Ticket " + count + ": \n";
@@ -233,7 +233,7 @@ public class TransactionController {
                 u.setBalance(u.getBalance() - t.getCost());
                 userRepository.save(u);
                 purchasedDateTime.setNanos(0);
-                String toSend = "Hi " + u.getName() + ". \n\nThank you for the purchase! These are your purchase details made on " + purchasedDateTime + ". \n\n";
+                String toSend = "Hi " + u.getName() + ". \n\nThank you for the purchase! These are your purchase details for event " +  e.getName() + " made on " + purchasedDateTime + ". \n\n";
                 int count = 1;
                 for (Ticket tic : tickets){
                     toSend += "Ticket " + count + ": \n";
@@ -277,6 +277,11 @@ public class TransactionController {
                     t.setCancellationCost(fee);
                     t.setStatus("Cancelled");
                     transactionRepository.save(t);
+                    Timestamp purchasedDateTime = Timestamp.from(Instant.now());
+                    t.setPurchasedDateTime(purchasedDateTime);
+                    purchasedDateTime.setNanos(0);
+
+                    String toSend = "Hi " + u.getName() + ". \n\nYou have cancelled the booking for event " +  e.getName() + "made on " + purchasedDateTime + ". \n\n";
 
                     int ticketCount = 0;
                     for(Ticket tic: t.getTickets()){
@@ -290,6 +295,9 @@ public class TransactionController {
 
                     u.setBalance(u.getBalance()+(t.getCost()-fee));
                     userRepository.save(u);
+                    toSend += "Total of $" + (t.getCost()-fee) + " have been refunded to your account as there is a cancellation fee of $" + fee + ".\n\nRegards, \nTicketing Team";
+                    this.emailService.sendMessage(u.getUsername(),"Ticket Purchase Details",toSend);
+
                     return ResponseEntity.ok().body("");
 
                 }
