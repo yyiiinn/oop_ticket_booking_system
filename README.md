@@ -1,5 +1,7 @@
 # oop_ticket_booking_system
 
+[TOCM]
+
 ## Project Prerequisite
 
 ### MAVEN
@@ -50,3 +52,15 @@ Enter to the root directory of the project on your desired CLI and run using the
 ```
 mvn spring-boot:run
 ```
+
+Go to your desired browser and go to `localhost:8080` or click [here](https://localhost:8080/)
+
+## User Details
+
+On intial run, 3 users should be created and the credentials are as follows
+
+| Username             | Password |    Role |
+| :------------------- | :------: | ------: |
+| user@dispostable.com |   user   |    User |
+| officer              | officer  | Officer |
+| manager              | manager  | Manager |
