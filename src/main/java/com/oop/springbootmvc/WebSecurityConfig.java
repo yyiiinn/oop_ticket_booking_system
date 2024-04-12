@@ -53,6 +53,7 @@ public class WebSecurityConfig {
             .requestMatchers("/manager/**").hasRole("MANAGER")
             .requestMatchers("/officer/**").hasRole("OFFICER")
             .requestMatchers("/login").permitAll()
+            .requestMatchers("/api/register").permitAll()
             .anyRequest().permitAll()
         )
         .formLogin(login ->

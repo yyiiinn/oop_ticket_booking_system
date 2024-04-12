@@ -87,9 +87,7 @@
               <thead>
                 <tr class="text-nowrap">
                   <th scope="col">
-                    <a href="#" class="text-decoration-none text-dark"
-                      ></a
-                    >
+                    <a href="#" class="text-decoration-none text-dark"></a>
                   </th>
                   <th scope="col">
                     <a href="#" class="text-decoration-none text-dark"
@@ -194,11 +192,7 @@
                   is being processed</span
                 >
 
-                <button
-                  type="button"
-                  class="btn btn-secondary"
-                  @click="cancel"
-                >
+                <button type="button" class="btn btn-secondary" @click="cancel">
                   Cancel
                 </button>
                 <button
@@ -219,7 +213,7 @@
     <!-- include axios.js -->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <!-- include Vue.js -->
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.4.21/vue.global.min.js"></script>
 
     <script type="module">
       import NavBarComponent from "/js/navbar/CustomerNavBarComponent.js";
@@ -248,8 +242,8 @@
               });
           },
 
-          cancel(){
-            this.showCancelBookingModal = false
+          cancel() {
+            this.showCancelBookingModal = false;
             window.location.reload();
           },
           toggleModal(transaction) {
