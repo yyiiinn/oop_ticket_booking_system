@@ -334,31 +334,32 @@ public class TransactionController {
     public ResponseEntity<Object> totalTransactionsByEventId(@PathVariable int eventId) {
         try {
             Optional<Event> optionalEvent = eventRepository.findById(eventId);
+            int transactions = 0;
+            int totalTransactionsBooked = 0;
+            int totalTransactionsCancelled = 0;
+            int totalTransactionsRefunded = 0;
+            Map<String, Object> jsonResponse = new HashMap<>();
             if (optionalEvent.isPresent()){
               Event event = optionalEvent.get();
               Set<Seat> seats = event.getSeats();
               event.setSeats(seats);
-              int transactions = 0;
-              Map<String, Object> jsonResponse = new HashMap<>();
               for (Seat s :seats){
-                int totalSeatsBooked = 0;
-                int totalSeatsLeft = 0;
-                int initialSeats = s.getNumberOfSeats();
                 transactions += s.getTransactions().size();
-                for (Transaction t: s.getTransactions()){
-                  if(t.getStatus().equals("Booked")){
-                    totalSeatsBooked += t.getTickets().size();
-                  }
-                };
-                jsonResponse.put("TotalTransactions", transactions);
+                totalTransactionsBooked += transactionService.countTransactionByStatusAndSeatId("Booked", s.getId());
+                totalTransactionsCancelled += transactionService.countTransactionByStatusAndSeatId("Cancelled", s.getId());
+                totalTransactionsRefunded += transactionService.countTransactionByStatusAndSeatId("Refunded", s.getId());
               }
-              return ResponseEntity.ok().body(jsonResponse);
-            }else{
-              int transactions = transactionService.countTotalTransactions();
-              Map<String, Object> jsonResponse = new HashMap<>();
-              jsonResponse.put("TotalTransactions", transactions);
-              return ResponseEntity.ok().body(jsonResponse);
+            } else {
+              transactions = transactionService.countTotalTransactions();
+              totalTransactionsBooked = transactionService.countTransactionByStatus("Booked");
+              totalTransactionsCancelled = transactionService.countTransactionByStatus("Cancelled");
+              totalTransactionsRefunded = transactionService.countTransactionByStatus("Refunded");
             }
+            jsonResponse.put("TotalTransactions", transactions);
+            jsonResponse.put("totalTransactionsBooked", totalTransactionsBooked);
+            jsonResponse.put("totalTransactionsCancelled", totalTransactionsCancelled);
+            jsonResponse.put("totalTransactionsRefunded", totalTransactionsRefunded);
+            return ResponseEntity.ok().body(jsonResponse);
           } catch (Exception e) {
               // TODO: handle exception
               return ResponseEntity.status(403).body("");

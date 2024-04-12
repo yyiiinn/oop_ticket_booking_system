@@ -16,4 +16,10 @@ public interface TransactionRepository extends CrudRepository<Transaction, Long>
 
     @Query("SELECT COUNT(t) FROM Transaction t")
     int countTotalTransactions();
+
+    @Query("SELECT COUNT(t) FROM Transaction t WHERE t.status = :status")
+    int countTransactionByStatus(@Param("status") String status);
+
+    @Query("SELECT COUNT(t) FROM Transaction t WHERE t.status = :status and t.seat.id = :seat_id")
+    int countTransactionByStatusAndSeatId(@Param("status") String status, @Param("seat_id") int seat_id);
 }

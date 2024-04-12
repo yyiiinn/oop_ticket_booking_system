@@ -38,14 +38,8 @@
         padding: 15px;
       }
 
-      .total_tickets {
-        margin-right: 20px;
-      }
-
-      @media (max-width: 767px) {
-        .total_tickets {
-          margin-bottom: 23px;
-        }
+      .ticket_row .dashboard:not(:last-child), .count_row .dashboard:not(:last-child){
+        margin-right: 10px !important;
       }
 
       .sign-out-button {
@@ -70,7 +64,7 @@
       display: flex; 
       flex-wrap: wrap; 
       justify-content: center; 
-    }
+      }
 
     #chart-container canvas {
         margin-right: 10px;
@@ -121,7 +115,7 @@
             </button>
           </div>
 
-          <div class="row">
+          <div class="ticket_row row">
             <!-- Display Total No. of Tickets Sold -->
             <div class="col-md dashboard total_tickets text-center">
               <h2 class="fs-1">{{totalTicketsSold}}</h2>
@@ -132,18 +126,30 @@
               <h2 class="fs-1">${{totalRevenue}}</h2>
               <p><strong>Total Revenue</strong></p>
             </div>
-          </div>
-
-          <div class="row mt-4">
-            <!-- Display Customer Attendance -->
-            <div class="col-md dashboard text-center">
-              <h2 class="fs-1">{{customerAttendance}}</h2>
-              <p><strong>Customer Attendance</strong></p>
+             <!-- Display Overall Transactions -->
+             <div class="col-md dashboard text-center">
+              <h2 class="fs-1">{{totalTransactions}}</h2>
+              <p><strong>Total Transactions</strong></p>
             </div>
           </div>
 
-          <div class="row mt-4">
+          <div class="count_row row mt-4">
             <!-- Display Customer Attendance -->
+            <div class="col-md dashboard text-center">
+              <div id="customer-attendance-container">
+              </div>
+            </div>
+
+            <!-- Display Transaction count -->
+            <div class="col-md dashboard text-center">
+              <div id="transaction-count-container">
+              </div>
+            </div>
+
+          </div>
+
+          <div class="row mt-4">
+            <!-- Display Seat Distribution -->
             <div class="col-md dashboard text-center">
               <div id="chart-container">
               </div>
@@ -169,9 +175,11 @@
           return {
             totalTicketsSold: 0,
             totalRevenue: 0,
-            customerAttendance: 0,
+            customerAttendance: {},
+            transactionsCount: {},
             selectedEventId: 0,
             selectedEventName: '',
+            totalTransactions: 0,
             events: [], // Example event names
             defaultDropdownText: "Event Name",
             seatsDetails: [],
@@ -198,7 +206,7 @@
                 this.selectedEventName = ''; 
                 this.seatsDetails = [];
                 const chartContainer = document.getElementById('chart-container');
-                chartContainer.innerHTML = '';
+                chartContainer.innerHTML = '<span class="row" style="display: contents;height:fit-content!important;"><strong>Seat Distribution by Event by Seating Options</strong></span><div style="margin-top:20px;margin-bottom:20px">-</div>';
             } else {
                 const selectedEvent = this.events.find(event => event.id === this.selectedEventId);
                 if (selectedEvent) {
@@ -220,13 +228,21 @@
             axios.get(`http://localhost:8080/api/manager/ViewDashboard/customerAttendance/${this.selectedEventId}`)
                 .then((response) => {
                     this.customerAttendance = response.data;
+                    if(this.customerAttendance.Unattended == 0 && this.customerAttendance.Cancelled == 0 && this.customerAttendance.Attended == 0) {
+                      const chartContainer = document.getElementById('customer-attendance-container');
+                      chartContainer.innerHTML = '<span class="row" style="display: contents;height:fit-content!important;"><strong>Purchased Tickets Attendance Distribution</strong></span><div style="margin-top:20px;margin-bottom:20px">-</div>';
+                    } else {
+                      this.createCustomerAttendanceChart();
+                    }
                 })
                 .catch((error) => {
-                    this.customerAttendance = 0;
+                    this.customerAttendance = {};
+                    const chartContainer = document.getElementById('customer-attendance-container');
+                    chartContainer.innerHTML = '<span class="row" style="display: contents;height:fit-content!important;"><strong>Purchased Tickets Attendance Distribution</strong></span><div style="margin-top:20px;margin-bottom:20px">-</div>';
                     handleError(error);
                 });
 
-            axios.get(`http://localhost:8080/api/manager/ViewDashboard/revenueGenerated/${this.selectedEventId}`)
+              axios.get(`http://localhost:8080/api/manager/ViewDashboard/revenueGenerated/Booked/${this.selectedEventId}`)
                 .then((response) => {
                     this.totalRevenue = response.data;
                 })
@@ -237,12 +253,30 @@
             
             axios.get(`http://localhost:8080/api/manager/ViewDashboard/seatsDetails/${this.selectedEventId}`)
             .then((response) => {
-              console.log(response)
               this.seatsDetails = response.data;
               this.createChart();
             })
             .catch((error) => {
                 this.seatsDetails = [];
+            });
+
+            axios.get(`/api/manager/ViewDashboard/totalTransactions/${this.selectedEventId}`)
+            .then((response) => {
+              console.log(response);
+              this.transactionsCount = response.data;
+              this.totalTransactions = this.transactionsCount.TotalTransactions;
+              if(this.transactionsCount.TotalTransactions == 0) {
+                const chartContainer = document.getElementById('transaction-count-container');
+                chartContainer.innerHTML = '<span class="row" style="display: contents;height:fit-content!important;"><strong>Transaction Count by Type</strong></span><div style="margin-top:20px;margin-bottom:20px">-</div>';
+              } else {
+                this.createTransactionCountChart();
+              }
+            })
+            .catch((error) => {
+              this.transactionsCount = {};
+              this.totalTransactions = 0;
+              const chartContainer = document.getElementById('transaction-count-container');
+              chartContainer.innerHTML = '<span class="row" style="display: contents;height:fit-content!important;"><strong>Transaction Count by Type</strong></span><div style="margin-top:20px;margin-bottom:20px">-</div>';
             });
         },
           exportDashboardToExcel() {
@@ -275,16 +309,13 @@
               console.error("Error exporting data:", error);
             });
           },
-          
           createChart() {
             const seatDetails = this.seatsDetails;
             const chartContainer = document.getElementById('chart-container');
-            chartContainer.innerHTML = '<span class="row" style="display: contents;height:fit-content!important;"><strong>Seat Distribution by Seating Options</strong></span>';
+            chartContainer.innerHTML = '<span class="row" style="display: contents;height:fit-content!important;"><strong>Seat Distribution by Event by Seating Options</strong></span>';
             let index = 0;
-            console.log(seatDetails)
             if (Object.keys(seatDetails).length > 0) {
             for (let seat in seatDetails) {
-                console.log(seat);
                 const canvas = document.createElement('canvas');
                 canvas.id = 'chart-' + index;
                 chartContainer.appendChild(canvas);
@@ -292,9 +323,9 @@
                 new Chart(ctx, {
                     type: 'pie',
                     data: {
-                        labels: ['Booked', 'Refunded', 'Left', 'Cancelled'],
+                        labels: ['Booked', 'Refunded', 'Unsold', 'Cancelled'],
                         datasets: [{
-                            backgroundColor: ['green', 'red', 'blue', 'grey'], // You can define colors as needed
+                            backgroundColor: ['green', 'red', 'blue', 'grey'], 
                             data: [
                                 parseInt(seatDetails[seat][0].bookedPercentage),
                                 parseInt(seatDetails[seat][0].refundedPercentage),
@@ -334,7 +365,103 @@
                 index += 1;
             }
           }
-        }
+        },
+        createCustomerAttendanceChart(){
+          const customerAttendance = this.customerAttendance;
+          const chartContainer = document.getElementById('customer-attendance-container');
+          chartContainer.innerHTML = '<span class="row" style="display: contents;height:fit-content!important;"><strong>Purchased Tickets Attendance Distribution</strong></span>';
+          const canvas = document.createElement('canvas');
+          canvas.id = 'customer-attendance-chart';
+          chartContainer.appendChild(canvas);
+          const ctx = canvas.getContext('2d');
+          new Chart(ctx, {
+              type: 'bar',
+              data: {
+                  labels: ['Unattended', 'Cancelled', 'Attended'],
+                  datasets: [{
+                      backgroundColor: ['grey', 'red', 'green'],
+                      data: [
+                          parseInt(customerAttendance.Unattended),
+                          parseInt(customerAttendance.Cancelled),
+                          parseInt(customerAttendance.Attended),
+                      ]
+                  }],
+                  hoverOffset: 4
+              },
+              options: {
+                plugins: {
+                  title: {
+                    display: true,
+                  },
+                  legend: {
+                      display: false
+                  },
+                  tooltip: {
+                    titleFont: {
+                      size: 23, 
+                      weight: 'bold' 
+                  },  bodyFont: {
+                      size: 22 
+                  },
+                      callbacks: {
+                          label: function (context) {
+                            const value = context.formattedValue;
+                            return ' '  + value + ' Tickets';;
+                          }
+                      }
+                  }
+                }
+              },
+          });
+          },
+          createTransactionCountChart(){
+          const transactionsCount = this.transactionsCount;
+          const chartContainer = document.getElementById('transaction-count-container');
+          chartContainer.innerHTML = '<span class="row" style="display: contents;height:fit-content!important;"><strong>Transaction Count by Type</strong></span>';
+          const canvas = document.createElement('canvas');
+          canvas.id = 'transaction-count-container';
+          chartContainer.appendChild(canvas);
+          const ctx = canvas.getContext('2d');
+          new Chart(ctx, {
+              type: 'bar',
+              data: {
+                  labels: ['Cancelled', 'Refunded', 'Booked'],
+                  datasets: [{
+                      backgroundColor: ['grey', 'red', 'green'],
+                      data: [
+                          parseInt(transactionsCount.totalTransactionsCancelled),
+                          parseInt(transactionsCount.totalTransactionsRefunded),
+                          parseInt(transactionsCount.totalTransactionsBooked),
+                      ]
+                  }],
+                  hoverOffset: 4
+              },
+              options: {
+                plugins: {
+                  title: {
+                    display: true,
+                  },
+                  legend: {
+                      display: false
+                  },
+                  tooltip: {
+                    titleFont: {
+                      size: 23, 
+                      weight: 'bold' 
+                  },  bodyFont: {
+                      size: 22 
+                  },
+                      callbacks: {
+                          label: function (context) {
+                            const value = context.formattedValue;
+                            return ' '  + value + ' Transactions';;
+                          }
+                      }
+                  }
+                }
+              },
+          });
+          }
         },
       });
       app.component("navbar-component", NavBarComponent);
