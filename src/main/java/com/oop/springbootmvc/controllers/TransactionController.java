@@ -5,6 +5,8 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -289,10 +291,6 @@ public class TransactionController {
                         ticketRepository.save(tic);
                         ticketCount++;
                     }
-                    
-      
-
-
                     u.setBalance(u.getBalance()+(t.getCost()-fee));
                     userRepository.save(u);
                     toSend += "Total of $" + (t.getCost()-fee) + " have been refunded to your account as there is a cancellation fee of $" + fee + ".\n\nRegards, \nTicketing Team";
@@ -330,6 +328,41 @@ public class TransactionController {
             // Handle exception
             return ResponseEntity.status(403).body("");
         }
+    }
+
+    @GetMapping(value = "/api/manager/ViewDashboard/totalTransactions/{eventId}")
+    public ResponseEntity<Object> totalTransactionsByEventId(@PathVariable int eventId) {
+        try {
+            Optional<Event> optionalEvent = eventRepository.findById(eventId);
+            if (optionalEvent.isPresent()){
+              Event event = optionalEvent.get();
+              Set<Seat> seats = event.getSeats();
+              event.setSeats(seats);
+              int transactions = 0;
+              Map<String, Object> jsonResponse = new HashMap<>();
+              for (Seat s :seats){
+                int totalSeatsBooked = 0;
+                int totalSeatsLeft = 0;
+                int initialSeats = s.getNumberOfSeats();
+                transactions += s.getTransactions().size();
+                for (Transaction t: s.getTransactions()){
+                  if(t.getStatus().equals("Booked")){
+                    totalSeatsBooked += t.getTickets().size();
+                  }
+                };
+                jsonResponse.put("TotalTransactions", transactions);
+              }
+              return ResponseEntity.ok().body(jsonResponse);
+            }else{
+              int transactions = transactionService.countTotalTransactions();
+              Map<String, Object> jsonResponse = new HashMap<>();
+              jsonResponse.put("TotalTransactions", transactions);
+              return ResponseEntity.ok().body(jsonResponse);
+            }
+          } catch (Exception e) {
+              // TODO: handle exception
+              return ResponseEntity.status(403).body("");
+          }
     }
     
 }

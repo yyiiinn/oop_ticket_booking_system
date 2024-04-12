@@ -13,4 +13,7 @@ public interface TransactionRepository extends CrudRepository<Transaction, Long>
     // Total revenue generated for all events
     @Query("SELECT SUM(t.cost) FROM Transaction t WHERE t.status = :status")
     int totalRevenueGenerated(@Param("status") String status);
+
+    @Query("SELECT COUNT(t) FROM Transaction t")
+    int countTotalTransactions();
 }

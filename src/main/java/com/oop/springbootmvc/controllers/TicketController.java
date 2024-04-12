@@ -16,7 +16,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.oop.springbootmvc.model.Event;
 import com.oop.springbootmvc.model.Ticket;
+import com.oop.springbootmvc.repository.EventRepository;
 import com.oop.springbootmvc.repository.TicketRepository;
 import com.oop.springbootmvc.service.TicketService;
 import com.oop.springbootmvc.viewmodel.GuidViewModel;
@@ -24,8 +26,11 @@ import com.oop.springbootmvc.viewmodel.GuidViewModel;
 @RestController
 public class TicketController {
     private final TicketRepository ticketRepository;
-    public TicketController(TicketRepository ticketRepository) {
+    private final EventRepository eventRepository;
+
+    public TicketController(TicketRepository ticketRepository, EventRepository eventRepository) {
         this.ticketRepository = ticketRepository;     
+        this.eventRepository = eventRepository;
     }
     
     @RequestMapping(value = "/api/officer/redeemCode", method = RequestMethod.POST)
@@ -70,16 +75,27 @@ public class TicketController {
         }
     }
 
-    @GetMapping("/api/manager/ViewDashboard/customerAttendance/{status}/{eventId}")
-    public ResponseEntity<Object> customerAttendanceByEventID(@PathVariable String status, @PathVariable(required = false) Integer eventId) {
+    @GetMapping("/api/manager/ViewDashboard/customerAttendance/{eventId}")
+    public ResponseEntity<Object> customerAttendanceByEventID(@PathVariable int eventId) {
         try {
-            int customerAttendance;
-            if (eventId != null && eventId != 0) {
-                customerAttendance = ticketService.customerAttendanceByEventID(status, eventId);
+            Optional<Event> optionalEvent = eventRepository.findById(eventId);
+            Map<String, Object> jsonResponse = new HashMap<>();
+            if (optionalEvent.isPresent()){
+                int customerAttendance = ticketService.customerAttendanceByEventID("Redeemed", eventId);
+                int customerCancelled = ticketService.customerAttendanceByEventID("Cancelled", eventId);
+                int customerUattended = ticketService.customerAttendanceByEventID("Usable", eventId);
+                jsonResponse.put("Attended", customerAttendance);
+                jsonResponse.put("Cancelled", customerCancelled);
+                jsonResponse.put("Unattended", customerUattended);
             } else {
-                customerAttendance = ticketService.totalCustomerAttendance(status);
+                int customerAttendance = ticketService.customerAttendanceByStatus("Redeemed");
+                int customerCancelled = ticketService.customerAttendanceByStatus("Cancelled");
+                int customerUattended = ticketService.customerAttendanceByStatus("Usable");
+                jsonResponse.put("Attended", customerAttendance);
+                jsonResponse.put("Cancelled", customerCancelled);
+                jsonResponse.put("Unattended", customerUattended);
             }
-            return ResponseEntity.ok(customerAttendance);
+            return ResponseEntity.ok().body(jsonResponse);
         } catch (Exception e) {
             return ResponseEntity.status(403).body("");
         }

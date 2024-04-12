@@ -25,4 +25,8 @@ public class TicketService {
     public int totalCustomerAttendance(String status) {
         return ticketRepository.totalCustomerAttendance(status);
     }
+
+    public int customerAttendanceByStatus(String status) {
+        return ticketRepository.customerAttendanceByStatus(status);
+    }
 }
