@@ -47,7 +47,7 @@ public class UserController {
     BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     String encodedPassword = passwordEncoder.encode(registerViewModel.getPassword());
     Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.USER);
-    User user = new User(registerViewModel.getName(), registerViewModel.getUsername(), encodedPassword, true, 1000, optionalRole.get());
+    User user = new User(registerViewModel.getUsername(), registerViewModel.getName(), encodedPassword, true, 1000, optionalRole.get());
     try {
       User registeredUser = this.userRepository.save(user);
       return new ResponseEntity<>(new UserViewModel(registeredUser.getUsername(), registeredUser.getName()), HttpStatus.OK) ;
