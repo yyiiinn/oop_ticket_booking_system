@@ -419,7 +419,7 @@
                 sitId: this.selectedSeatType,
                 quantity: this.numberOfTickets,
               };
-              fetch(`/api/Officer/purchase?username=${this.username}`, {
+              fetch(`/api/officer/purchase?username=${this.username}`, {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",

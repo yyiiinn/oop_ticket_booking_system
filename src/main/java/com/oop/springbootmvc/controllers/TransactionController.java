@@ -180,7 +180,7 @@ public class TransactionController {
         }
     }
 
-    @PostMapping("/api/Officer/purchase")
+    @PostMapping("/api/officer/purchase")
     public ResponseEntity<Object> createTransaction(@RequestParam("username") String username, @RequestBody PurchaseViewModel purchaseViewModel) {
         try{
             User u = userRepository.findByUsername(username).get();
