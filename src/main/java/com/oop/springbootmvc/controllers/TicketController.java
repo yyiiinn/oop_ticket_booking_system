@@ -56,29 +56,31 @@ public class TicketController {
     private TicketService ticketService;
 
     @GetMapping("/api/manager/ViewDashboard/ticketSold/{eventId}")
-    public ResponseEntity<Object> countTicketsByEventId(@PathVariable int eventId) {
+    public ResponseEntity<Object> countTicketsByEventId(@PathVariable(required = false) Integer eventId) {
         try {
-            int countTickets = ticketService.countTicketsByEventId(eventId);
-            if(countTickets != 0){
-                return ResponseEntity.ok(countTickets);
+            int countTickets;
+            if (eventId != null && eventId != 0) {
+                countTickets = ticketService.countTicketsByEventId(eventId);
+            } else {
+                countTickets = ticketService.totalTicketsSold();
             }
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.ok(countTickets);
         } catch (Exception e) {
-            // TODO: handle exception
             return ResponseEntity.status(403).body("");
         }
     }
 
     @GetMapping("/api/manager/ViewDashboard/customerAttendance/{status}/{eventId}")
-    public ResponseEntity<Object> customerAttendanceByEventID(@PathVariable String status, @PathVariable int eventId) {
+    public ResponseEntity<Object> customerAttendanceByEventID(@PathVariable String status, @PathVariable(required = false) Integer eventId) {
         try {
-            int customerAttendance = ticketService.customerAttendanceByEventID(status, eventId);
-            if(customerAttendance != 0){
-                return ResponseEntity.ok(customerAttendance);
+            int customerAttendance;
+            if (eventId != null && eventId != 0) {
+                customerAttendance = ticketService.customerAttendanceByEventID(status, eventId);
+            } else {
+                customerAttendance = ticketService.totalCustomerAttendance(status);
             }
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.ok(customerAttendance);
         } catch (Exception e) {
-            // TODO: handle exception
             return ResponseEntity.status(403).body("");
         }
     }

@@ -76,6 +76,7 @@
         <div class="container pt-5">
           <h2 class="text-center mb-4">Dashboard (Sales & Statistics)</h2>
           <p v-if="selectedEventName != ''" class="text-center text-secondary fs-4">For {{selectedEventName}}</p>
+          <p v-else class="text-center text-secondary fs-4">For All Events</p>
 
           <div class="d-flex justify-content-between mt-5 mb-3">
             <div class="form-group mb-3 dropdown-field">
@@ -85,7 +86,7 @@
                 class="form-select border-0 shadow-sm px-4 field"
                 style="width: 300px"
               >
-                <option value="" disabled selected>{{ defaultDropdownText }}</option>
+                <option value="0" selected>{{ defaultDropdownText }}</option>
                 <option
                   v-for="event in events"
                   :key="event.id"
@@ -114,7 +115,7 @@
             </div>
             <!-- Display Overall Revenue -->
             <div class="col-md dashboard text-center">
-              <h2 class="fs-1">{{totalRevenue}}</h2>
+              <h2 class="fs-1">${{totalRevenue}}</h2>
               <p><strong>Total Revenue</strong></p>
             </div>
           </div>
@@ -159,6 +160,7 @@
       */
         mounted() {
           this.fetchEvents();
+          this.selectedEventData();
         },
         methods: {
           fetchEvents() {
@@ -172,54 +174,46 @@
               });
           },
           selectedEventData() {
-            const selectedEvent = this.events.find(event => event.id === this.selectedEventId);
-            if (selectedEvent) {
-                this.selectedEventName = selectedEvent.name; 
+            if (this.selectedEventId == 0) {
+                this.selectedEventName = ''; 
+            } else {
+                const selectedEvent = this.events.find(event => event.id === this.selectedEventId);
+                if (selectedEvent) {
+                    this.selectedEventName = selectedEvent.name;
+                }
             }
 
-            axios
-              .get(
-                "http://localhost:8080/api/manager/ViewDashboard/ticketSold/" +
-                  this.selectedEventId
-              )
-              .then((response) => {
-                // Handle successful response
-                this.totalTicketsSold = response.data;
-              })
-              .catch((error) => {
-                // Handle error
-                this.totalTicketsSold = 0;
-                console.error("Error fetching events:", error);
-              });
+            const handleError = (error) => {
+                console.error("Error fetching data:", error);
+            };
 
-            axios
-              .get(
-                "http://localhost:8080/api/manager/ViewDashboard/customerAttendance/Redeemed/" +
-                  this.selectedEventId
-              )
-              .then((response) => {
-                // Handle successful response
-                this.customerAttendance = response.data;
-              })
-              .catch((error) => {
-                // Handle error
-                this.customerAttendance = 0;
-                // console.error("Error fetching events:", error);
-              });
+            axios.get(`http://localhost:8080/api/manager/ViewDashboard/ticketSold/${this.selectedEventId}`)
+                .then((response) => {
+                    this.totalTicketsSold = response.data;
+                })
+                .catch((error) => {
+                    this.totalTicketsSold = 0;
+                    handleError(error);
+                });
 
-            axios
-              .get(
-                "http://localhost:8080/api/manager/ViewDashboard/revenueGenerated/Booked/" +
-                  this.selectedEventId
-              )
-              .then((response) => {
-                this.totalRevenue = response.data;
-              })
-              .catch((error) => {
-                this.totalRevenue = 0;
-                console.error("Error fetching events:", error);
-              });
-          },
+            axios.get(`http://localhost:8080/api/manager/ViewDashboard/customerAttendance/Redeemed/${this.selectedEventId}`)
+                .then((response) => {
+                    this.customerAttendance = response.data;
+                })
+                .catch((error) => {
+                    this.customerAttendance = 0;
+                    handleError(error);
+                });
+
+            axios.get(`http://localhost:8080/api/manager/ViewDashboard/revenueGenerated/Booked/${this.selectedEventId}`)
+                .then((response) => {
+                    this.totalRevenue = response.data;
+                })
+                .catch((error) => {
+                    this.totalRevenue = 0;
+                    handleError(error);
+                });
+        },
           exportDashboardToExcel() {
             let url;
             let fileName;

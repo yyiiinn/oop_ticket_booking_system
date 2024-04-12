@@ -17,4 +17,12 @@ public class TicketService {
     public int customerAttendanceByEventID(String status, int eventId) {
         return ticketRepository.customerAttendanceByEventID(status, eventId);
     }
+
+    public int totalTicketsSold() {
+        return ticketRepository.totalTicketsSold();
+    }
+
+    public int totalCustomerAttendance(String status) {
+        return ticketRepository.totalCustomerAttendance(status);
+    }
 }

@@ -14,4 +14,7 @@ public class TransactionService {
         return transactionRepository.revenueGeneratedByEventID(status, eventId);
     }
     
+    public int totalRevenueGenerated(String status) {
+        return transactionRepository.totalRevenueGenerated(status);
+    }
 }

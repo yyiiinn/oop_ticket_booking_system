@@ -313,15 +313,21 @@ public class TransactionController {
     private TransactionService transactionService;
 
     @GetMapping("/api/manager/ViewDashboard/revenueGenerated/{status}/{eventId}")
-    public ResponseEntity<Object> revenueGeneratedByEventID(@PathVariable String status, @PathVariable int eventId) {
+    public ResponseEntity<Object> revenueGeneratedByEventID(@PathVariable String status, @PathVariable(required = false) Integer eventId) {
         try {
-            int revenueGenerated = transactionService.revenueGeneratedByEventID(status, eventId);
-            if (revenueGenerated != 0){
+            int revenueGenerated;
+            if (eventId != null && eventId != 0) {
+                revenueGenerated = transactionService.revenueGeneratedByEventID(status, eventId);
+            } else {
+                revenueGenerated = transactionService.totalRevenueGenerated(status);
+            }
+
+            if (revenueGenerated != 0) {
                 return ResponseEntity.ok(revenueGenerated);
             }
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
-            // TODO: handle exception
+            // Handle exception
             return ResponseEntity.status(403).body("");
         }
     }
