@@ -65,6 +65,20 @@
         color: #141b4d;
         border: 3px solid #141b4d;
       }
+
+      #chart-container {
+      display: flex; 
+      flex-wrap: wrap; 
+      justify-content: center; 
+    }
+
+    #chart-container canvas {
+        margin-right: 10px;
+        margin-top: 40px;
+        width: 500px !important;
+        height: 500px !important;
+    }
+
     </style>
   </head>
 
@@ -127,6 +141,15 @@
               <p><strong>Customer Attendance</strong></p>
             </div>
           </div>
+
+          <div class="row mt-4">
+            <!-- Display Customer Attendance -->
+            <div class="col-md dashboard text-center">
+              <div id="chart-container">
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -135,6 +158,8 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <!-- include Vue.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.4.21/vue.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 
     <script type="module">
       import NavBarComponent from "/js/navbar/EventManNavBarComponent.js";
@@ -149,15 +174,10 @@
             selectedEventName: '',
             events: [], // Example event names
             defaultDropdownText: "Event Name",
+            seatsDetails: [],
+            uniqueChartId: `${Date.now()}-${Math.floor(Math.random() * 10000)}` // Generate a unique chartId
           };
         },
-        /*
-      watch: {
-        selectedEventName(newValue, oldValue) {
-          this.fetchEventData(newValue);
-        }
-      },
-      */
         mounted() {
           this.fetchEvents();
           this.selectedEventData();
@@ -176,17 +196,18 @@
           selectedEventData() {
             if (this.selectedEventId == 0) {
                 this.selectedEventName = ''; 
+                this.seatsDetails = [];
+                const chartContainer = document.getElementById('chart-container');
+                chartContainer.innerHTML = '';
             } else {
                 const selectedEvent = this.events.find(event => event.id === this.selectedEventId);
                 if (selectedEvent) {
                     this.selectedEventName = selectedEvent.name;
                 }
             }
-
             const handleError = (error) => {
                 console.error("Error fetching data:", error);
             };
-
             axios.get(`http://localhost:8080/api/manager/ViewDashboard/ticketSold/${this.selectedEventId}`)
                 .then((response) => {
                     this.totalTicketsSold = response.data;
@@ -196,7 +217,7 @@
                     handleError(error);
                 });
 
-            axios.get(`http://localhost:8080/api/manager/ViewDashboard/customerAttendance/Redeemed/${this.selectedEventId}`)
+            axios.get(`http://localhost:8080/api/manager/ViewDashboard/customerAttendance/${this.selectedEventId}`)
                 .then((response) => {
                     this.customerAttendance = response.data;
                 })
@@ -205,7 +226,7 @@
                     handleError(error);
                 });
 
-            axios.get(`http://localhost:8080/api/manager/ViewDashboard/revenueGenerated/Booked/${this.selectedEventId}`)
+            axios.get(`http://localhost:8080/api/manager/ViewDashboard/revenueGenerated/${this.selectedEventId}`)
                 .then((response) => {
                     this.totalRevenue = response.data;
                 })
@@ -213,6 +234,16 @@
                     this.totalRevenue = 0;
                     handleError(error);
                 });
+            
+            axios.get(`http://localhost:8080/api/manager/ViewDashboard/seatsDetails/${this.selectedEventId}`)
+            .then((response) => {
+              console.log(response)
+              this.seatsDetails = response.data;
+              this.createChart();
+            })
+            .catch((error) => {
+                this.seatsDetails = [];
+            });
         },
           exportDashboardToExcel() {
             let url;
@@ -243,7 +274,67 @@
             }).catch(error => {
               console.error("Error exporting data:", error);
             });
+          },
+          
+          createChart() {
+            const seatDetails = this.seatsDetails;
+            const chartContainer = document.getElementById('chart-container');
+            chartContainer.innerHTML = '<span class="row" style="display: contents;height:fit-content!important;"><strong>Seat Distribution by Seating Options</strong></span>';
+            let index = 0;
+            console.log(seatDetails)
+            if (Object.keys(seatDetails).length > 0) {
+            for (let seat in seatDetails) {
+                console.log(seat);
+                const canvas = document.createElement('canvas');
+                canvas.id = 'chart-' + index;
+                chartContainer.appendChild(canvas);
+                const ctx = canvas.getContext('2d');
+                new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Booked', 'Refunded', 'Left', 'Cancelled'],
+                        datasets: [{
+                            backgroundColor: ['green', 'red', 'blue', 'grey'], // You can define colors as needed
+                            data: [
+                                parseInt(seatDetails[seat][0].bookedPercentage),
+                                parseInt(seatDetails[seat][0].refundedPercentage),
+                                parseInt(seatDetails[seat][0].leftPercentage),
+                                parseInt(seatDetails[seat][0].cancelledPercentage)
+                            ]
+                        }],
+                        hoverOffset: 4
+                    },
+                    options: {
+                      plugins: {
+                        title: {
+                          display: true,
+                          text: seat
+                        },
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                        },
+                        tooltip: {
+                          titleFont: {
+                            size: 23, 
+                            weight: 'bold' 
+                        },  bodyFont: {
+                            size: 22 
+                        },
+                            callbacks: {
+                                label: function (context) {
+                                    const value = context.parsed;
+                                    return ' '  + value + '%';;
+                                }
+                            }
+                        }
+                      }
+                    },
+                });
+                index += 1;
+            }
           }
+        }
         },
       });
       app.component("navbar-component", NavBarComponent);
