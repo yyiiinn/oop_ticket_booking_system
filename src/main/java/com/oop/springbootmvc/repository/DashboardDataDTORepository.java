@@ -11,6 +11,10 @@ import com.oop.springbootmvc.model.DashboardDataDTO;
 public interface DashboardDataDTORepository extends CrudRepository<DashboardDataDTO, Long>{
     
     @Query("SELECT new com.oop.springbootmvc.model.DashboardDataDTO(ti.id, ti.guid, ti.status, t.id, t.cancellationCost, t.status, t.purchasedDateTime, t.cost, s.id, s.type, s.cost, s.numberOfSeats, e.id, e.name, e.description, e.category, e.venue, e.cancellationFee, e.eventStartDate, e.eventStartTime, e.eventEndTime, e.ticketSaleStartDateTime, e.ticketSaleEndDateTime,e.status) " +
-        "FROM Ticket ti JOIN ti.transaction t JOIN t.seat s Join s.event e")
-    List<DashboardDataDTO> getDashboardData();
+        "FROM Ticket ti JOIN ti.transaction t JOIN t.seat s Join s.event e WHERE e.id = ?1")
+    List<DashboardDataDTO> getDashboardData(Long eventId);
+
+    @Query("SELECT new com.oop.springbootmvc.model.DashboardDataDTO(ti.id, ti.guid, ti.status, t.id, t.cancellationCost, t.status, t.purchasedDateTime, t.cost, s.id, s.type, s.cost, s.numberOfSeats, e.id, e.name, e.description, e.category, e.venue, e.cancellationFee, e.eventStartDate, e.eventStartTime, e.eventEndTime, e.ticketSaleStartDateTime, e.ticketSaleEndDateTime, e.status) " +
+    "FROM Ticket ti JOIN ti.transaction t JOIN t.seat s JOIN s.event e")
+    List<DashboardDataDTO> getAllDashboardData();
 }

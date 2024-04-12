@@ -74,7 +74,8 @@
         <navbar-component active-link="dashboard"></navbar-component>
 
         <div class="container pt-5">
-          <h2 class="text-center mb-4">Dashboard</h2>
+          <h2 class="text-center mb-4">Dashboard (Sales & Statistics)</h2>
+          <p v-if="selectedEventName != ''" class="text-center text-secondary fs-4">For {{selectedEventName}}</p>
 
           <div class="d-flex justify-content-between mt-5 mb-3">
             <div class="form-group mb-3 dropdown-field">
@@ -84,7 +85,7 @@
                 class="form-select border-0 shadow-sm px-4 field"
                 style="width: 300px"
               >
-                <option disabled value="">{{ defaultDropdownText }}</option>
+                <option value="" disabled selected>{{ defaultDropdownText }}</option>
                 <option
                   v-for="event in events"
                   :key="event.id"
@@ -144,6 +145,7 @@
             totalRevenue: 0,
             customerAttendance: 0,
             selectedEventId: 0,
+            selectedEventName: '',
             events: [], // Example event names
             defaultDropdownText: "Event Name",
           };
@@ -170,6 +172,11 @@
               });
           },
           selectedEventData() {
+            const selectedEvent = this.events.find(event => event.id === this.selectedEventId);
+            if (selectedEvent) {
+                this.selectedEventName = selectedEvent.name; 
+            }
+
             axios
               .get(
                 "http://localhost:8080/api/manager/ViewDashboard/ticketSold/" +
@@ -197,7 +204,7 @@
               .catch((error) => {
                 // Handle error
                 this.customerAttendance = 0;
-                console.error("Error fetching events:", error);
+                // console.error("Error fetching events:", error);
               });
 
             axios
@@ -206,50 +213,43 @@
                   this.selectedEventId
               )
               .then((response) => {
-                // Handle successful response
                 this.totalRevenue = response.data;
               })
               .catch((error) => {
-                // Handle error
                 this.totalRevenue = 0;
                 console.error("Error fetching events:", error);
               });
           },
           exportDashboardToExcel() {
+            let url;
+            let fileName;
+
+            if (this.selectedEventId) {
+              // for selected event
+              url = `http://localhost:8080/export/dashboard-data/excel?eventId=${this.selectedEventId}`;
+              fileName = `${this.selectedEventName.replace(/[\W_]+/g, "_")}_DashboardData.xlsx`;
+            } else {
+              // for all events
+              url = "http://localhost:8080/export/dashboard-data/excel";
+              fileName = "All_Events_DashboardData.xlsx";
+            }
+
             axios({
-              url: "http://localhost:8080/export/dashboard-data/excel",
-              method: "GET",
-              responseType: "blob",
-            })
-              .then((response) => {
-                const url = window.URL.createObjectURL(
-                  new Blob([response.data])
-                );
-                const link = document.createElement("a");
-                link.href = url;
-                link.setAttribute("download", "dashboardData.xlsx");
-                document.body.appendChild(link);
-                link.click();
-              })
-              .catch((error) => {
-                console.error("Error exporting data:", error);
-              });
-          },
-          /*
-        fetchEventData(eventName) {
-          // Example Axios call to fetch event data based on `eventName`
-          axios.get(`/api/events/data?eventName=${eventName}`)
-            .then(response => {
-              // Assuming the API returns an object with `ticketsSold` and `revenue` properties
-              this.totalTicketsSold = response.data.ticketsSold;
-              this.totalRevenue = response.data.revenue;
-            })
-            .catch(error => {
-              console.error("Error fetching event data:", error);
-              // Handle error (e.g., reset to default values or display an error message)
+              url: url,
+              method: 'GET',
+              responseType: 'blob',
+            }).then(response => {
+              const downloadUrl = window.URL.createObjectURL(new Blob([response.data]));
+              const link = document.createElement('a');
+              link.href = downloadUrl;
+              link.setAttribute('download', fileName); 
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link); 
+            }).catch(error => {
+              console.error("Error exporting data:", error);
             });
-        },
-        */
+          }
         },
       });
       app.component("navbar-component", NavBarComponent);
