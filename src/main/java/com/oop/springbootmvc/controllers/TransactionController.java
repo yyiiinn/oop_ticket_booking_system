@@ -33,10 +33,14 @@ import com.oop.springbootmvc.viewmodel.CustomerBookingDetailsViewModel;
 import com.oop.springbootmvc.viewmodel.CustomerCancelTransactionViewModel;
 import com.oop.springbootmvc.viewmodel.CustomerTicketViewModel;
 import com.oop.springbootmvc.viewmodel.CustomerTransactionViewModel;
+import com.oop.springbootmvc.viewmodel.OfficerPurchaseViewModel;
 import com.oop.springbootmvc.viewmodel.PurchaseViewModel;
 
 import com.oop.springbootmvc.service.EmailService;
 import com.oop.springbootmvc.service.TransactionService;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 public class TransactionController {
@@ -181,18 +185,22 @@ public class TransactionController {
     }
 
     @PostMapping("/api/officer/purchase")
-    public ResponseEntity<Object> createTransaction(@RequestParam("username") String username, @RequestBody PurchaseViewModel purchaseViewModel) {
+    public ResponseEntity<Object> createTransaction(@RequestBody OfficerPurchaseViewModel officerPurchaseViewModel) {
         try{
-            User u = userRepository.findByUsername(username).get();
+            Optional<User> optionalUser = userRepository.findByUsername(officerPurchaseViewModel.getUsername());
+            if (!optionalUser.isPresent()) {
+                return ResponseEntity.badRequest().build();
+            }
+            User u = optionalUser.get();
             Transaction t = new Transaction();
             t.setStatus("Booked");
             Timestamp purchasedDateTime = Timestamp.from(Instant.now());
             t.setPurchasedDateTime(purchasedDateTime);
 
-            Optional<Seat> s = seatRepository.findById(purchaseViewModel.getSitId());
+            Optional<Seat> s = seatRepository.findById(officerPurchaseViewModel.getSitId());
             if(s.isPresent()){
                 Seat seat = s.get();
-                t.setCost(seat.getCost() * purchaseViewModel.getQuantity());
+                t.setCost(seat.getCost() * officerPurchaseViewModel.getQuantity());
 
                 // User does not have enough balance
                 if (u.getBalance() < t.getCost()){
@@ -213,7 +221,7 @@ public class TransactionController {
                         break;
                     }
                 }
-                if ((seat.getNumberOfSeats()- booked)<purchaseViewModel.getQuantity()){
+                if ((seat.getNumberOfSeats()- booked)<officerPurchaseViewModel.getQuantity()){
                     return ResponseEntity.badRequest().build();
                 }
 
@@ -222,7 +230,7 @@ public class TransactionController {
                 t.setSeat(seat);
                 Transaction confirmed = transactionRepository.save(t);
                 ArrayList<Ticket> tickets = new ArrayList<>();
-                for (int i = 0; i < purchaseViewModel.getQuantity(); i++) {
+                for (int i = 0; i < officerPurchaseViewModel.getQuantity(); i++) {
                     Ticket ticket = new Ticket();
                     ticket.setStatus("Usable");
                     ticket.setGuid(java.util.UUID.randomUUID().toString());
