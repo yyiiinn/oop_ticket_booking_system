@@ -13,5 +13,20 @@ public class TransactionService {
     public int revenueGeneratedByEventID(String status, int eventId) {
         return transactionRepository.revenueGeneratedByEventID(status, eventId);
     }
+
+    public int countTotalTransactions() {
+        return transactionRepository.countTotalTransactions();
+    }
     
+    public int totalRevenueGenerated(String status) {
+        return transactionRepository.totalRevenueGenerated(status);
+    }
+
+    public int countTransactionByStatus(String status) {
+        return transactionRepository.countTransactionByStatus(status);
+    }
+
+    public int countTransactionByStatusAndSeatId(String status, int seat_id) {
+        return transactionRepository.countTransactionByStatusAndSeatId(status, seat_id);
+    }
 }

@@ -14,6 +14,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 import com.oop.springbootmvc.model.DashboardDataDTO;
 import com.oop.springbootmvc.repository.DashboardDataDTORepository;
@@ -24,19 +26,34 @@ public class DashboardDataExportController {
     private DashboardDataDTORepository dashboardDataDTORepository;
 
     @GetMapping("/export/dashboard-data/excel")
-    public ResponseEntity<byte[]> exportDashboardDataToExcel() {
+    public ResponseEntity<byte[]> exportDashboardDataToExcel(@RequestParam(required = false) Long eventId) {
         try {
-            List<DashboardDataDTO> dashoboardData = dashboardDataDTORepository.getDashboardData(); // Implement this method in your repository
-            byte[] excelData = exportTicketsToExcel(dashoboardData); // Implement this method to generate Excel data from tickets
+            List<DashboardDataDTO> dashboardData;
+            String filename = "DashboardData_AllEvents.xlsx";  // Default filename for all events
+
+            if (eventId != null) {
+                
+                dashboardData = dashboardDataDTORepository.getDashboardData(eventId);
+                filename = "DashboardData_EventID_" + eventId + ".xlsx"; 
+            } else {
+                
+                dashboardData = dashboardDataDTORepository.getAllDashboardData();
+            }
+
+            byte[] excelData = exportTicketsToExcel(dashboardData);
+            
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.parseMediaType("application/vnd.ms-excel"));
-            headers.setContentDispositionFormData("attachment", "DashboardData.xlsx");
+            headers.setContentDispositionFormData("attachment", filename);
             headers.setContentLength(excelData.length);
+        
             return new ResponseEntity<>(excelData, headers, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
 
     private byte[] exportTicketsToExcel(List<DashboardDataDTO> dashoboardData) throws IOException {
         // Implement logic to convert list of tickets to Excel

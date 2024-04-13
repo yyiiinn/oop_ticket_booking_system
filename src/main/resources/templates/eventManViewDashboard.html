@@ -38,13 +38,22 @@
         padding: 15px;
       }
 
-      .total_tickets {
-        margin-right: 20px;
+      .ticket_row .dashboard:not(:last-child), .count_row .dashboard:not(:last-child), .month-row .dashboard:not(:last-child){
+        margin-right: 10px !important;
       }
 
+      @media (max-width: 1399px) {
+        .count_row .dashboard:not(:last-child), .month-row .dashboard:not(:last-child){
+        margin-bottom: 25px !important;
+      }
+    }
+
       @media (max-width: 767px) {
-        .total_tickets {
-          margin-bottom: 23px;
+        .ticket_row .dashboard, .count_row .dashboard, .month-row .dashboard {
+           margin-top: 20px !important;
+        }
+        .export-row {
+          display: block !important; 
         }
       }
 
@@ -65,6 +74,27 @@
         color: #141b4d;
         border: 3px solid #141b4d;
       }
+
+      #chart-container {
+        display: flex; 
+        flex-wrap: wrap; 
+        justify-content: center; 
+      }
+
+      #chart-container canvas {
+          margin-right: 10px;
+          margin-top: 40px;
+          width: 500px !important;
+          height: 500px !important;
+      }
+
+      #transaction-count-month-container canvas {
+        height: 500px; /* Explicitly define the height */
+        width: 100%; /* Adjust width as necessary */
+        overflow: hidden; /* This can help contain the dimensions */
+    }
+      
+
     </style>
   </head>
 
@@ -73,10 +103,12 @@
       <div class="full-screen-container">
         <navbar-component active-link="dashboard"></navbar-component>
 
-        <div class="container pt-5">
-          <h2 class="text-center mb-4">Dashboard</h2>
+        <div class="container pt-5" ref="analysisView">
+          <h2 class="text-center mb-4">Dashboard (Sales & Statistics)</h2>
+          <p v-if="selectedEventName != ''" class="text-center text-secondary fs-4">For {{selectedEventName}}</p>
+          <p v-else class="text-center text-secondary fs-4">For All Events</p>
 
-          <div class="d-flex justify-content-between mt-5 mb-3">
+          <div class="col-md export-row d-flex justify-content-between mt-5 mb-3">
             <div class="form-group mb-3 dropdown-field">
               <select
                 v-model="selectedEventId"
@@ -84,7 +116,7 @@
                 class="form-select border-0 shadow-sm px-4 field"
                 style="width: 300px"
               >
-                <option disabled value="">{{ defaultDropdownText }}</option>
+                <option value="0" selected>{{ defaultDropdownText }}</option>
                 <option
                   v-for="event in events"
                   :key="event.id"
@@ -94,18 +126,29 @@
                 </option>
               </select>
             </div>
-            <button
-              @click="exportDashboardToExcel"
-              class="btn btn-primary font-weight-bold"
-              type="button"
-              title="Export"
-              style="width: 100px; height: 50px"
-            >
-              Export
-            </button>
+            <div>
+              <button
+                @click="exportDashboardToExcel"
+                class="btn btn-success font-weight-bold"
+                type="button"
+                title="Export"
+                style="width: 170px; height: 50px"
+              >
+                Export to Excel
+              </button>
+              <button
+                @click="exportPdf()"
+                class="btn btn-primary font-weight-bold"
+                type="button"
+                title="Export"
+                style="width: 150px; height: 50px"
+              >
+                Export to PDF
+              </button>
+            </div>
           </div>
 
-          <div class="row">
+          <div class="ticket_row row">
             <!-- Display Total No. of Tickets Sold -->
             <div class="col-md dashboard total_tickets text-center">
               <h2 class="fs-1">{{totalTicketsSold}}</h2>
@@ -113,18 +156,51 @@
             </div>
             <!-- Display Overall Revenue -->
             <div class="col-md dashboard text-center">
-              <h2 class="fs-1">{{totalRevenue}}</h2>
+              <h2 class="fs-1">${{totalRevenue}}</h2>
               <p><strong>Total Revenue</strong></p>
+            </div>
+             <!-- Display Overall Transactions -->
+             <div class="col-md dashboard text-center">
+              <h2 class="fs-1">{{totalTransactions}}</h2>
+              <p><strong>Total Transactions</strong></p>
+            </div>
+          </div>
+
+          <div class="count_row row mt-4">
+            <!-- Display Customer Attendance -->
+            <div class="col-md dashboard text-center">
+              <div id="customer-attendance-container">
+              </div>
+            </div>
+
+            <!-- Display Transaction count -->
+            <div class="col-md dashboard text-center">
+              <div id="transaction-count-container">
+              </div>
+            </div>
+          </div>
+
+          <div class="month-row row mt-4">
+            <!-- Display Total ticket sales by month -->
+            <div class="col-md dashboard text-center">
+              <div id="ticket-sales-container">
+              </div>
+            </div>
+            <!-- Display Total Transactions by month -->
+            <div class="col-md dashboard text-center">
+              <div id="transaction-count-month-container">
+              </div>
             </div>
           </div>
 
           <div class="row mt-4">
-            <!-- Display Customer Attendance -->
+            <!-- Display Seat Distribution -->
             <div class="col-md dashboard text-center">
-              <h2 class="fs-1">{{customerAttendance}}</h2>
-              <p><strong>Customer Attendance</strong></p>
+              <div id="chart-container">
+              </div>
             </div>
           </div>
+
         </div>
       </div>
     </div>
@@ -133,6 +209,10 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <!-- include Vue.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.4.21/vue.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
 
     <script type="module">
       import NavBarComponent from "/js/navbar/EventManNavBarComponent.js";
@@ -142,21 +222,22 @@
           return {
             totalTicketsSold: 0,
             totalRevenue: 0,
-            customerAttendance: 0,
+            customerAttendance: {},
+            transactionsCount: {},
+            ticketSalesByMonth: {},
+            transactionCountByMonth: {},
             selectedEventId: 0,
+            selectedEventName: '',
+            totalTransactions: 0,
             events: [], // Example event names
             defaultDropdownText: "Event Name",
+            seatsDetails: [],
+            uniqueChartId: `${Date.now()}-${Math.floor(Math.random() * 10000)}` // Generate a unique chartId
           };
         },
-        /*
-      watch: {
-        selectedEventName(newValue, oldValue) {
-          this.fetchEventData(newValue);
-        }
-      },
-      */
         mounted() {
           this.fetchEvents();
+          this.selectedEventData();
         },
         methods: {
           fetchEvents() {
@@ -170,86 +251,453 @@
               });
           },
           selectedEventData() {
-            axios
-              .get(
-                "http://localhost:8080/api/manager/ViewDashboard/ticketSold/" +
-                  this.selectedEventId
-              )
-              .then((response) => {
-                // Handle successful response
-                this.totalTicketsSold = response.data;
-              })
-              .catch((error) => {
-                // Handle error
-                this.totalTicketsSold = 0;
-                console.error("Error fetching events:", error);
-              });
+            if (this.selectedEventId == 0) {
+                this.selectedEventName = ''; 
+                this.seatsDetails = [];
+                const chartContainer = document.getElementById('chart-container');
+                chartContainer.innerHTML = '<span class="row" style="display: contents;height:fit-content!important;"><strong>Seat Distribution by Event by Seating Options</strong></span><div style="margin-top:20px;margin-bottom:20px">-</div>';
+            } else {
+                const selectedEvent = this.events.find(event => event.id === this.selectedEventId);
+                if (selectedEvent) {
+                    this.selectedEventName = selectedEvent.name;
+                }
+            }
+            const handleError = (error) => {
+                console.error("Error fetching data:", error);
+            };
+            axios.get(`http://localhost:8080/api/manager/ViewDashboard/ticketSold/${this.selectedEventId}`)
+                .then((response) => {
+                    this.totalTicketsSold = response.data;
+                })
+                .catch((error) => {
+                    this.totalTicketsSold = 0;
+                    handleError(error);
+                });
 
-            axios
-              .get(
-                "http://localhost:8080/api/manager/ViewDashboard/customerAttendance/Redeemed/" +
-                  this.selectedEventId
-              )
-              .then((response) => {
-                // Handle successful response
-                this.customerAttendance = response.data;
-              })
-              .catch((error) => {
-                // Handle error
-                this.customerAttendance = 0;
-                console.error("Error fetching events:", error);
-              });
+            axios.get(`http://localhost:8080/api/manager/ViewDashboard/customerAttendance/${this.selectedEventId}`)
+                .then((response) => {
+                    this.customerAttendance = response.data;
+                    if(this.customerAttendance.Unattended == 0 && this.customerAttendance.Cancelled == 0 && this.customerAttendance.Attended == 0) {
+                      const chartContainer = document.getElementById('customer-attendance-container');
+                      chartContainer.innerHTML = '<span class="row" style="display: contents;height:fit-content!important;"><strong>Purchased Tickets Attendance Distribution</strong></span><div style="margin-top:20px;margin-bottom:20px">-</div>';
+                    } else {
+                      this.createCustomerAttendanceChart();
+                    }
+                })
+                .catch((error) => {
+                    this.customerAttendance = {};
+                    const chartContainer = document.getElementById('customer-attendance-container');
+                    chartContainer.innerHTML = '<span class="row" style="display: contents;height:fit-content!important;"><strong>Purchased Tickets Attendance Distribution</strong></span><div style="margin-top:20px;margin-bottom:20px">-</div>';
+                    handleError(error);
+                });
 
-            axios
-              .get(
-                "http://localhost:8080/api/manager/ViewDashboard/revenueGenerated/Booked/" +
-                  this.selectedEventId
-              )
-              .then((response) => {
-                // Handle successful response
-                this.totalRevenue = response.data;
-              })
-              .catch((error) => {
-                // Handle error
-                this.totalRevenue = 0;
-                console.error("Error fetching events:", error);
-              });
-          },
-          exportDashboardToExcel() {
-            axios({
-              url: "http://localhost:8080/export/dashboard-data/excel",
-              method: "GET",
-              responseType: "blob",
+              axios.get(`http://localhost:8080/api/manager/ViewDashboard/revenueGenerated/Booked/${this.selectedEventId}`)
+                .then((response) => {
+                    this.totalRevenue = response.data;
+                })
+                .catch((error) => {
+                    this.totalRevenue = 0;
+                    handleError(error);
+                });
+            
+            axios.get(`http://localhost:8080/api/manager/ViewDashboard/seatsDetails/${this.selectedEventId}`)
+            .then((response) => {
+              this.seatsDetails = response.data;
+              this.createChart();
             })
-              .then((response) => {
-                const url = window.URL.createObjectURL(
-                  new Blob([response.data])
-                );
-                const link = document.createElement("a");
-                link.href = url;
-                link.setAttribute("download", "dashboardData.xlsx");
-                document.body.appendChild(link);
-                link.click();
-              })
-              .catch((error) => {
-                console.error("Error exporting data:", error);
-              });
-          },
-          /*
-        fetchEventData(eventName) {
-          // Example Axios call to fetch event data based on `eventName`
-          axios.get(`/api/events/data?eventName=${eventName}`)
-            .then(response => {
-              // Assuming the API returns an object with `ticketsSold` and `revenue` properties
-              this.totalTicketsSold = response.data.ticketsSold;
-              this.totalRevenue = response.data.revenue;
+            .catch((error) => {
+                this.seatsDetails = [];
+            });
+
+            axios.get(`/api/manager/ViewDashboard/totalTransactions/${this.selectedEventId}`)
+            .then((response) => {
+              this.transactionsCount = response.data;
+              this.totalTransactions = this.transactionsCount.TotalTransactions;
+              if(this.transactionsCount.TotalTransactions == 0) {
+                const chartContainer = document.getElementById('transaction-count-container');
+                chartContainer.innerHTML = '<span class="row" style="display: contents;height:fit-content!important;"><strong>Transaction Count by Type</strong></span><div style="margin-top:20px;margin-bottom:20px">-</div>';
+              } else {
+                this.createTransactionCountChart();
+              }
             })
-            .catch(error => {
-              console.error("Error fetching event data:", error);
-              // Handle error (e.g., reset to default values or display an error message)
+            .catch((error) => {
+              this.transactionsCount = {};
+              this.totalTransactions = 0;
+              const chartContainer = document.getElementById('transaction-count-container');
+              chartContainer.innerHTML = '<span class="row" style="display: contents;height:fit-content!important;"><strong>Transaction Count by Type</strong></span><div style="margin-top:20px;margin-bottom:20px">-</div>';
+            });
+
+            axios.get(`/api/manager/ViewDashboard/ticketSalesByMonth/${this.selectedEventId}`)
+            .then((response) => {
+              this.ticketSalesByMonth = response.data;
+              let zeroCount = 0;
+              for (let count of Object.values(this.ticketSalesByMonth)) {
+                  if (count === 0) {
+                      zeroCount++;
+                  }
+              }
+              if(zeroCount >= 12) {
+                const chartContainer = document.getElementById("ticket-sales-container");
+                chartContainer.innerHTML = '<span class="row" style="display: contents;height:fit-content!important;"><strong>Total Ticket Sales By Month</strong></span><div style="margin-top:20px;margin-bottom:20px">-</div>';
+              } else {
+                this.createTotalTicketSalesChart();
+              }
+            })
+            .catch((error) => {
+              this.ticketSalesByMonth = {};
+              const chartContainer = document.getElementById("ticket-sales-container");
+              chartContainer.innerHTML = '<span class="row" style="display: contents;height:fit-content!important;"><strong>Total Ticket Sales By Month</strong></span><div style="margin-top:20px;margin-bottom:20px">-</div>';
+            });
+
+            axios.get(`/api/manager/ViewDashboard/TransactionCountByMonth/${this.selectedEventId}`)
+            .then((response) => {
+              console.log(response);
+              this.transactionCountByMonth = response.data;
+              let zeroCount = 0;
+              for (let count of Object.values(this.transactionCountByMonth)) {
+                  if (count === 0) {
+                      zeroCount++;
+                  }
+              }
+              if(zeroCount >= 12) {
+                const chartContainer = document.getElementById("transaction-count-month-container");
+                chartContainer.innerHTML = '<span class="row" style="display: contents;height:fit-content!important;"><strong>Total Transactions By Month</strong></span><div style="margin-top:20px;margin-bottom:20px">-</div>';
+              } else {
+                this.createTransactionCountByMonthChart();
+              }
+            })
+            .catch((error) => {
+              this.transactionCountByMonth = {};
+              const chartContainer = document.getElementById("transaction-count-month-container");
+              chartContainer.innerHTML = '<span class="row" style="display: contents;height:fit-content!important;"><strong>Total Transactions By Month</strong></span><div style="margin-top:20px;margin-bottom:20px">-</div>';
             });
         },
-        */
+          exportDashboardToExcel() {
+            let url;
+            let fileName;
+
+            if (this.selectedEventId) {
+              // for selected event
+              url = `http://localhost:8080/export/dashboard-data/excel?eventId=${this.selectedEventId}`;
+              fileName = `${this.selectedEventName.replace(/[\W_]+/g, "_")}_DashboardData.xlsx`;
+            } else {
+              // for all events
+              url = "http://localhost:8080/export/dashboard-data/excel";
+              fileName = "All_Events_DashboardData.xlsx";
+            }
+
+            axios({
+              url: url,
+              method: 'GET',
+              responseType: 'blob',
+            }).then(response => {
+              const downloadUrl = window.URL.createObjectURL(new Blob([response.data]));
+              const link = document.createElement('a');
+              link.href = downloadUrl;
+              link.setAttribute('download', fileName); 
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link); 
+            }).catch(error => {
+              console.error("Error exporting data:", error);
+            });
+          },
+          exportPdf() {
+            try {
+              const container = this.$refs.analysisView;
+              const fileName = 'dashboard_stats.pdf';
+
+              const options = {
+                margin: 5,
+                filename: fileName,
+                image: { type: 'jpeg', quality: 1 },
+                html2canvas: { scale: 1 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak: { mode: ['avoid-all'] }
+              };
+
+              const pdf = html2pdf().from(container).set(options).outputPdf();
+
+              pdf.save();
+            } catch (error) {
+              console.error("Error exporting to PDF:", error);
+            }
+          },
+          createChart() {
+            const seatDetails = this.seatsDetails;
+            const chartContainer = document.getElementById('chart-container');
+            chartContainer.innerHTML = '<span class="row" style="display: contents;height:fit-content!important;"><strong>Seat Distribution by Event by Seating Options</strong></span>';
+            let index = 0;
+            if (Object.keys(seatDetails).length > 0) {
+            for (let seat in seatDetails) {
+                const canvas = document.createElement('canvas');
+                canvas.id = 'chart-' + index;
+                chartContainer.appendChild(canvas);
+                const ctx = canvas.getContext('2d');
+                new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Booked', 'Refunded', 'Unsold', 'Cancelled'],
+                        datasets: [{
+                            backgroundColor: ['green', 'red', 'blue', 'grey'], 
+                            data: [
+                                parseInt(seatDetails[seat][0].bookedPercentage),
+                                parseInt(seatDetails[seat][0].refundedPercentage),
+                                parseInt(seatDetails[seat][0].leftPercentage),
+                                parseInt(seatDetails[seat][0].cancelledPercentage)
+                            ]
+                        }],
+                        hoverOffset: 4
+                    },
+                    options: {
+                      plugins: {
+                        title: {
+                          display: true,
+                          text: seat
+                        },
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                        },
+                        tooltip: {
+                          titleFont: {
+                            size: 23, 
+                            weight: 'bold' 
+                        },  bodyFont: {
+                            size: 22 
+                        },
+                            callbacks: {
+                                label: function (context) {
+                                    const value = context.parsed;
+                                    return ' '  + value + '%';;
+                                }
+                            }
+                        }
+                      }
+                    },
+                });
+                index += 1;
+            }
+          }
+        },
+        createCustomerAttendanceChart(){
+          const customerAttendance = this.customerAttendance;
+          const chartContainer = document.getElementById('customer-attendance-container');
+          chartContainer.innerHTML = '<span class="row" style="display: contents;height:fit-content!important;"><strong>Purchased Tickets Attendance Distribution</strong></span>';
+          const canvas = document.createElement('canvas');
+          canvas.id = 'customer-attendance-chart';
+          chartContainer.appendChild(canvas);
+          const ctx = canvas.getContext('2d');
+          new Chart(ctx, {
+              type: 'bar',
+              data: {
+                  labels: ['Unattended', 'Cancelled', 'Attended'],
+                  datasets: [{
+                      backgroundColor: ['grey', 'red', 'green'],
+                      data: [
+                          parseInt(customerAttendance.Unattended),
+                          parseInt(customerAttendance.Cancelled),
+                          parseInt(customerAttendance.Attended),
+                      ]
+                  }],
+                  hoverOffset: 4
+              },
+              options: {
+                plugins: {
+                  title: {
+                    display: true,
+                  },
+                  legend: {
+                      display: false
+                  },
+                  tooltip: {
+                    titleFont: {
+                      size: 23, 
+                      weight: 'bold' 
+                  },  bodyFont: {
+                      size: 22 
+                  },
+                      callbacks: {
+                          label: function (context) {
+                            const value = context.formattedValue;
+                            return ' '  + value + ' Tickets';;
+                          }
+                      }
+                  }
+                }
+              },
+          });
+          },
+          createTransactionCountChart(){
+          const transactionsCount = this.transactionsCount;
+          const chartContainer = document.getElementById('transaction-count-container');
+          chartContainer.innerHTML = '<span class="row" style="display: contents;height:fit-content!important;"><strong>Transaction Count by Type</strong></span>';
+          const canvas = document.createElement('canvas');
+          canvas.id = 'transaction-count-chart';
+          chartContainer.appendChild(canvas);
+          const ctx = canvas.getContext('2d');
+          new Chart(ctx, {
+              type: 'bar',
+              data: {
+                  labels: ['Cancelled', 'Refunded', 'Booked'],
+                  datasets: [{
+                      backgroundColor: ['grey', 'red', 'green'],
+                      data: [
+                          parseInt(transactionsCount.totalTransactionsCancelled),
+                          parseInt(transactionsCount.totalTransactionsRefunded),
+                          parseInt(transactionsCount.totalTransactionsBooked),
+                      ]
+                  }],
+                  hoverOffset: 4
+              },
+              options: {
+                plugins: {
+                  title: {
+                    display: true,
+                  },
+                  legend: {
+                      display: false
+                  },
+                  tooltip: {
+                    titleFont: {
+                      size: 23, 
+                      weight: 'bold' 
+                  },  bodyFont: {
+                      size: 22 
+                  },
+                      callbacks: {
+                          label: function (context) {
+                            const value = context.formattedValue;
+                            return ' '  + value + ' Transactions';;
+                          }
+                      }
+                  }
+                }
+              },
+          });
+          },
+          createTotalTicketSalesChart() {
+            const ticketSalesByMonth = this.ticketSalesByMonth;
+            const chartContainer = document.getElementById('ticket-sales-container');
+            chartContainer.innerHTML = '<span class="row" style="display: contents;height:fit-content!important;"><strong>Total Ticket Sales By Month</strong></span>';
+            const canvas = document.createElement('canvas');
+            canvas.id = 'ticket-sales-chart';
+            chartContainer.appendChild(canvas);
+            let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            let data = [];
+            for (let i = 0; i < months.length; i++) {
+                let month = months[i];
+                data.push(parseInt(ticketSalesByMonth[month]));
+            }
+            const ctx = canvas.getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                    datasets: [{
+                        data: data,
+                        fill: true,
+                        borderColor: 'rgb(67, 185, 191)',
+                        backgroundColor: 'rgba(67, 185, 191, 0.3)'
+                    }],
+                    hoverOffset: 4
+                },
+                options: {
+                  plugins: {
+                    legend: {
+                      display: false
+                    },
+                    tooltip: {
+                      titleFont: {
+                        size: 23, 
+                        weight: 'bold' 
+                    },  bodyFont: {
+                        size: 22 
+                    },
+                        callbacks: {
+                            label: function (context) {
+                              const value = context.formattedValue;
+                              return ' '  + value + ' Tickets Sold';;
+                            }
+                        }
+                    }
+                  }
+                },
+            });
+          },
+          createTransactionCountByMonthChart() {
+            const transactionCountByMonth = this.transactionCountByMonth; // Ensure this data is structured as assumed
+            const chartContainer = document.getElementById("transaction-count-month-container");
+            chartContainer.innerHTML = '<span class="row" style="display: contents;height:fit-content!important;"><strong>Total Transactions By Month</strong></span>';
+            const canvas = document.createElement('canvas');
+            canvas.id = 'transaction-count-by-month-chart';
+            chartContainer.appendChild(canvas);
+            const ctx = canvas.getContext('2d');
+
+            let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            let dataCancelled = months.map(month => transactionCountByMonth[month]?.Cancelled || 0);
+            let dataRefunded = months.map(month => transactionCountByMonth[month]?.Refunded || 0);
+            let dataBooked = months.map(month => transactionCountByMonth[month]?.Booked || 0);
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: [
+                        {
+                            label: 'Cancelled',
+                            data: dataCancelled,
+                            borderColor: 'grey',
+                            backgroundColor: 'grey',
+                            fill: false
+                        },
+                        {
+                            label: 'Refunded',
+                            data: dataRefunded,
+                            borderColor: 'red',
+                            backgroundColor: 'red',
+                            fill: false
+                        },
+                        {
+                            label: 'Booked',
+                            data: dataBooked,
+                            borderColor: 'green', 
+                            backgroundColor: 'green',
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                            
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            titleFont: {
+                                size: 23,
+                                weight: 'bold'
+                            },
+                            bodyFont: {
+                                size: 22
+                            },
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.dataset.label;
+                                    const value = context.raw;
+                                    return `${label}: ${value} Transactions`;
+                                }
+                            }
+                        }
+                    },
+                }
+            });
+        }
+
+
         },
       });
       app.component("navbar-component", NavBarComponent);

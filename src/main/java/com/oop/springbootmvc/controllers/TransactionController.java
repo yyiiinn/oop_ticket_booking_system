@@ -1,10 +1,18 @@
 package com.oop.springbootmvc.controllers;
 
 import java.security.Principal;
+import java.sql.Date;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -297,10 +305,6 @@ public class TransactionController {
                         ticketRepository.save(tic);
                         ticketCount++;
                     }
-                    
-      
-
-
                     u.setBalance(u.getBalance()+(t.getCost()-fee));
                     userRepository.save(u);
                     toSend += "Total of $" + (t.getCost()-fee) + " have been refunded to your account as there is a cancellation fee of $" + fee + ".\n\nRegards, \nTicketing Team";
@@ -321,17 +325,116 @@ public class TransactionController {
     private TransactionService transactionService;
 
     @GetMapping("/api/manager/ViewDashboard/revenueGenerated/{status}/{eventId}")
-    public ResponseEntity<Object> revenueGeneratedByEventID(@PathVariable String status, @PathVariable int eventId) {
+    public ResponseEntity<Object> revenueGeneratedByEventID(@PathVariable String status, @PathVariable(required = false) Integer eventId) {
         try {
-            int revenueGenerated = transactionService.revenueGeneratedByEventID(status, eventId);
-            if (revenueGenerated != 0){
+            int revenueGenerated;
+            if (eventId != null && eventId != 0) {
+                revenueGenerated = transactionService.revenueGeneratedByEventID(status, eventId);
+            } else {
+                revenueGenerated = transactionService.totalRevenueGenerated(status);
+            }
+
+            if (revenueGenerated != 0) {
                 return ResponseEntity.ok(revenueGenerated);
             }
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
-            // TODO: handle exception
+            // Handle exception
             return ResponseEntity.status(403).body("");
         }
     }
+
+    @GetMapping(value = "/api/manager/ViewDashboard/totalTransactions/{eventId}")
+    public ResponseEntity<Object> totalTransactionsByEventId(@PathVariable int eventId) {
+        try {
+            Optional<Event> optionalEvent = eventRepository.findById(eventId);
+            int transactions = 0;
+            int totalTransactionsBooked = 0;
+            int totalTransactionsCancelled = 0;
+            int totalTransactionsRefunded = 0;
+            Map<String, Object> jsonResponse = new HashMap<>();
+            if (optionalEvent.isPresent()){
+              Event event = optionalEvent.get();
+              Set<Seat> seats = event.getSeats();
+              event.setSeats(seats);
+              for (Seat s :seats){
+                transactions += s.getTransactions().size();
+                totalTransactionsBooked += transactionService.countTransactionByStatusAndSeatId("Booked", s.getId());
+                totalTransactionsCancelled += transactionService.countTransactionByStatusAndSeatId("Cancelled", s.getId());
+                totalTransactionsRefunded += transactionService.countTransactionByStatusAndSeatId("Refunded", s.getId());
+              }
+            } else {
+              transactions = transactionService.countTotalTransactions();
+              totalTransactionsBooked = transactionService.countTransactionByStatus("Booked");
+              totalTransactionsCancelled = transactionService.countTransactionByStatus("Cancelled");
+              totalTransactionsRefunded = transactionService.countTransactionByStatus("Refunded");
+            }
+            jsonResponse.put("TotalTransactions", transactions);
+            jsonResponse.put("totalTransactionsBooked", totalTransactionsBooked);
+            jsonResponse.put("totalTransactionsCancelled", totalTransactionsCancelled);
+            jsonResponse.put("totalTransactionsRefunded", totalTransactionsRefunded);
+            return ResponseEntity.ok().body(jsonResponse);
+          } catch (Exception e) {
+              // TODO: handle exception
+              return ResponseEntity.status(403).body("");
+          }
+    }
+
+    @GetMapping("/api/manager/ViewDashboard/TransactionCountByMonth/{eventId}")
+    public ResponseEntity<Object> transactionCountByMonth(@PathVariable int eventId) {
+        try {
+            Optional<Event> optionalEvent = eventRepository.findById(eventId);
+            Map<String, Map<String, Integer>> monthTransactionCount = new HashMap<>();
+            SimpleDateFormat dateFormat = new SimpleDateFormat("MMM", Locale.ENGLISH);
+            // Initialize months and statuses
+            String[] statuses = {"Cancelled", "Refunded", "Booked"}; // Ensure these match your domain model
+            Calendar cal = Calendar.getInstance();
+            for (int i = 0; i < 12; i++) {
+                cal.set(Calendar.MONTH, i);
+                String monthAbbreviation = dateFormat.format(cal.getTime());
+                Map<String, Integer> statusMap = new HashMap<>();
+                for (String status : statuses) {
+                    statusMap.put(status, 0);
+                }
+                monthTransactionCount.put(monthAbbreviation, statusMap);
+            }
+
+            // Fetch data
+            if (optionalEvent.isPresent()) {
+                Event event = optionalEvent.get();
+                Set<Seat> seats = event.getSeats();
+                for (Seat seat : seats) {
+                    for (Transaction transaction : seat.getTransactions()) {
+                        String monthAbbreviation = dateFormat.format(new Date(transaction.getPurchasedDateTime().getTime()));
+                        String status = transaction.getStatus(); // Assuming Transaction has getStatus()
+                        Map<String, Integer> statusMap = monthTransactionCount.get(monthAbbreviation);
+                        statusMap.put(status, statusMap.getOrDefault(status, 0) + 1);
+                    }
+                }
+            } else {
+                List<Transaction> transactions = (List<Transaction>) transactionRepository.findAll();
+                for (Transaction transaction : transactions) {
+                    String monthAbbreviation = dateFormat.format(new Date(transaction.getPurchasedDateTime().getTime()));
+                    String status = transaction.getStatus();
+                    Map<String, Integer> statusMap = monthTransactionCount.get(monthAbbreviation);
+                    statusMap.put(status, statusMap.getOrDefault(status, 0) + 1);
+                }
+            }
+
+            // Format data for response
+            Map<String, Map<String, Integer>> sortedMonthTransactionCount = new LinkedHashMap<>();
+            for (int i = 0; i < 12; i++) {
+                cal.set(Calendar.MONTH, i);
+                String monthAbbreviation = dateFormat.format(cal.getTime());
+                sortedMonthTransactionCount.put(monthAbbreviation, monthTransactionCount.get(monthAbbreviation));
+            }
+
+            return ResponseEntity.ok().body(sortedMonthTransactionCount);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Server Error: " + e.getMessage());
+        }
+    }
+    
+    
     
 }
