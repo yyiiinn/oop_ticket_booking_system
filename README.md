@@ -72,3 +72,5 @@ On intial run, 3 users should be created and the credentials are as follows
 | user@dispostable.com |   user   |    User |
 | officer              | officer  | Officer |
 | manager              | manager  | Manager |
+
+When a customer registers for an account, they will need to ensure that the password meets the following criteria: It must be at least 8 characters long and include both uppercase and lowercase letters, at least one number, and at least one special character.
