@@ -354,11 +354,13 @@
               console.log(response);
               this.transactionCountByMonth = response.data;
               let zeroCount = 0;
-              for (let count of Object.values(this.transactionCountByMonth)) {
-                  if (count === 0) {
-                      zeroCount++;
-                  }
+              for (let month in this.transactionCountByMonth) {
+                const { Booked, Cancelled, Refunded } = this.transactionCountByMonth[month];
+                if (Booked + Cancelled + Refunded === 0) {
+                  zeroCount++;
+                }
               }
+
               if(zeroCount >= 12) {
                 const chartContainer = document.getElementById("transaction-count-month-container");
                 chartContainer.innerHTML = '<span class="row" style="display: contents;height:fit-content!important;"><strong>Total Transactions By Month</strong></span><div style="margin-top:20px;margin-bottom:20px">-</div>';
@@ -628,7 +630,7 @@
           createTransactionCountByMonthChart() {
             const transactionCountByMonth = this.transactionCountByMonth; // Ensure this data is structured as assumed
             const chartContainer = document.getElementById("transaction-count-month-container");
-            chartContainer.innerHTML = '<span class="row" style="display: contents;height:fit-content!important;"><strong>Total Transactions By Month</strong></span>';
+            chartContainer.innerHTML = '<span class="row" style="display: contents;height:fit-content!important;"><strong>Monthly Transaction Activity Overview</strong></span>';
             const canvas = document.createElement('canvas');
             canvas.id = 'transaction-count-by-month-chart';
             chartContainer.appendChild(canvas);
