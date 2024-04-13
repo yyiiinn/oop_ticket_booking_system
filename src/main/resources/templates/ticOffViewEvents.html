@@ -418,8 +418,9 @@
               let temp = {
                 sitId: this.selectedSeatType,
                 quantity: this.numberOfTickets,
+                username: this.username
               };
-              fetch(`/api/officer/purchase?username=${this.username}`, {
+              fetch(`/api/officer/purchase`, {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
