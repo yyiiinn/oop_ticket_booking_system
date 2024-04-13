@@ -373,47 +373,60 @@ public class TransactionController {
     }
 
     @GetMapping("/api/manager/ViewDashboard/TransactionCountByMonth/{eventId}")
-    public ResponseEntity<Object> TransactionCountByMonth(@PathVariable int eventId) {
+    public ResponseEntity<Object> transactionCountByMonth(@PathVariable int eventId) {
         try {
             Optional<Event> optionalEvent = eventRepository.findById(eventId);
-            Map<String, Integer> monthTransactionCount = new HashMap<>();
+            Map<String, Map<String, Integer>> monthTransactionCount = new HashMap<>();
             SimpleDateFormat dateFormat = new SimpleDateFormat("MMM", Locale.ENGLISH);
+            // Initialize months and statuses
+            String[] statuses = {"Cancelled", "Refunded", "Booked"}; // Ensure these match your domain model
+            Calendar cal = Calendar.getInstance();
             for (int i = 0; i < 12; i++) {
-                Calendar cal = Calendar.getInstance();
                 cal.set(Calendar.MONTH, i);
                 String monthAbbreviation = dateFormat.format(cal.getTime());
-                monthTransactionCount.put(monthAbbreviation, 0);
+                Map<String, Integer> statusMap = new HashMap<>();
+                for (String status : statuses) {
+                    statusMap.put(status, 0);
+                }
+                monthTransactionCount.put(monthAbbreviation, statusMap);
             }
-            if (optionalEvent.isPresent()){
+
+            // Fetch data
+            if (optionalEvent.isPresent()) {
                 Event event = optionalEvent.get();
                 Set<Seat> seats = event.getSeats();
-                event.setSeats(seats);
-                for (Seat s :seats){
-                    for (Transaction t: s.getTransactions()){
-                        Timestamp timestamp = t.getPurchasedDateTime();
-                        Date date = new Date(timestamp.getTime());
-                        String monthAbbreviation = dateFormat.format(date);
-                        monthTransactionCount.put(monthAbbreviation, monthTransactionCount.get(monthAbbreviation) + 1);
+                for (Seat seat : seats) {
+                    for (Transaction transaction : seat.getTransactions()) {
+                        String monthAbbreviation = dateFormat.format(new Date(transaction.getPurchasedDateTime().getTime()));
+                        String status = transaction.getStatus(); // Assuming Transaction has getStatus()
+                        Map<String, Integer> statusMap = monthTransactionCount.get(monthAbbreviation);
+                        statusMap.put(status, statusMap.getOrDefault(status, 0) + 1);
                     }
                 }
             } else {
                 List<Transaction> transactions = (List<Transaction>) transactionRepository.findAll();
-                for (Transaction t : transactions){
-                    Timestamp timestamp = t.getPurchasedDateTime();
-                    Date date = new Date(timestamp.getTime());
-                    String monthAbbreviation = dateFormat.format(date);
-                    monthTransactionCount.put(monthAbbreviation, monthTransactionCount.get(monthAbbreviation) + 1);
+                for (Transaction transaction : transactions) {
+                    String monthAbbreviation = dateFormat.format(new Date(transaction.getPurchasedDateTime().getTime()));
+                    String status = transaction.getStatus();
+                    Map<String, Integer> statusMap = monthTransactionCount.get(monthAbbreviation);
+                    statusMap.put(status, statusMap.getOrDefault(status, 0) + 1);
                 }
             }
-            Map<String, Integer> rearrangedMonthTransactionCount = new LinkedHashMap<>();
-            String[] monthAbbreviations = new String[] { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
-            for (String monthAbbreviation : monthAbbreviations) {
-                rearrangedMonthTransactionCount.put(monthAbbreviation, monthTransactionCount.getOrDefault(monthAbbreviation, 0));
+
+            // Format data for response
+            Map<String, Map<String, Integer>> sortedMonthTransactionCount = new LinkedHashMap<>();
+            for (int i = 0; i < 12; i++) {
+                cal.set(Calendar.MONTH, i);
+                String monthAbbreviation = dateFormat.format(cal.getTime());
+                sortedMonthTransactionCount.put(monthAbbreviation, monthTransactionCount.get(monthAbbreviation));
             }
-            return ResponseEntity.ok().body(rearrangedMonthTransactionCount);
+
+            return ResponseEntity.ok().body(sortedMonthTransactionCount);
         } catch (Exception e) {
-            return ResponseEntity.status(403).body("");
+            return ResponseEntity.status(500).body("Server Error: " + e.getMessage());
         }
     }
+    
+    
     
 }

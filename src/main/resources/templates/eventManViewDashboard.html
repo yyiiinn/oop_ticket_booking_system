@@ -42,6 +42,12 @@
         margin-right: 10px !important;
       }
 
+      @media (max-width: 1399px) {
+        .count_row .dashboard:not(:last-child), .month-row .dashboard:not(:last-child){
+        margin-bottom: 25px !important;
+      }
+    }
+
       @media (max-width: 767px) {
         .ticket_row .dashboard, .count_row .dashboard, .month-row .dashboard {
            margin-top: 20px !important;
@@ -70,17 +76,24 @@
       }
 
       #chart-container {
-      display: flex; 
-      flex-wrap: wrap; 
-      justify-content: center; 
+        display: flex; 
+        flex-wrap: wrap; 
+        justify-content: center; 
       }
 
-    #chart-container canvas {
-        margin-right: 10px;
-        margin-top: 40px;
-        width: 500px !important;
-        height: 500px !important;
+      #chart-container canvas {
+          margin-right: 10px;
+          margin-top: 40px;
+          width: 500px !important;
+          height: 500px !important;
+      }
+
+      #transaction-count-month-container canvas {
+        height: 500px; /* Explicitly define the height */
+        width: 100%; /* Adjust width as necessary */
+        overflow: hidden; /* This can help contain the dimensions */
     }
+      
 
     </style>
   </head>
@@ -392,7 +405,7 @@
           exportPdf() {
             try {
               const container = this.$refs.analysisView;
-              const fileName = 'dashboard_feedback_analysis.pdf';
+              const fileName = 'dashboard_stats.pdf';
 
               const options = {
                 margin: 5,
@@ -613,54 +626,78 @@
             });
           },
           createTransactionCountByMonthChart() {
-            console.log(this.transactionCountByMonth);
-            const transactionCountByMonth = this.transactionCountByMonth;
+            const transactionCountByMonth = this.transactionCountByMonth; // Ensure this data is structured as assumed
             const chartContainer = document.getElementById("transaction-count-month-container");
             chartContainer.innerHTML = '<span class="row" style="display: contents;height:fit-content!important;"><strong>Total Transactions By Month</strong></span>';
             const canvas = document.createElement('canvas');
             canvas.id = 'transaction-count-by-month-chart';
             chartContainer.appendChild(canvas);
-            let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            let data = [];
-            for (let i = 0; i < months.length; i++) {
-                let month = months[i];
-                data.push(parseInt(transactionCountByMonth[month]));
-            }
             const ctx = canvas.getContext('2d');
+
+            let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            let dataCancelled = months.map(month => transactionCountByMonth[month]?.Cancelled || 0);
+            let dataRefunded = months.map(month => transactionCountByMonth[month]?.Refunded || 0);
+            let dataBooked = months.map(month => transactionCountByMonth[month]?.Booked || 0);
+
             new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-                    datasets: [{
-                        data: data,
-                        fill: false,
-                        borderColor: 'green'
-                    }],
-                    hoverOffset: 4
+                    labels: months,
+                    datasets: [
+                        {
+                            label: 'Cancelled',
+                            data: dataCancelled,
+                            borderColor: 'grey',
+                            backgroundColor: 'grey',
+                            fill: false
+                        },
+                        {
+                            label: 'Refunded',
+                            data: dataRefunded,
+                            borderColor: 'red',
+                            backgroundColor: 'red',
+                            fill: false
+                        },
+                        {
+                            label: 'Booked',
+                            data: dataBooked,
+                            borderColor: 'green', 
+                            backgroundColor: 'green',
+                            fill: false
+                        }
+                    ]
                 },
                 options: {
-                  plugins: {
-                    legend: {
-                      display: false
-                    },
-                    tooltip: {
-                      titleFont: {
-                        size: 23, 
-                        weight: 'bold' 
-                    },  bodyFont: {
-                        size: 22 
-                    },
-                        callbacks: {
-                            label: function (context) {
-                              const value = context.formattedValue;
-                              return ' '  + value + ' Transactions';;
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                            
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            titleFont: {
+                                size: 23,
+                                weight: 'bold'
+                            },
+                            bodyFont: {
+                                size: 22
+                            },
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.dataset.label;
+                                    const value = context.raw;
+                                    return `${label}: ${value} Transactions`;
+                                }
                             }
                         }
-                    }
-                  }
-                },
+                    },
+                }
             });
-          }
+        }
+
+
         },
       });
       app.component("navbar-component", NavBarComponent);
