@@ -46,10 +46,10 @@
         }
 
         .sign-out-button {
-            color: #141B4D; /* Text color */
-            border: 3px solid #141B4D; /* Add border here */
+            color: #141B4D;
+            border: 3px solid #141B4D; 
             padding:5px 20px;
-            margin-left: 20px; /* Spacing from the navbar links */
+            margin-left: 20px; 
             border-radius: 5px;
             cursor: pointer;
             transition: background-color 0.3s, border-color 0.3s;
@@ -125,7 +125,6 @@
                           <a v-if="event.status === 'Active' && !isEventEnded(event) && isSalePeriodStarted(event) && !isSalePeriodOver(event)"
                           class="btn btn-primary me-2" @click="openTicketPurchaseModal(event)">Buy Ticket(s)</a>
                           <span style="font-weight: bold" v-if="event.status === 'Cancelled'">Event Cancelled</span>
-                          <!-- <span v-if="event.status === 'active' && !isEventEnded(event) && isSalePeriodOver(event)">Sales Period Ended</span> -->
                           <span style="font-weight: bold"
                             v-if="event.status === 'Upcoming' && isSalePeriodOver(event) && !isEventEnded(event)">Waiting for Event to Start</span>
                           <span style="font-weight: bold"

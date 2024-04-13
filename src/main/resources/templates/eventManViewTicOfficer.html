@@ -51,10 +51,10 @@
       }
 
       .sign-out-button {
-        color: #141b4d; /* Text color */
-        border: 3px solid #141b4d; /* Add border here */
+        color: #141b4d; 
+        border: 3px solid #141b4d; 
         padding: 5px 20px;
-        margin-left: 20px; /* Spacing from the navbar links */
+        margin-left: 20px;
         border-radius: 5px;
         cursor: pointer;
         transition: background-color 0.3s, border-color 0.3s;
@@ -89,16 +89,12 @@
                 <tr>
                   <th scope="col">Ticketing Officer Name</th>
                   <th scope="col">Ticketing Officer Email</th>
-                  <!-- <th scope="col">Action(s)</th> -->
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="(officer, index) in officers" :key="index">
                   <td>{{ officer.name }}</td>
                   <td>{{ officer.email }}</td>
-                  <!-- <td>
-                                <button class="btn btn-danger" @click="removeOfficer(officer.id)">Remove</button>
-                            </td> -->
                 </tr>
               </tbody>
             </table>

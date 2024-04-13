@@ -387,7 +387,7 @@ public class TransactionController {
             Map<String, Map<String, Integer>> monthTransactionCount = new HashMap<>();
             SimpleDateFormat dateFormat = new SimpleDateFormat("MMM", Locale.ENGLISH);
             // Initialize months and statuses
-            String[] statuses = {"Cancelled", "Refunded", "Booked"}; // Ensure these match your domain model
+            String[] statuses = {"Cancelled", "Refunded", "Booked"}; 
             Calendar cal = Calendar.getInstance();
             for (int i = 0; i < 12; i++) {
                 cal.set(Calendar.MONTH, i);
@@ -406,7 +406,7 @@ public class TransactionController {
                 for (Seat seat : seats) {
                     for (Transaction transaction : seat.getTransactions()) {
                         String monthAbbreviation = dateFormat.format(new Date(transaction.getPurchasedDateTime().getTime()));
-                        String status = transaction.getStatus(); // Assuming Transaction has getStatus()
+                        String status = transaction.getStatus(); 
                         Map<String, Integer> statusMap = monthTransactionCount.get(monthAbbreviation);
                         statusMap.put(status, statusMap.getOrDefault(status, 0) + 1);
                     }

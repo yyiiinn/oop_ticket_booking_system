@@ -372,8 +372,8 @@ public class EventController {
       List<Event> events = new ArrayList<>();
       for (Object[] result : results) {
           Event event = new Event();
-          event.setId((long) result[0]); // Assuming id is in the first position
-          event.setName((String) result[1]); // Assuming name is in the second position
+          event.setId((long) result[0]); 
+          event.setName((String) result[1]); 
           events.add(event);
       }
       return events;

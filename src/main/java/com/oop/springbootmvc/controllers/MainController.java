@@ -123,27 +123,20 @@ public class MainController {
 
     @RequestMapping(value = "/Customer/ViewEvents", method = RequestMethod.GET)
     public String custViewEvents(Principal principal) {
-        // this attribute will be available in the view index.html as a thymeleaf variable
-        // Authentication authentication = (Authentication) principal;
-        // CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
 
         return "custViewEvents";
     }
 
     @RequestMapping(value = "/Customer/ViewBookingHistory", method = RequestMethod.GET)
     public String custViewBookingHistory(Principal principal) {
-        // this attribute will be available in the view index.html as a thymeleaf variable
-        // Authentication authentication = (Authentication) principal;
-        // CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
+        
 
         return "custViewBookingHistory";
     }
 
     @RequestMapping(value = "/Customer/ViewBookingDetails/{transactionId}", method = RequestMethod.GET)
     public String custViewBookingDetails(@PathVariable("transactionId") int transactionId, Principal principal) {
-        // this attribute will be available in the view index.html as a thymeleaf variable
-        // Authentication authentication = (Authentication) principal;
-        // CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
+        
 
         return "custViewBookingDetails";
     }
@@ -151,10 +144,7 @@ public class MainController {
     // ==================================================== Ticketing Officer ====================================================
     @RequestMapping(value = "/officer/ViewEvents", method = RequestMethod.GET)
     public String ticOffViewEvents(Principal principal) {
-        // this attribute will be available in the view index.html as a thymeleaf variable
         
-        // Authentication authentication = (Authentication) principal;
-        // CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
         try {
             Authentication authentication = (Authentication) principal;
             CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
@@ -179,10 +169,7 @@ public class MainController {
 
     @RequestMapping(value = "/officer/VerifyTickets", method = RequestMethod.GET)
     public String ticOffVerifyTickets(Principal principal) {
-        // this attribute will be available in the view index.html as a thymeleaf variable
-
-        // Authentication authentication = (Authentication) principal;
-        // CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
+        
         try {
             Authentication authentication = (Authentication) principal;
             CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
@@ -237,10 +224,7 @@ public class MainController {
     // ==================================================== Event Manager ====================================================
     @RequestMapping(value = "/manager/ViewEvents", method = RequestMethod.GET)
     public String eventManViewEvents(Principal principal) {
-        // this attribute will be available in the view index.html as a thymeleaf variable
         
-        // Authentication authentication = (Authentication) principal;
-        // CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
 
         return "eventManViewEvents";
     }
@@ -248,58 +232,32 @@ public class MainController {
     
     @RequestMapping(value = "/manager/CreateEvent", method = RequestMethod.GET)
     public String eventManCreateEvent(Principal principal) {
-        // this attribute will be available in the view index.html as a thymeleaf variable
         
-        // Authentication authentication = (Authentication) principal;
-        // CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
 
         return "eventManCreateEvent";
     }
 
-    // @RequestMapping(value = "/eventManEditEvent", method = RequestMethod.GET)
-    // public String eventManEditEvent(Principal principal) {
-    //     // this attribute will be available in the view index.html as a thymeleaf variable
-    //     return "eventManEditEvent";
-    // }
+    
 
     @RequestMapping(value = "/manager/EditEvent/{eventId}", method = RequestMethod.GET)
     public String eventManEditEvent(@PathVariable("eventId") int eventId, Model model, Principal principal) {
-        // Optional<Event> eventOptional = eventRepository.findById(eventId);
-        // if (eventOptional.isPresent()) {
-        //     Event event = eventOptional.get();
-        //     model.addAttribute("eventData", event);
-        //     return "eventManEditEvent";
-        // } else {
-        //     // Handle case where event with given ID is not found
-        //     return "error";
-        // }
+       
         return "eventManEditEvent";
     }
 
 
     @RequestMapping(value = "/manager/ViewTicOfficer", method = RequestMethod.GET)
     public String eventManViewTicOfficer(Principal principal) {
-        // this attribute will be available in the view index.html as a thymeleaf variable
         
-        // Authentication authentication = (Authentication) principal;
-        // CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
 
         return "eventManViewTicOfficer";
     }
 
-    // @GetMapping("/viewEvents")
-    // public String viewEvents(Model model) {
-    //     List<Event> activeEvents = eventRepository.findActiveEvents();
-    //     model.addAttribute("activeEvents", activeEvents);
-    //     return "viewEvents";
-    // }
+    
 
     @RequestMapping(value = "/manager/ViewDashboard", method = RequestMethod.GET)
     public String eventManViewDashboard(Principal principal) {
-        // this attribute will be available in the view index.html as a thymeleaf variable
         
-        // Authentication authentication = (Authentication) principal;
-        // CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
         
         return "eventManViewDashboard";
     }

@@ -55,12 +55,9 @@
 
       .sign-out-button {
         color: #141b4d;
-        /* Text color */
         border: 3px solid #141b4d;
-        /* Add border here */
         padding: 5px 20px;
         margin-left: 20px;
-        /* Spacing from the navbar links */
         border-radius: 5px;
         cursor: pointer;
         transition: background-color 0.3s, border-color 0.3s;
@@ -160,7 +157,6 @@
                     v-if="event.status === 'Cancelled'"
                     >Event Cancelled</span
                   >
-                  <!-- <span v-if="event.status === 'active' && !isEventEnded(event) && isSalePeriodOver(event)">Sales Period Ended</span> -->
                   <span
                     style="font-weight: bold"
                     v-if="event.status === 'Upcoming' && isSalePeriodOver(event) && !isEventEnded(event)"
@@ -349,7 +345,6 @@
         },
         watch: {
           selectedSeatType(newValue, oldValue) {
-            // Reset numberOfTickets when selectedSeatType changes
             this.numberOfTickets = 0;
           },
         },

@@ -197,12 +197,5 @@ public class UserController {
   }
 
   
-  
-//
-//  @PostMapping("/api/register")
-//  public TestObj add(@RequestBody User user) {
-//    return this.testObjRepository.save(testObj);
-//  }
-
 
 }

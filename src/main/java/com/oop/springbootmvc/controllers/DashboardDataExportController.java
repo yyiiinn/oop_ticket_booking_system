@@ -56,9 +56,7 @@ public class DashboardDataExportController {
 
 
     private byte[] exportTicketsToExcel(List<DashboardDataDTO> dashoboardData) throws IOException {
-        // Implement logic to convert list of tickets to Excel
-        // Use a library like Apache POI or JExcelApi to generate Excel
-        // Return the byte array of Excel file
+        
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("DashboardData");
             int rowNum = 0;

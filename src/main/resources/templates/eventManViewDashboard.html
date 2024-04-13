@@ -89,9 +89,9 @@
       }
 
       #transaction-count-month-container canvas {
-        height: 500px; /* Explicitly define the height */
-        width: 100%; /* Adjust width as necessary */
-        overflow: hidden; /* This can help contain the dimensions */
+        height: 500px; 
+        width: 100%; 
+        overflow: hidden; 
     }
       
 
@@ -229,10 +229,10 @@
             selectedEventId: 0,
             selectedEventName: '',
             totalTransactions: 0,
-            events: [], // Example event names
+            events: [], 
             defaultDropdownText: "Event Name",
             seatsDetails: [],
-            uniqueChartId: `${Date.now()}-${Math.floor(Math.random() * 10000)}` // Generate a unique chartId
+            uniqueChartId: `${Date.now()}-${Math.floor(Math.random() * 10000)}`
           };
         },
         mounted() {
@@ -628,7 +628,7 @@
             });
           },
           createTransactionCountByMonthChart() {
-            const transactionCountByMonth = this.transactionCountByMonth; // Ensure this data is structured as assumed
+            const transactionCountByMonth = this.transactionCountByMonth;
             const chartContainer = document.getElementById("transaction-count-month-container");
             chartContainer.innerHTML = '<span class="row" style="display: contents;height:fit-content!important;"><strong>Monthly Transaction Activity Overview</strong></span>';
             const canvas = document.createElement('canvas');
