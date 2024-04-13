@@ -73,4 +73,12 @@ On intial run, 3 users should be created and the credentials are as follows
 | officer              | officer  | Officer |
 | manager              | manager  | Manager |
 
-When a customer registers for an account, they will need to ensure that the password meets the following criteria: It must be at least 8 characters long and include both uppercase and lowercase letters, at least one number, and at least one special character.
+When a customer registers for an account, they will need to ensure that the password meets the password criteria.
+
+When the event manager adds a ticketing officer, the new ticketing officer's default password is 'password.' They are required to change this password upon their first login before accessing any pages.
+
+Password Criteria:
+* At least 8 characters
+* Include both uppercase and lowercase letters
+* At least one number
+* At least one special character
