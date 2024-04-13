@@ -38,8 +38,17 @@
         padding: 15px;
       }
 
-      .ticket_row .dashboard:not(:last-child), .count_row .dashboard:not(:last-child){
+      .ticket_row .dashboard:not(:last-child), .count_row .dashboard:not(:last-child), .month-row .dashboard:not(:last-child){
         margin-right: 10px !important;
+      }
+
+      @media (max-width: 767px) {
+        .ticket_row .dashboard, .count_row .dashboard, .month-row .dashboard {
+           margin-top: 20px !important;
+        }
+        .export-row {
+          display: block !important; 
+        }
       }
 
       .sign-out-button {
@@ -81,12 +90,12 @@
       <div class="full-screen-container">
         <navbar-component active-link="dashboard"></navbar-component>
 
-        <div class="container pt-5">
+        <div class="container pt-5" ref="analysisView">
           <h2 class="text-center mb-4">Dashboard (Sales & Statistics)</h2>
           <p v-if="selectedEventName != ''" class="text-center text-secondary fs-4">For {{selectedEventName}}</p>
           <p v-else class="text-center text-secondary fs-4">For All Events</p>
 
-          <div class="d-flex justify-content-between mt-5 mb-3">
+          <div class="col-md export-row d-flex justify-content-between mt-5 mb-3">
             <div class="form-group mb-3 dropdown-field">
               <select
                 v-model="selectedEventId"
@@ -104,15 +113,26 @@
                 </option>
               </select>
             </div>
-            <button
-              @click="exportDashboardToExcel"
-              class="btn btn-primary font-weight-bold"
-              type="button"
-              title="Export"
-              style="width: 100px; height: 50px"
-            >
-              Export
-            </button>
+            <div>
+              <button
+                @click="exportDashboardToExcel"
+                class="btn btn-success font-weight-bold"
+                type="button"
+                title="Export"
+                style="width: 170px; height: 50px"
+              >
+                Export to Excel
+              </button>
+              <button
+                @click="exportPdf()"
+                class="btn btn-primary font-weight-bold"
+                type="button"
+                title="Export"
+                style="width: 150px; height: 50px"
+              >
+                Export to PDF
+              </button>
+            </div>
           </div>
 
           <div class="ticket_row row">
@@ -145,7 +165,19 @@
               <div id="transaction-count-container">
               </div>
             </div>
+          </div>
 
+          <div class="month-row row mt-4">
+            <!-- Display Total ticket sales by month -->
+            <div class="col-md dashboard text-center">
+              <div id="ticket-sales-container">
+              </div>
+            </div>
+            <!-- Display Total Transactions by month -->
+            <div class="col-md dashboard text-center">
+              <div id="transaction-count-month-container">
+              </div>
+            </div>
           </div>
 
           <div class="row mt-4">
@@ -167,6 +199,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+
     <script type="module">
       import NavBarComponent from "/js/navbar/EventManNavBarComponent.js";
 
@@ -177,6 +211,8 @@
             totalRevenue: 0,
             customerAttendance: {},
             transactionsCount: {},
+            ticketSalesByMonth: {},
+            transactionCountByMonth: {},
             selectedEventId: 0,
             selectedEventName: '',
             totalTransactions: 0,
@@ -262,7 +298,6 @@
 
             axios.get(`/api/manager/ViewDashboard/totalTransactions/${this.selectedEventId}`)
             .then((response) => {
-              console.log(response);
               this.transactionsCount = response.data;
               this.totalTransactions = this.transactionsCount.TotalTransactions;
               if(this.transactionsCount.TotalTransactions == 0) {
@@ -277,6 +312,51 @@
               this.totalTransactions = 0;
               const chartContainer = document.getElementById('transaction-count-container');
               chartContainer.innerHTML = '<span class="row" style="display: contents;height:fit-content!important;"><strong>Transaction Count by Type</strong></span><div style="margin-top:20px;margin-bottom:20px">-</div>';
+            });
+
+            axios.get(`/api/manager/ViewDashboard/ticketSalesByMonth/${this.selectedEventId}`)
+            .then((response) => {
+              this.ticketSalesByMonth = response.data;
+              let zeroCount = 0;
+              for (let count of Object.values(this.ticketSalesByMonth)) {
+                  if (count === 0) {
+                      zeroCount++;
+                  }
+              }
+              if(zeroCount >= 12) {
+                const chartContainer = document.getElementById("ticket-sales-container");
+                chartContainer.innerHTML = '<span class="row" style="display: contents;height:fit-content!important;"><strong>Total Ticket Sales By Month</strong></span><div style="margin-top:20px;margin-bottom:20px">-</div>';
+              } else {
+                this.createTotalTicketSalesChart();
+              }
+            })
+            .catch((error) => {
+              this.ticketSalesByMonth = {};
+              const chartContainer = document.getElementById("ticket-sales-container");
+              chartContainer.innerHTML = '<span class="row" style="display: contents;height:fit-content!important;"><strong>Total Ticket Sales By Month</strong></span><div style="margin-top:20px;margin-bottom:20px">-</div>';
+            });
+
+            axios.get(`/api/manager/ViewDashboard/TransactionCountByMonth/${this.selectedEventId}`)
+            .then((response) => {
+              console.log(response);
+              this.transactionCountByMonth = response.data;
+              let zeroCount = 0;
+              for (let count of Object.values(this.transactionCountByMonth)) {
+                  if (count === 0) {
+                      zeroCount++;
+                  }
+              }
+              if(zeroCount >= 12) {
+                const chartContainer = document.getElementById("transaction-count-month-container");
+                chartContainer.innerHTML = '<span class="row" style="display: contents;height:fit-content!important;"><strong>Total Transactions By Month</strong></span><div style="margin-top:20px;margin-bottom:20px">-</div>';
+              } else {
+                this.createTransactionCountByMonthChart();
+              }
+            })
+            .catch((error) => {
+              this.transactionCountByMonth = {};
+              const chartContainer = document.getElementById("transaction-count-month-container");
+              chartContainer.innerHTML = '<span class="row" style="display: contents;height:fit-content!important;"><strong>Total Transactions By Month</strong></span><div style="margin-top:20px;margin-bottom:20px">-</div>';
             });
         },
           exportDashboardToExcel() {
@@ -308,6 +388,27 @@
             }).catch(error => {
               console.error("Error exporting data:", error);
             });
+          },
+          exportPdf() {
+            try {
+              const container = this.$refs.analysisView;
+              const fileName = 'dashboard_feedback_analysis.pdf';
+
+              const options = {
+                margin: 5,
+                filename: fileName,
+                image: { type: 'jpeg', quality: 1 },
+                html2canvas: { scale: 1 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak: { mode: ['avoid-all'] }
+              };
+
+              const pdf = html2pdf().from(container).set(options).outputPdf();
+
+              pdf.save();
+            } catch (error) {
+              console.error("Error exporting to PDF:", error);
+            }
           },
           createChart() {
             const seatDetails = this.seatsDetails;
@@ -419,7 +520,7 @@
           const chartContainer = document.getElementById('transaction-count-container');
           chartContainer.innerHTML = '<span class="row" style="display: contents;height:fit-content!important;"><strong>Transaction Count by Type</strong></span>';
           const canvas = document.createElement('canvas');
-          canvas.id = 'transaction-count-container';
+          canvas.id = 'transaction-count-chart';
           chartContainer.appendChild(canvas);
           const ctx = canvas.getContext('2d');
           new Chart(ctx, {
@@ -461,6 +562,104 @@
                 }
               },
           });
+          },
+          createTotalTicketSalesChart() {
+            const ticketSalesByMonth = this.ticketSalesByMonth;
+            const chartContainer = document.getElementById('ticket-sales-container');
+            chartContainer.innerHTML = '<span class="row" style="display: contents;height:fit-content!important;"><strong>Total Ticket Sales By Month</strong></span>';
+            const canvas = document.createElement('canvas');
+            canvas.id = 'ticket-sales-chart';
+            chartContainer.appendChild(canvas);
+            let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            let data = [];
+            for (let i = 0; i < months.length; i++) {
+                let month = months[i];
+                data.push(parseInt(ticketSalesByMonth[month]));
+            }
+            const ctx = canvas.getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                    datasets: [{
+                        data: data,
+                        fill: true,
+                        borderColor: 'rgb(67, 185, 191)',
+                        backgroundColor: 'rgba(67, 185, 191, 0.3)'
+                    }],
+                    hoverOffset: 4
+                },
+                options: {
+                  plugins: {
+                    legend: {
+                      display: false
+                    },
+                    tooltip: {
+                      titleFont: {
+                        size: 23, 
+                        weight: 'bold' 
+                    },  bodyFont: {
+                        size: 22 
+                    },
+                        callbacks: {
+                            label: function (context) {
+                              const value = context.formattedValue;
+                              return ' '  + value + ' Tickets Sold';;
+                            }
+                        }
+                    }
+                  }
+                },
+            });
+          },
+          createTransactionCountByMonthChart() {
+            console.log(this.transactionCountByMonth);
+            const transactionCountByMonth = this.transactionCountByMonth;
+            const chartContainer = document.getElementById("transaction-count-month-container");
+            chartContainer.innerHTML = '<span class="row" style="display: contents;height:fit-content!important;"><strong>Total Transactions By Month</strong></span>';
+            const canvas = document.createElement('canvas');
+            canvas.id = 'transaction-count-by-month-chart';
+            chartContainer.appendChild(canvas);
+            let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            let data = [];
+            for (let i = 0; i < months.length; i++) {
+                let month = months[i];
+                data.push(parseInt(transactionCountByMonth[month]));
+            }
+            const ctx = canvas.getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                    datasets: [{
+                        data: data,
+                        fill: false,
+                        borderColor: 'green'
+                    }],
+                    hoverOffset: 4
+                },
+                options: {
+                  plugins: {
+                    legend: {
+                      display: false
+                    },
+                    tooltip: {
+                      titleFont: {
+                        size: 23, 
+                        weight: 'bold' 
+                    },  bodyFont: {
+                        size: 22 
+                    },
+                        callbacks: {
+                            label: function (context) {
+                              const value = context.formattedValue;
+                              return ' '  + value + ' Transactions';;
+                            }
+                        }
+                    }
+                  }
+                },
+            });
           }
         },
       });

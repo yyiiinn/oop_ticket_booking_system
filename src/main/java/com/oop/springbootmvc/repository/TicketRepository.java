@@ -29,4 +29,7 @@ public interface TicketRepository extends CrudRepository<Ticket, Long> {
 
     @Query("SELECT COUNT(ti) FROM Ticket ti JOIN ti.transaction t JOIN t.seat s WHERE ti.status = :status")
     int customerAttendanceByStatus(@Param("status") String status);
+
+    @Query("SELECT COUNT(ti) FROM Ticket ti WHERE ti.transaction.id = :transaction_id")
+    int totalTicketsSoldByTransactionId(@Param("transaction_id") long transaction_id);
 }

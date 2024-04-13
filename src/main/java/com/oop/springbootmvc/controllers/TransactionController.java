@@ -1,11 +1,17 @@
 package com.oop.springbootmvc.controllers;
 
 import java.security.Principal;
+import java.sql.Date;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -364,6 +370,50 @@ public class TransactionController {
               // TODO: handle exception
               return ResponseEntity.status(403).body("");
           }
+    }
+
+    @GetMapping("/api/manager/ViewDashboard/TransactionCountByMonth/{eventId}")
+    public ResponseEntity<Object> TransactionCountByMonth(@PathVariable int eventId) {
+        try {
+            Optional<Event> optionalEvent = eventRepository.findById(eventId);
+            Map<String, Integer> monthTransactionCount = new HashMap<>();
+            SimpleDateFormat dateFormat = new SimpleDateFormat("MMM", Locale.ENGLISH);
+            for (int i = 0; i < 12; i++) {
+                Calendar cal = Calendar.getInstance();
+                cal.set(Calendar.MONTH, i);
+                String monthAbbreviation = dateFormat.format(cal.getTime());
+                monthTransactionCount.put(monthAbbreviation, 0);
+            }
+            if (optionalEvent.isPresent()){
+                Event event = optionalEvent.get();
+                Set<Seat> seats = event.getSeats();
+                event.setSeats(seats);
+                for (Seat s :seats){
+                    for (Transaction t: s.getTransactions()){
+                        Timestamp timestamp = t.getPurchasedDateTime();
+                        Date date = new Date(timestamp.getTime());
+                        String monthAbbreviation = dateFormat.format(date);
+                        monthTransactionCount.put(monthAbbreviation, monthTransactionCount.get(monthAbbreviation) + 1);
+                    }
+                }
+            } else {
+                List<Transaction> transactions = (List<Transaction>) transactionRepository.findAll();
+                for (Transaction t : transactions){
+                    Timestamp timestamp = t.getPurchasedDateTime();
+                    Date date = new Date(timestamp.getTime());
+                    String monthAbbreviation = dateFormat.format(date);
+                    monthTransactionCount.put(monthAbbreviation, monthTransactionCount.get(monthAbbreviation) + 1);
+                }
+            }
+            Map<String, Integer> rearrangedMonthTransactionCount = new LinkedHashMap<>();
+            String[] monthAbbreviations = new String[] { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+            for (String monthAbbreviation : monthAbbreviations) {
+                rearrangedMonthTransactionCount.put(monthAbbreviation, monthTransactionCount.getOrDefault(monthAbbreviation, 0));
+            }
+            return ResponseEntity.ok().body(rearrangedMonthTransactionCount);
+        } catch (Exception e) {
+            return ResponseEntity.status(403).body("");
+        }
     }
     
 }
