@@ -57,8 +57,16 @@ Please replace `<SOME_ENVIRONMENT_NAME>` with the appropriate environment variab
 
 Enter to the root directory of the project on your desired CLI and run using the following command
 
+**WINDOWS**
+
 ```
-mvn spring-boot:run
+ . ./compile.bat
+```
+
+**MAC**
+
+```
+ . ./compile.bash
 ```
 
 Go to your desired browser and go to `localhost:8080` or click [here](https://localhost:8080/)
@@ -78,7 +86,8 @@ When a customer registers for an account, they will need to ensure that the pass
 When the event manager adds a ticketing officer, the new ticketing officer's default password is 'password.' They are required to change this password upon their first login before accessing any pages.
 
 Password Criteria:
-* At least 8 characters
-* Include both uppercase and lowercase letters
-* At least one number
-* At least one special character
+
+- At least 8 characters
+- Include both uppercase and lowercase letters
+- At least one number
+- At least one special character
